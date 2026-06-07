@@ -2,10 +2,90 @@
 
 ## この章で学ぶこと
 
+- **Claude Code のコンポーネント作成の基礎**（初心者向け: 配置先・検証・最小体験）
 - Agent・Skill・Command・Hook・Rule の各コンポーネントを新規作成する具体的手順
+- 各コンポーネントの設計思想とベストプラクティス
 - 各コンポーネントのテンプレートと最小実例
 - ファイル命名規約・検証コマンド・CI チェックの流れ
 - 作成後に必要な後処理（カタログ同期・レジストリ再生成）
+
+---
+
+## Claude Code のコンポーネント作成の基礎（初心者向け）
+
+> Claude Code を初めて使う方へ。コンポーネントの仕組みを手短に説明します。
+> Claude Code プラットフォーム全般の入門は [03章 コンポーネント体系と選択基準](./03-components-overview.md) を参照してください。
+
+### コンポーネントとは何か
+
+Claude Code では、エージェントへの指示・知識・自動化を「コンポーネント」という単位で管理します。
+コンポーネントを正しい場所に置くだけで、Claude Code が自動的に認識して動作に反映します。
+コードを書く必要はありません（Hook を除く）。
+
+### どこに置けば Claude Code が認識するか
+
+| コンポーネント | 配置先 | 認識のトリガー |
+|-------------|--------|-------------|
+| Agent | `agents/<name>.md` または `.claude/agents/<name>.md` | `Task` ツール経由で明示的に呼ばれる |
+| Skill | `skills/<name>/SKILL.md` または `.claude/skills/<name>/SKILL.md` | タスクに関連すると判断されると自動ロード |
+| Command | `commands/<name>.md` または `.claude/commands/<name>.md` | ユーザーが `/name` と入力する |
+| Hook | `hooks/hooks.json` に登録 + `scripts/hooks/<name>.js` | 指定イベント（PreToolUse 等）が発生する |
+| Rule | `rules/<lang>/<topic>.md` または `CLAUDE.md` | セッション中、常に有効 |
+
+> ECC リポジトリでは `agents/`、`skills/`、`commands/`、`rules/`、`hooks/` がリポジトリ直下にあります。
+> 自分のプロジェクトでは `.claude/` 以下に同じ構造を作ることが Claude Code の標準的なスタイルです。
+
+### ローカルで試す → 検証する流れ
+
+Claude Code でコンポーネントを作成・確認する際の最小手順は以下の通りです。
+
+```
+1. ファイルを作成する（正しいパスに配置する）
+2. Claude Code のセッションを開始する（または再起動する）
+3. 実際に使ってみる（/command を実行、またはタスクを依頼する）
+4. バリデーターでエラーがないか確認する
+   node scripts/ci/validate-agents.js   # Agent の場合
+   node scripts/ci/validate-skills.js   # Skill の場合
+   node scripts/ci/validate-commands.js # Command の場合
+   node scripts/ci/validate-hooks.js    # Hook の場合
+   node scripts/ci/validate-rules.js    # Rule の場合
+5. node tests/run-all.js でテストがパスすることを確認する
+```
+
+### 最小の作成体験（5分で動かす）
+
+最も簡単に試せるのは **Command** です。
+
+```bash
+# 1. ファイルを作成する
+touch commands/hello.md
+```
+
+```markdown
+---
+description: Hello コマンドの例
+---
+
+# Hello
+
+## Purpose
+
+このコマンドは現在の日時とプロジェクト名を表示します。
+
+## Workflow
+
+1. 現在の日時を確認する
+2. CLAUDE.md からプロジェクト名を読む
+3. 結果を表示する
+```
+
+```bash
+# 2. レジストリを更新して有効化する
+npm run command-registry:write
+
+# 3. Claude Code で実行する
+# /hello と入力するだけで動作します
+```
 
 ---
 
@@ -30,6 +110,16 @@
 
 Agent は `agents/` ディレクトリに配置される `.md` ファイルです。
 Claude が `Task` ツールで委譲する専門サブエージェントとして機能します。
+
+### なぜ Agent を使うのか（思想・ベストプラクティス）
+
+Agent は「専門分業」の仕組みです。1 つのセッションで何でもこなそうとすると、コンテキストウィンドウが膨らみ、応答精度が下がります。
+Agent に委譲することで、**独立したコンテキストで集中した作業**が可能になります。
+
+- `description` を具体的に書くほど、Claude が「いつこのエージェントを呼ぶか」を正確に判断できます
+- `tools` は必要最小限にします。Agent に渡すツールが少ないほど、副作用のリスクが下がります
+- モデルは複雑度に合わせて選びます。定型チェックは `haiku`、コーディングは `sonnet`、アーキテクチャ分析は `opus` が目安です
+- Prompt Defense Baseline は必ず入れます。サブエージェントはプロンプトインジェクションの攻撃対象になりやすいためです
 
 ### 新規 Agent 作成手順
 
@@ -162,6 +252,17 @@ You are a Markdown quality specialist.
 
 Skill は `skills/<name>/SKILL.md` に配置されるコンテキストベースの知識モジュールです。
 ユーザーのタスクに関連すると判断された場合に自動的にロードされます（エージェントへの明示的な委譲は不要）。
+
+### なぜ Skill を使うのか（思想・ベストプラクティス）
+
+Skill は「progressive disclosure（段階的な知識開示）」の仕組みです。
+全ての知識を CLAUDE.md に詰め込むと、常にコンテキストウィンドウを占有してしまいます。
+Skill は**必要なときだけ自動的にロード**されるため、コンテキストを効率的に使えます。
+
+- `When to Activate` は具体的なシナリオで書きます。ここが自動起動の判定基準になるため、曖昧な記述では正しくロードされません
+- 1つの Skill は1つのドメイン・技術に絞ります。広すぎる Skill は起動タイミングがあいまいになり、品質も下がります
+- コードは実際に動く具体例を載せます。「パターン名だけ列挙する」より「コピーしてすぐ使える実例」が価値を生みます
+- Anti-Patterns セクションで「やってはいけないこと」を示すことで、同じミスの繰り返しを防ぎます
 
 配置ルール（`docs/SKILL-PLACEMENT-POLICY.md` 準拠）:
 
@@ -306,6 +407,16 @@ const result = await db.query(query, [userId]);
 Command は `commands/<name>.md` に配置されるスラッシュコマンドです。
 ユーザーが `/command-name` と入力することで呼び出します。
 
+### なぜ Command を使うのか（思想・ベストプラクティス）
+
+Command は「繰り返すワークフローをワンタッチで呼び出す」仕組みです。
+チームで同じ手順を何度も踏む作業（コードレビュー、デプロイ前チェック、ドキュメント更新など）は Command にまとめます。
+
+- `/help` に表示される `description:` フロントマターは 1 行で完結させます。ここがコマンド選択時の唯一のヒントになります
+- Workflow セクションはステップ番号付きで書きます。Claude がステップを順番に実行するため、順序が重要です
+- Command は「指示」を書く場所です。実際のロジックは Agent や Skill に委譲し、Command 自身は軽量に保ちます
+- `argument-hint` を付けると `/help` 表示が分かりやすくなります
+
 ### 新規 Command 作成手順
 
 1. **ファイルを作成する**
@@ -401,6 +512,16 @@ ECC では以下の 2 ファイルで管理します。
 
 - `scripts/hooks/<name>.js` — Hook の実装（Node.js CommonJS）
 - `hooks/hooks.json` — Hook の登録（matcher / type / timeout）
+
+### なぜ Hook を使うのか（思想・ベストプラクティス）
+
+Hook は「決定論的な実行保証」の仕組みです。
+Claude への指示（Command や Rule）は確率的な解釈に委ねられますが、Hook はイベントが発生すれば必ず実行されます。
+
+- 「絶対に実行させたいこと」（危険コマンドのブロック、フォーマットの自動適用、監査ログの記録）は Hook に実装します
+- 非クリティカルなエラーは必ず `exit 0` で終了します。Hook が `exit 1` で落ちると、ツール実行自体がブロックされてしまいます
+- `PreToolUse` や `Stop` などのブロッキング Hook は 200ms 以内で完了させます。ネットワーク呼び出しは絶対に入れません
+- `run-with-flags.js` ラッパーを経由することで、`ECC_HOOK_PROFILE` や `ECC_DISABLED_HOOKS` によるランタイムの切り替えが可能になります
 
 ### 有効なイベント種別
 
@@ -543,6 +664,16 @@ module.exports = { run };
 
 Rule は `rules/<lang>/<topic>.md` に配置され、常時有効なガイドラインです。
 `rules/common/` の共通ルールを言語別に拡張します。
+
+### なぜ Rule を使うのか（思想・ベストプラクティス）
+
+Rule は「常に守るべき制約や方針」を定める仕組みです。
+Skill が「必要なときだけロードされる知識」なのに対し、Rule は「セッション中、常に有効な制約」です。
+
+- セキュリティ要件・コーディング規約・テスト方針など、例外なく守ってほしいものを Rule に書きます
+- 言語別ディレクトリ（`rules/python/`、`rules/typescript/` 等）を使い、共通ルール（`rules/common/`）との重複を避けます
+- `paths:` フロントマターで特定のファイルパターンにのみ適用することで、誤適用を防げます
+- CLAUDE.md はプロジェクト固有の制約を書く場所です。汎用的なルールは `rules/common/` に切り出して再利用性を高めます
 
 ### 既存の構成
 

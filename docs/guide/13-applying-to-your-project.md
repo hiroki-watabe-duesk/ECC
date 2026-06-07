@@ -2,12 +2,105 @@
 
 ## この章で学ぶこと
 
-- 自分のリポジトリに最小限のハーネスを構築する方法
+- **Claude Code をゼロから始める**（初心者向け: `/init`・`.claude/` 作成・最小設定・最初のルールとエージェント）
+- 自分のリポジトリに最小限のハーネスを構築する方法（MVH）
 - コンポーネント設計の指針（単一責務・MECE・命名）
 - 段階的導入ロードマップ（Day 1 / Week 1 / Month 1）
 - 永続ロジックと固有ロジックの分離原則
 - 自己改善ループ（観測 → 提案 → 検証 → 昇格 → ロールバック）
 - ハーネスが正しく機能しているかの自己点検チェックリスト
+
+---
+
+## Claude Code をゼロから始める（初心者向け）
+
+> Claude Code を初めてプロジェクトに導入する方向けの最小手順です。
+> Claude Code プラットフォームの基本概念は [03章 コンポーネント体系と選択基準](./03-components-overview.md) を、
+> 各コンポーネントの作成方法は [12章 コンポーネントの作成・拡張](./12-authoring-components.md) を参照してください。
+
+### Claude Code でプロジェクトを使い始めるとは
+
+Claude Code は、プロジェクトのルートに置いた設定ファイル・コンポーネントを読み込んで動作します。
+「Claude に自分のプロジェクトを覚えさせる」ためのファイルを作ることが、導入の第一歩です。
+
+### ステップ 1: `/init` で CLAUDE.md を生成する
+
+Claude Code を起動したら、まず `/init` コマンドを実行します。
+
+```
+/init
+```
+
+`/init` はリポジトリを自動的にスキャンして、プロジェクトの概要・技術スタック・主要コマンドを記述した `CLAUDE.md` を生成します。
+生成されたファイルをプロジェクトの実態に合わせて編集してください。
+
+`CLAUDE.md` は Claude Code が**必ず最初に読むファイル**です。ここにプロジェクト固有の制約・慣習・実行コマンドを書くと、Claude がその内容を常に守ります。
+
+### ステップ 2: `.claude/` ディレクトリを作る
+
+プロジェクト固有のコンポーネントは `.claude/` ディレクトリに置きます。
+
+```bash
+mkdir -p .claude/agents
+mkdir -p .claude/commands
+mkdir -p .claude/skills
+```
+
+Claude Code はプロジェクト直下の `.claude/` を自動的に認識します。
+
+### ステップ 3: `settings.json` の最小設定
+
+`.claude/settings.json`（または `~/.claude/settings.json`）で基本的な権限と動作を設定します。
+最小限の設定例は以下の通りです。
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(npm:*)",
+      "Read",
+      "Write",
+      "Edit"
+    ],
+    "deny": [
+      "Bash(rm -rf /)"
+    ]
+  }
+}
+```
+
+`allow` に列挙したツール・コマンドは確認プロンプトなしで実行されます。
+`deny` に列挙したパターンは常にブロックされます。権限の詳細は [07章 フックとランタイム](./07-hooks-and-runtime.md) を参照してください。
+
+### ステップ 4: 最初のルールを CLAUDE.md に書く
+
+`CLAUDE.md` の末尾に、最低限守ってほしいルールを追記します。
+
+```markdown
+## Project Rules
+
+- コミットメッセージは Conventional Commits 形式（feat:, fix:, docs: など）で書く
+- テストを追加せずにコードを変更しない
+- APIキーや認証情報をコードに直接書かない
+```
+
+### ステップ 5: 最初のエージェントを作る
+
+`.claude/agents/` に最初のエージェントを作成します。
+コードレビューエージェントは汎用性が高く、初めての Agent として最適です。
+
+```bash
+# ECC の code-reviewer.md をコピーして使い始める
+cp /path/to/ecc/agents/code-reviewer.md .claude/agents/code-reviewer.md
+```
+
+または、[12章の Agent 作成手順](./12-authoring-components.md#122-agent-を作る)を参考に自分のプロジェクト向けに作成します。
+
+### ここから MVH（最小ハーネス）へ
+
+上記の 5 ステップが完了したら、次節の **13.1 Minimum Viable Harness（MVH）** に進んでください。
+MVH では、ECC の主要コンポーネントをプロジェクトに組み合わせて「すぐに価値を生む最小構成」を構築します。
 
 ---
 
