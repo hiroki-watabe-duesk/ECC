@@ -1,59 +1,59 @@
 ---
 name: videodb
-description: See, Understand, Act on video and audio. See- ingest from local files, URLs, RTSP/live feeds, or live record desktop; return realtime context and playable stream links. Understand- extract frames, build visual/semantic/temporal indexes, and search moments with timestamps and auto-clips. Act- transcode and normalize (codec, fps, resolution, aspect ratio), perform timeline edits (subtitles, text/image overlays, branding, audio overlays, dubbing, translation), generate media assets (image, audio, video), and create real time alerts for events from live streams or desktop capture.
+description: 映像・音声の知覚・記憶・アクション。知覚 - ローカルファイル・URL・RTSP/ライブフィード・デスクトップのライブ録画から取り込み、リアルタイムコンテキストと再生可能なストリームリンクを返す。理解 - フレーム抽出、視覚的/意味的/時間的インデックスの構築、タイムスタンプと自動クリップ付きのモーメント検索。アクション - トランスコードと正規化（コーデック、fps、解像度、アスペクト比）、タイムライン編集（字幕、テキスト/画像オーバーレイ、ブランディング、音声オーバーレイ、吹き替え、翻訳）、メディアアセットの生成（画像、音声、動画）、ライブストリームまたはデスクトップキャプチャからのイベントのリアルタイムアラートの作成。
 origin: ECC
 allowed-tools: Read Grep Glob Bash(python:*)
 argument-hint: "[task description]"
 ---
 
-# VideoDB Skill
+# VideoDB スキル
 
-**Perception + memory + actions for video, live streams, and desktop sessions.**
+**映像・ライブストリーム・デスクトップセッションのための知覚＋記憶＋アクション。**
 
-## When to use
+## 使用するタイミング
 
-### Desktop Perception
-- Start/stop a **desktop session** capturing **screen, mic, and system audio**
-- Stream **live context** and store **episodic session memory**
-- Run **real-time alerts/triggers** on what's spoken and what's happening on screen
-- Produce **session summaries**, a searchable timeline, and **playable evidence links**
+### デスクトップ知覚
+- **スクリーン、マイク、システム音声**をキャプチャする**デスクトップセッション**の開始・停止
+- **ライブコンテキスト**のストリーミングと**エピソード的なセッションメモリ**の保存
+- 画面上で話されていることと起きていることに対する**リアルタイムアラート/トリガー**の実行
+- **セッションサマリー**、検索可能なタイムライン、**再生可能なエビデンスリンク**の生成
 
-### Video ingest + stream
-- Ingest a **file or URL** and return a **playable web stream link**
-- Transcode/normalize: **codec, bitrate, fps, resolution, aspect ratio**
+### 動画の取り込みとストリーミング
+- **ファイルまたはURL**を取り込み、**再生可能なウェブストリームリンク**を返す
+- トランスコード/正規化: **コーデック、ビットレート、fps、解像度、アスペクト比**
 
-### Index + search (timestamps + evidence)
-- Build **visual**, **spoken**, and **keyword** indexes
-- Search and return exact moments with **timestamps** and **playable evidence**
-- Auto-create **clips** from search results
+### インデックス＋検索（タイムスタンプ＋エビデンス）
+- **視覚的**、**音声**、**キーワード**インデックスの構築
+- **タイムスタンプ**と**再生可能なエビデンス**付きで正確なモーメントを検索・返却
+- 検索結果から**クリップ**を自動作成
 
-### Timeline editing + generation
-- Subtitles: **generate**, **translate**, **burn-in**
-- Overlays: **text/image/branding**, motion captions
-- Audio: **background music**, **voiceover**, **dubbing**
-- Programmatic composition and exports via **timeline operations**
+### タイムライン編集＋生成
+- 字幕: **生成**、**翻訳**、**バーンイン**
+- オーバーレイ: **テキスト/画像/ブランディング**、モーションキャプション
+- 音声: **BGM**、**ボイスオーバー**、**吹き替え**
+- **タイムライン操作**によるプログラマティックな合成とエクスポート
 
-### Live streams (RTSP) + monitoring
-- Connect **RTSP/live feeds**
-- Run **real-time visual and spoken understanding** and emit **events/alerts** for monitoring workflows
+### ライブストリーム（RTSP）＋モニタリング
+- **RTSP/ライブフィード**への接続
+- **リアルタイムの視覚・音声理解**の実行と監視ワークフロー向けの**イベント/アラート**の発行
 
-## How it works
+## 動作の仕組み
 
-### Common inputs
-- Local **file path**, public **URL**, or **RTSP URL**
-- Desktop capture request: **start / stop / summarize session**
-- Desired operations: get context for understanding, transcode spec, index spec, search query, clip ranges, timeline edits, alert rules
+### 一般的な入力
+- ローカル**ファイルパス**、公開**URL**、または**RTSP URL**
+- デスクトップキャプチャリクエスト: **セッションの開始/停止/サマリー**
+- 目的の操作: 理解のためのコンテキスト取得、トランスコード仕様、インデックス仕様、検索クエリ、クリップ範囲、タイムライン編集、アラートルール
 
-### Common outputs
-- **Stream URL**
-- Search results with **timestamps** and **evidence links**
-- Generated assets: subtitles, audio, images, clips
-- **Event/alert payloads** for live streams
-- Desktop **session summaries** and memory entries
+### 一般的な出力
+- **ストリームURL**
+- **タイムスタンプ**と**エビデンスリンク**付きの検索結果
+- 生成されたアセット: 字幕、音声、画像、クリップ
+- ライブストリーム向けの**イベント/アラートペイロード**
+- デスクトップの**セッションサマリー**とメモリエントリ
 
-### Running Python code
+### Pythonコードの実行
 
-Before running any VideoDB code, change to the project directory and load environment variables:
+VideoDB コードを実行する前に、プロジェクトディレクトリに移動して環境変数を読み込んでください:
 
 ```python
 from dotenv import load_dotenv
@@ -63,15 +63,15 @@ import videodb
 conn = videodb.connect()
 ```
 
-This reads `VIDEO_DB_API_KEY` from:
-1. Environment (if already exported)
-2. Project's `.env` file in current directory
+これにより以下から `VIDEO_DB_API_KEY` が読み込まれます:
+1. 環境変数（すでにエクスポートされている場合）
+2. カレントディレクトリのプロジェクトの `.env` ファイル
 
-If the key is missing, `videodb.connect()` raises `AuthenticationError` automatically.
+キーが見つからない場合、`videodb.connect()` は自動的に `AuthenticationError` を発生させます。
 
-Do NOT write a script file when a short inline command works.
+短いインラインコマンドで済む場合はスクリプトファイルを作成しないでください。
 
-When writing inline Python (`python -c "..."`), always use properly formatted code — use semicolons to separate statements and keep it readable. For anything longer than ~3 statements, use a heredoc instead:
+インラインPython（`python -c "..."`）を記述する際は、適切にフォーマットされたコードを使用してください。文は必ずセミコロンで区切り、読みやすく保ってください。3文を超える場合は、代わりにヒアドキュメントを使用してください:
 
 ```bash
 python << 'EOF'
@@ -85,36 +85,36 @@ print(f"Videos: {len(coll.get_videos())}")
 EOF
 ```
 
-### Setup
+### セットアップ
 
-When the user asks to "setup videodb" or similar:
+ユーザーが「videodb のセットアップ」などと求めた場合:
 
-### 1. Install SDK
+### 1. SDKのインストール
 
 ```bash
 pip install "videodb[capture]" python-dotenv
 ```
 
-If `videodb[capture]` fails on Linux, install without the capture extra:
+Linux で `videodb[capture]` が失敗した場合は、captureエクストラなしでインストールしてください:
 
 ```bash
 pip install videodb python-dotenv
 ```
 
-### 2. Configure API key
+### 2. APIキーの設定
 
-The user must set `VIDEO_DB_API_KEY` using **either** method:
+ユーザーは **いずれかの** 方法で `VIDEO_DB_API_KEY` を設定する必要があります:
 
-- **Export in terminal** (before starting Claude): `export VIDEO_DB_API_KEY=your-key`
-- **Project `.env` file**: Save `VIDEO_DB_API_KEY=your-key` in the project's `.env` file
+- **ターミナルでのエクスポート**（Claudeの起動前）: `export VIDEO_DB_API_KEY=your-key`
+- **プロジェクトの `.env` ファイル**: プロジェクトの `.env` ファイルに `VIDEO_DB_API_KEY=your-key` を保存
 
-Get a free API key at [console.videodb.io](https://console.videodb.io) (50 free uploads, no credit card).
+無料APIキーは [console.videodb.io](https://console.videodb.io) で取得できます（50回の無料アップロード、クレジットカード不要）。
 
-**Do NOT** read, write, or handle the API key yourself. Always let the user set it.
+APIキーを自分で読み取り、書き込み、または処理**しないでください**。常にユーザーが設定するようにしてください。
 
-### Quick Reference
+### クイックリファレンス
 
-### Upload media
+### メディアのアップロード
 
 ```python
 # URL
@@ -123,28 +123,28 @@ video = coll.upload(url="https://example.com/video.mp4")
 # YouTube
 video = coll.upload(url="https://www.youtube.com/watch?v=VIDEO_ID")
 
-# Local file
+# ローカルファイル
 video = coll.upload(file_path="/path/to/video.mp4")
 ```
 
-### Transcript + subtitle
+### トランスクリプト＋字幕
 
 ```python
-# force=True skips the error if the video is already indexed
+# force=True を指定すると、動画がすでにインデックス済みの場合のエラーをスキップ
 video.index_spoken_words(force=True)
 text = video.get_transcript_text()
 stream_url = video.add_subtitle()
 ```
 
-### Search inside videos
+### 動画内の検索
 
 ```python
 from videodb.exceptions import InvalidRequestError
 
 video.index_spoken_words(force=True)
 
-# search() raises InvalidRequestError when no results are found.
-# Always wrap in try/except and treat "No results found" as empty.
+# search() は結果が見つからない場合に InvalidRequestError を発生させます。
+# 常に try/except でラップし、"No results found" は空として扱ってください。
 try:
     results = video.search("product demo")
     shots = results.get_shots()
@@ -156,15 +156,15 @@ except InvalidRequestError as e:
         raise
 ```
 
-### Scene search
+### シーン検索
 
 ```python
 import re
 from videodb import SearchType, IndexType, SceneExtractionType
 from videodb.exceptions import InvalidRequestError
 
-# index_scenes() has no force parameter — it raises an error if a scene
-# index already exists. Extract the existing index ID from the error.
+# index_scenes() には force パラメータがありません — シーンインデックスが
+# すでに存在する場合はエラーが発生します。エラーから既存のインデックスIDを取得してください。
 try:
     scene_index_id = video.index_scenes(
         extraction_type=SceneExtractionType.shot_based,
@@ -177,7 +177,7 @@ except Exception as e:
     else:
         raise
 
-# Use score_threshold to filter low-relevance noise (recommended: 0.3+)
+# score_threshold を使って低関連性のノイズをフィルタリング（推奨値: 0.3以上）
 try:
     results = video.search(
         query="person writing on a whiteboard",
@@ -195,12 +195,12 @@ except InvalidRequestError as e:
         raise
 ```
 
-### Timeline editing
+### タイムライン編集
 
-**Important:** Always validate timestamps before building a timeline:
-- `start` must be >= 0 (negative values are silently accepted but produce broken output)
-- `start` must be < `end`
-- `end` must be <= `video.length`
+**重要:** タイムラインを構築する前に必ずタイムスタンプを検証してください:
+- `start` は >= 0 でなければなりません（負の値は静かに受け入れられますが、壊れた出力を生成します）
+- `start` は `end` より小さくなければなりません
+- `end` は `video.length` 以下でなければなりません
 
 ```python
 from videodb.timeline import Timeline
@@ -212,12 +212,12 @@ timeline.add_overlay(0, TextAsset(text="The End", duration=3, style=TextStyle(fo
 stream_url = timeline.generate_stream()
 ```
 
-### Transcode video (resolution / quality change)
+### 動画のトランスコード（解像度/品質変更）
 
 ```python
 from videodb import TranscodeMode, VideoConfig, AudioConfig
 
-# Change resolution, quality, or aspect ratio server-side
+# 解像度、品質、またはアスペクト比をサーバーサイドで変更
 job_id = conn.transcode(
     source="https://example.com/video.mp4",
     callback_url="https://example.com/webhook",
@@ -227,31 +227,30 @@ job_id = conn.transcode(
 )
 ```
 
-### Reframe aspect ratio (for social platforms)
+### アスペクト比のリフレーム（ソーシャルプラットフォーム向け）
 
-**Warning:** `reframe()` is a slow server-side operation. For long videos it can take
-several minutes and may time out. Best practices:
-- Always limit to a short segment using `start`/`end` when possible
-- For full-length videos, use `callback_url` for async processing
-- Trim the video on a `Timeline` first, then reframe the shorter result
+**注意:** `reframe()` はサーバーサイドの処理が遅い操作です。長い動画では数分かかり、タイムアウトする場合があります。ベストプラクティス:
+- 可能な限り `start`/`end` を使って短いセグメントに限定する
+- フル長の動画では非同期処理のために `callback_url` を渡す
+- まず `Timeline` で動画をトリミングし、その短い結果をリフレームする
 
 ```python
 from videodb import ReframeMode
 
-# Always prefer reframing a short segment:
+# 常に短いセグメントのリフレームを優先:
 reframed = video.reframe(start=0, end=60, target="vertical", mode=ReframeMode.smart)
 
-# Async reframe for full-length videos (returns None, result via webhook):
+# フル長の動画の非同期リフレーム（Noneを返し、結果はWebhookで取得）:
 video.reframe(target="vertical", callback_url="https://example.com/webhook")
 
-# Presets: "vertical" (9:16), "square" (1:1), "landscape" (16:9)
+# プリセット: "vertical" (9:16)、"square" (1:1)、"landscape" (16:9)
 reframed = video.reframe(start=0, end=60, target="square")
 
-# Custom dimensions
+# カスタムサイズ
 reframed = video.reframe(start=0, end=60, target={"width": 1280, "height": 720})
 ```
 
-### Generative media
+### 生成メディア
 
 ```python
 image = coll.generate_image(
@@ -260,7 +259,7 @@ image = coll.generate_image(
 )
 ```
 
-## Error handling
+## エラー処理
 
 ```python
 from videodb.exceptions import AuthenticationError, InvalidRequestError
@@ -276,42 +275,42 @@ except InvalidRequestError as e:
     print(f"Upload failed: {e}")
 ```
 
-### Common pitfalls
+### よくある落とし穴
 
-| Scenario | Error message | Solution |
+| シナリオ | エラーメッセージ | 解決策 |
 |----------|--------------|----------|
-| Indexing an already-indexed video | `Spoken word index for video already exists` | Use `video.index_spoken_words(force=True)` to skip if already indexed |
-| Scene index already exists | `Scene index with id XXXX already exists` | Extract the existing `scene_index_id` from the error with `re.search(r"id\s+([a-f0-9]+)", str(e))` |
-| Search finds no matches | `InvalidRequestError: No results found` | Catch the exception and treat as empty results (`shots = []`) |
-| Reframe times out | Blocks indefinitely on long videos | Use `start`/`end` to limit segment, or pass `callback_url` for async |
-| Negative timestamps on Timeline | Silently produces broken stream | Always validate `start >= 0` before creating `VideoAsset` |
-| `generate_video()` / `create_collection()` fails | `Operation not allowed` or `maximum limit` | Plan-gated features — inform the user about plan limits |
+| すでにインデックス済みの動画をインデックス | `Spoken word index for video already exists` | `video.index_spoken_words(force=True)` を使ってインデックス済みの場合はスキップ |
+| シーンインデックスがすでに存在 | `Scene index with id XXXX already exists` | `re.search(r"id\s+([a-f0-9]+)", str(e))` でエラーから既存の `scene_index_id` を取得 |
+| 検索結果が見つからない | `InvalidRequestError: No results found` | 例外をキャッチして空の結果として扱う（`shots = []`） |
+| リフレームがタイムアウト | 長い動画で無限にブロック | `start`/`end` でセグメントを限定するか、非同期処理のために `callback_url` を渡す |
+| タイムライン上の負のタイムスタンプ | 壊れたストリームを静かに生成 | `VideoAsset` を作成する前に必ず `start >= 0` を検証する |
+| `generate_video()` / `create_collection()` が失敗 | `Operation not allowed` または `maximum limit` | プラン制限の機能 — プランの制限についてユーザーに伝える |
 
-## Examples
+## 使用例
 
-### Canonical prompts
-- "Start desktop capture and alert when a password field appears."
-- "Record my session and produce an actionable summary when it ends."
-- "Ingest this file and return a playable stream link."
-- "Index this folder and find every scene with people, return timestamps."
-- "Generate subtitles, burn them in, and add light background music."
-- "Connect this RTSP URL and alert when a person enters the zone."
+### 標準的なプロンプト
+- 「デスクトップキャプチャを開始し、パスワードフィールドが表示されたらアラートを送信してください。」
+- 「セッションを録画し、終了時に実行可能なサマリーを作成してください。」
+- 「このファイルを取り込み、再生可能なストリームリンクを返してください。」
+- 「このフォルダをインデックスし、人物が映っているすべてのシーンをタイムスタンプ付きで見つけてください。」
+- 「字幕を生成し、バーンインして、軽いBGMを追加してください。」
+- 「このRTSP URLに接続し、人物がゾーンに入ったらアラートを送信してください。」
 
-### Screen Recording (Desktop Capture)
+### スクリーン録画（デスクトップキャプチャ）
 
-Use `ws_listener.py` to capture WebSocket events during recording sessions. Desktop capture supports **macOS** only.
+録画セッション中のWebSocketイベントのキャプチャには `ws_listener.py` を使用してください。デスクトップキャプチャは **macOSのみ** に対応しています。
 
-#### Quick Start
+#### クイックスタート
 
-1. **Choose state dir**: `STATE_DIR="${VIDEODB_EVENTS_DIR:-$HOME/.local/state/videodb}"`
-2. **Start listener**: `VIDEODB_EVENTS_DIR="$STATE_DIR" python scripts/ws_listener.py --clear "$STATE_DIR" &`
-3. **Get WebSocket ID**: `cat "$STATE_DIR/videodb_ws_id"`
-4. **Run capture code** (see reference/capture.md for the full workflow)
-5. **Events written to**: `$STATE_DIR/videodb_events.jsonl`
+1. **状態ディレクトリの選択**: `STATE_DIR="${VIDEODB_EVENTS_DIR:-$HOME/.local/state/videodb}"`
+2. **リスナーの開始**: `VIDEODB_EVENTS_DIR="$STATE_DIR" python scripts/ws_listener.py --clear "$STATE_DIR" &`
+3. **WebSocket IDの取得**: `cat "$STATE_DIR/videodb_ws_id"`
+4. **キャプチャコードの実行**（完全なワークフローは reference/capture.md を参照）
+5. **イベントの書き込み先**: `$STATE_DIR/videodb_events.jsonl`
 
-Use `--clear` whenever you start a fresh capture run so stale transcript and visual events do not leak into the new session.
+新しいキャプチャ実行を開始する際は必ず `--clear` を使用してください。古いトランスクリプトや視覚イベントが新しいセッションに混入しないようにするためです。
 
-#### Query Events
+#### イベントのクエリ
 
 ```python
 import json
@@ -339,36 +338,36 @@ recent_visual = [
 ]
 ```
 
-## Additional docs
+## 追加ドキュメント
 
-Reference documentation is in the `reference/` directory adjacent to this SKILL.md file. Use the Glob tool to locate it if needed.
+リファレンスドキュメントはこの SKILL.md ファイルに隣接する `reference/` ディレクトリにあります。必要に応じて Glob ツールで場所を確認してください。
 
-- [reference/api-reference.md](reference/api-reference.md) - Complete VideoDB Python SDK API reference
-- [reference/search.md](reference/search.md) - In-depth guide to video search (spoken word and scene-based)
-- [reference/editor.md](reference/editor.md) - Timeline editing, assets, and composition
-- [reference/streaming.md](reference/streaming.md) - HLS streaming and instant playback
-- [reference/generative.md](reference/generative.md) - AI-powered media generation (images, video, audio)
-- [reference/rtstream.md](reference/rtstream.md) - Live stream ingestion workflow (RTSP/RTMP)
-- [reference/rtstream-reference.md](reference/rtstream-reference.md) - RTStream SDK methods and AI pipelines
-- [reference/capture.md](reference/capture.md) - Desktop capture workflow
-- [reference/capture-reference.md](reference/capture-reference.md) - Capture SDK and WebSocket events
-- [reference/use-cases.md](reference/use-cases.md) - Common video processing patterns and examples
+- [reference/api-reference.md](reference/api-reference.md) - 完全な VideoDB Python SDK APIリファレンス
+- [reference/search.md](reference/search.md) - 動画検索の詳細ガイド（音声およびシーンベース）
+- [reference/editor.md](reference/editor.md) - タイムライン編集、アセット、コンポジション
+- [reference/streaming.md](reference/streaming.md) - HLSストリーミングとインスタント再生
+- [reference/generative.md](reference/generative.md) - AI駆動のメディア生成（画像、動画、音声）
+- [reference/rtstream.md](reference/rtstream.md) - ライブストリーム取り込みワークフロー（RTSP/RTMP）
+- [reference/rtstream-reference.md](reference/rtstream-reference.md) - RTStream SDKメソッドとAIパイプライン
+- [reference/capture.md](reference/capture.md) - デスクトップキャプチャワークフロー
+- [reference/capture-reference.md](reference/capture-reference.md) - キャプチャSDKとWebSocketイベント
+- [reference/use-cases.md](reference/use-cases.md) - 一般的な動画処理パターンと使用例
 
-**Do not use ffmpeg, moviepy, or local encoding tools** when VideoDB supports the operation. The following are all handled server-side by VideoDB — trimming, combining clips, overlaying audio or music, adding subtitles, text/image overlays, transcoding, resolution changes, aspect-ratio conversion, resizing for platform requirements, transcription, and media generation. Only fall back to local tools for operations listed under Limitations in reference/editor.md (transitions, speed changes, crop/zoom, colour grading, volume mixing).
+VideoDBが操作をサポートしている場合は **ffmpeg、moviepy、またはローカルエンコーディングツールを使用しないでください**。以下はすべてVideoDBがサーバーサイドで処理します — トリミング、クリップの結合、音声やBGMのオーバーレイ、字幕の追加、テキスト/画像オーバーレイ、トランスコード、解像度変更、アスペクト比変換、プラットフォーム要件に合わせたリサイズ、トランスクリプション、メディア生成。reference/editor.md の制限事項に記載されている操作（トランジション、速度変更、クロップ/ズーム、カラーグレーディング、ボリュームミキシング）のみローカルツールにフォールバックしてください。
 
-### When to use what
+### どちらを使うか
 
-| Problem | VideoDB solution |
+| 問題 | VideoDBの解決策 |
 |---------|-----------------|
-| Platform rejects video aspect ratio or resolution | `video.reframe()` or `conn.transcode()` with `VideoConfig` |
-| Need to resize video for Twitter/Instagram/TikTok | `video.reframe(target="vertical")` or `target="square"` |
-| Need to change resolution (e.g. 1080p → 720p) | `conn.transcode()` with `VideoConfig(resolution=720)` |
-| Need to overlay audio/music on video | `AudioAsset` on a `Timeline` |
-| Need to add subtitles | `video.add_subtitle()` or `CaptionAsset` |
-| Need to combine/trim clips | `VideoAsset` on a `Timeline` |
-| Need to generate voiceover, music, or SFX | `coll.generate_voice()`, `generate_music()`, `generate_sound_effect()` |
+| プラットフォームが動画のアスペクト比や解像度を拒否 | `video.reframe()` または `VideoConfig` 付きの `conn.transcode()` |
+| Twitter/Instagram/TikTok向けに動画をリサイズ | `video.reframe(target="vertical")` または `target="square"` |
+| 解像度を変更（例: 1080p → 720p） | `VideoConfig(resolution=720)` 付きの `conn.transcode()` |
+| 動画に音声/BGMをオーバーレイ | `Timeline` 上の `AudioAsset` |
+| 字幕を追加 | `video.add_subtitle()` または `CaptionAsset` |
+| クリップを結合/トリミング | `Timeline` 上の `VideoAsset` |
+| ボイスオーバー、BGM、効果音を生成 | `coll.generate_voice()`、`generate_music()`、`generate_sound_effect()` |
 
-## Provenance
+## 出典
 
-Reference material for this skill is vendored locally under `skills/videodb/reference/`.
-Use the local copies above instead of following external repository links at runtime.
+このスキルのリファレンス資料は `skills/videodb/reference/` 配下にローカルでベンダリングされています。
+実行時に外部リポジトリのリンクを辿るのではなく、上記のローカルコピーを使用してください。

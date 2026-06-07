@@ -1,16 +1,16 @@
-# Timeline Editing Guide
+# タイムライン編集ガイド
 
-VideoDB provides a non-destructive timeline editor for composing videos from multiple assets, adding text and image overlays, mixing audio tracks, and trimming clips — all server-side without re-encoding or local tools. Use this for trimming, combining clips, overlaying audio/music on video, adding subtitles, and layering text or images.
+VideoDBは、複数のアセットからビデオを合成し、テキストや画像のオーバーレイを追加し、オーディオトラックをミックスし、クリップをトリミングするための非破壊的なタイムラインエディターを提供します。これらはすべてサーバーサイドで行われ、再エンコードやローカルツールは不要です。トリミング、クリップの結合、動画へのオーディオ/音楽のオーバーレイ、字幕の追加、テキストや画像のレイヤリングに使用します。
 
-## Prerequisites
+## 前提条件
 
-Videos, audio, and images **must be uploaded** to a collection before they can be used as timeline assets. For caption overlays, the video must also be **indexed for spoken words**.
+動画、音声、画像はタイムラインアセットとして使用する前に、コレクションに**アップロードされていなければなりません**。キャプションのオーバーレイには、動画が**発話単語でインデックス化**されている必要もあります。
 
-## Core Concepts
+## 核となる概念
 
-### Timeline
+### タイムライン
 
-A `Timeline` is a virtual composition layer. Assets are placed on it either **inline** (sequentially on the main track) or as **overlays** (layered at a specific timestamp). Nothing modifies the original media; the final stream is compiled on demand.
+`Timeline` は仮想的な合成レイヤーです。アセットは**インライン**（メイントラック上に順番に）または**オーバーレイ**（特定のタイムスタンプにレイヤー化）として配置されます。元のメディアは何も変更されず、最終ストリームはオンデマンドでコンパイルされます。
 
 ```python
 from videodb.timeline import Timeline
@@ -18,23 +18,23 @@ from videodb.timeline import Timeline
 timeline = Timeline(conn)
 ```
 
-### Assets
+### アセット
 
-Every element on a timeline is an **asset**. VideoDB provides five asset types:
+タイムライン上のすべての要素は**アセット**です。VideoDBは5種類のアセットタイプを提供します:
 
-| Asset | Import | Primary Use |
+| アセット | インポート | 主な用途 |
 |-------|--------|-------------|
-| `VideoAsset` | `from videodb.asset import VideoAsset` | Video clips (trim, sequencing) |
-| `AudioAsset` | `from videodb.asset import AudioAsset` | Music, SFX, narration |
-| `ImageAsset` | `from videodb.asset import ImageAsset` | Logos, thumbnails, overlays |
-| `TextAsset` | `from videodb.asset import TextAsset, TextStyle` | Titles, captions, lower-thirds |
-| `CaptionAsset` | `from videodb.editor import CaptionAsset` | Auto-rendered subtitles (Editor API) |
+| `VideoAsset` | `from videodb.asset import VideoAsset` | 動画クリップ（トリミング、シーケンシング） |
+| `AudioAsset` | `from videodb.asset import AudioAsset` | 音楽、効果音、ナレーション |
+| `ImageAsset` | `from videodb.asset import ImageAsset` | ロゴ、サムネイル、オーバーレイ |
+| `TextAsset` | `from videodb.asset import TextAsset, TextStyle` | タイトル、キャプション、ローワーサード |
+| `CaptionAsset` | `from videodb.editor import CaptionAsset` | 自動レンダリング字幕（Editor API） |
 
-## Building a Timeline
+## タイムラインの構築
 
-### Add Video Clips Inline
+### 動画クリップのインライン追加
 
-Inline assets play one after another on the main video track. The `add_inline` method only accepts `VideoAsset`:
+インラインアセットはメイン動画トラック上で次々と再生されます。`add_inline` メソッドは `VideoAsset` のみを受け付けます:
 
 ```python
 from videodb.asset import VideoAsset
@@ -49,9 +49,9 @@ timeline.add_inline(VideoAsset(asset_id=video_b.id))
 stream_url = timeline.generate_stream()
 ```
 
-### Trim / Sub-clip
+### トリム / サブクリップ
 
-Use `start` and `end` on a `VideoAsset` to extract a portion:
+`VideoAsset` に `start` と `end` を使用してソース動画の一部を取り出します:
 
 ```python
 # Take only seconds 10–30 from the source video
@@ -59,19 +59,19 @@ clip = VideoAsset(asset_id=video.id, start=10, end=30)
 timeline.add_inline(clip)
 ```
 
-### VideoAsset Parameters
+### VideoAssetのパラメーター
 
-| Parameter | Type | Default | Description |
+| パラメーター | 型 | デフォルト | 説明 |
 |-----------|------|---------|-------------|
-| `asset_id` | `str` | required | Video media ID |
-| `start` | `float` | `0` | Trim start (seconds) |
-| `end` | `float\|None` | `None` | Trim end (`None` = full) |
+| `asset_id` | `str` | 必須 | 動画メディアID |
+| `start` | `float` | `0` | トリム開始位置（秒） |
+| `end` | `float\|None` | `None` | トリム終了位置（`None` = 全体） |
 
-> **Warning:** The SDK does not validate negative timestamps. Passing `start=-5` is silently accepted but produces broken or unexpected output. Always ensure `start >= 0`, `start < end`, and `end <= video.length` before creating a `VideoAsset`.
+> **警告:** SDKは負のタイムスタンプを検証しません。`start=-5` を渡してもサイレントに受け入れられますが、壊れた出力や予期しない出力が生成されます。`VideoAsset` を作成する前に必ず `start >= 0`、`start < end`、`end <= video.length` を確認してください。
 
-## Text Overlays
+## テキストオーバーレイ
 
-Add titles, lower-thirds, or captions at any point on the timeline:
+タイムラインの任意の位置にタイトル、ローワーサード、キャプションを追加します:
 
 ```python
 from videodb.asset import TextAsset, TextStyle
@@ -92,39 +92,39 @@ title = TextAsset(
 timeline.add_overlay(0, title)
 ```
 
-### TextStyle Parameters
+### TextStyleのパラメーター
 
-| Parameter | Type | Default | Description |
+| パラメーター | 型 | デフォルト | 説明 |
 |-----------|------|---------|-------------|
-| `fontsize` | `int` | `24` | Font size in pixels |
-| `fontcolor` | `str` | `"black"` | CSS colour name or hex |
-| `fontcolor_expr` | `str` | `""` | Dynamic font colour expression |
-| `alpha` | `float` | `1.0` | Text opacity (0.0–1.0) |
-| `font` | `str` | `"Sans"` | Font family |
-| `box` | `bool` | `True` | Enable background box |
-| `boxcolor` | `str` | `"white"` | Background box colour |
-| `boxborderw` | `str` | `"10"` | Box border width |
-| `boxw` | `int` | `0` | Box width override |
-| `boxh` | `int` | `0` | Box height override |
-| `line_spacing` | `int` | `0` | Line spacing |
-| `text_align` | `str` | `"T"` | Text alignment within the box |
-| `y_align` | `str` | `"text"` | Vertical alignment reference |
-| `borderw` | `int` | `0` | Text border width |
-| `bordercolor` | `str` | `"black"` | Text border colour |
-| `expansion` | `str` | `"normal"` | Text expansion mode |
-| `basetime` | `int` | `0` | Base time for time-based expressions |
-| `fix_bounds` | `bool` | `False` | Fix text bounds |
-| `text_shaping` | `bool` | `True` | Enable text shaping |
-| `shadowcolor` | `str` | `"black"` | Shadow colour |
-| `shadowx` | `int` | `0` | Shadow X offset |
-| `shadowy` | `int` | `0` | Shadow Y offset |
-| `tabsize` | `int` | `4` | Tab size in spaces |
-| `x` | `str` | `"(main_w-text_w)/2"` | Horizontal position expression |
-| `y` | `str` | `"(main_h-text_h)/2"` | Vertical position expression |
+| `fontsize` | `int` | `24` | フォントサイズ（ピクセル） |
+| `fontcolor` | `str` | `"black"` | CSS色名または16進数 |
+| `fontcolor_expr` | `str` | `""` | 動的フォントカラー式 |
+| `alpha` | `float` | `1.0` | テキストの不透明度（0.0〜1.0） |
+| `font` | `str` | `"Sans"` | フォントファミリー |
+| `box` | `bool` | `True` | 背景ボックスを有効にする |
+| `boxcolor` | `str` | `"white"` | 背景ボックスの色 |
+| `boxborderw` | `str` | `"10"` | ボックスの境界線幅 |
+| `boxw` | `int` | `0` | ボックス幅の上書き |
+| `boxh` | `int` | `0` | ボックス高さの上書き |
+| `line_spacing` | `int` | `0` | 行間隔 |
+| `text_align` | `str` | `"T"` | ボックス内のテキスト配置 |
+| `y_align` | `str` | `"text"` | 垂直配置の基準 |
+| `borderw` | `int` | `0` | テキストの境界線幅 |
+| `bordercolor` | `str` | `"black"` | テキストの境界線の色 |
+| `expansion` | `str` | `"normal"` | テキスト拡張モード |
+| `basetime` | `int` | `0` | 時間ベース式の基準時間 |
+| `fix_bounds` | `bool` | `False` | テキストの境界を固定する |
+| `text_shaping` | `bool` | `True` | テキストシェーピングを有効にする |
+| `shadowcolor` | `str` | `"black"` | 影の色 |
+| `shadowx` | `int` | `0` | 影のXオフセット |
+| `shadowy` | `int` | `0` | 影のYオフセット |
+| `tabsize` | `int` | `4` | スペース単位のタブサイズ |
+| `x` | `str` | `"(main_w-text_w)/2"` | 水平位置の式 |
+| `y` | `str` | `"(main_h-text_h)/2"` | 垂直位置の式 |
 
-## Audio Overlays
+## オーディオオーバーレイ
 
-Layer background music, sound effects, or voiceover on top of the video track:
+動画トラックの上にBGM、効果音、ボイスオーバーをレイヤー追加します:
 
 ```python
 from videodb.asset import AudioAsset
@@ -142,20 +142,20 @@ audio_layer = AudioAsset(
 timeline.add_overlay(0, audio_layer)
 ```
 
-### AudioAsset Parameters
+### AudioAssetのパラメーター
 
-| Parameter | Type | Default | Description |
+| パラメーター | 型 | デフォルト | 説明 |
 |-----------|------|---------|-------------|
-| `asset_id` | `str` | required | Audio media ID |
-| `start` | `float` | `0` | Trim start (seconds) |
-| `end` | `float\|None` | `None` | Trim end (`None` = full) |
-| `disable_other_tracks` | `bool` | `True` | When True, mutes other audio tracks |
-| `fade_in_duration` | `float` | `0` | Fade-in seconds (max 5) |
-| `fade_out_duration` | `float` | `0` | Fade-out seconds (max 5) |
+| `asset_id` | `str` | 必須 | 音声メディアID |
+| `start` | `float` | `0` | トリム開始位置（秒） |
+| `end` | `float\|None` | `None` | トリム終了位置（`None` = 全体） |
+| `disable_other_tracks` | `bool` | `True` | Trueの場合、他のオーディオトラックをミュートする |
+| `fade_in_duration` | `float` | `0` | フェードイン秒数（最大5） |
+| `fade_out_duration` | `float` | `0` | フェードアウト秒数（最大5） |
 
-## Image Overlays
+## 画像オーバーレイ
 
-Add logos, watermarks, or generated images as overlays:
+ロゴ、透かし、生成された画像をオーバーレイとして追加します:
 
 ```python
 from videodb.asset import ImageAsset
@@ -174,24 +174,24 @@ logo_overlay = ImageAsset(
 timeline.add_overlay(0, logo_overlay)
 ```
 
-### ImageAsset Parameters
+### ImageAssetのパラメーター
 
-| Parameter | Type | Default | Description |
+| パラメーター | 型 | デフォルト | 説明 |
 |-----------|------|---------|-------------|
-| `asset_id` | `str` | required | Image media ID |
-| `width` | `int\|str` | `100` | Display width |
-| `height` | `int\|str` | `100` | Display height |
-| `x` | `int` | `80` | Horizontal position (px from left) |
-| `y` | `int` | `20` | Vertical position (px from top) |
-| `duration` | `float\|None` | `None` | Display duration (seconds) |
+| `asset_id` | `str` | 必須 | 画像メディアID |
+| `width` | `int\|str` | `100` | 表示幅 |
+| `height` | `int\|str` | `100` | 表示高さ |
+| `x` | `int` | `80` | 水平位置（左からのピクセル） |
+| `y` | `int` | `20` | 垂直位置（上からのピクセル） |
+| `duration` | `float\|None` | `None` | 表示時間（秒） |
 
-## Caption Overlays
+## キャプションオーバーレイ
 
-There are two ways to add captions to video.
+動画にキャプションを追加する方法は2つあります。
 
-### Method 1: Subtitle Workflow (simplest)
+### 方法1: 字幕ワークフロー（最もシンプル）
 
-Use `video.add_subtitle()` to burn subtitles directly onto a video stream. This uses the `videodb.timeline.Timeline` internally:
+`video.add_subtitle()` を使用して字幕を動画ストリームに直接バーンインします。これは内部的に `videodb.timeline.Timeline` を使用します:
 
 ```python
 from videodb import SubtitleStyle
@@ -211,9 +211,9 @@ stream_url = video.add_subtitle(style=SubtitleStyle(
 ))
 ```
 
-### Method 2: Editor API (advanced)
+### 方法2: Editor API（高度な使い方）
 
-The Editor API (`videodb.editor`) provides a track-based composition system with `CaptionAsset`, `Clip`, `Track`, and its own `Timeline`. This is a separate API from the `videodb.timeline.Timeline` used above.
+Editor API（`videodb.editor`）は、`CaptionAsset`、`Clip`、`Track`、独自の `Timeline` を備えたトラックベースの合成システムを提供します。これは上記で使用した `videodb.timeline.Timeline` とは別のAPIです。
 
 ```python
 from videodb.editor import (
@@ -249,33 +249,33 @@ editor_tl.add_track(track)
 stream_url = editor_tl.generate_stream()
 ```
 
-### CaptionAsset Parameters
+### CaptionAssetのパラメーター
 
-| Parameter | Type | Default | Description |
+| パラメーター | 型 | デフォルト | 説明 |
 |-----------|------|---------|-------------|
-| `src` | `str` | `"auto"` | Caption source (`"auto"` or base64 ASS string) |
-| `font` | `FontStyling\|None` | `FontStyling()` | Font styling (name, size, bold, italic, etc.) |
-| `primary_color` | `str` | `"&H00FFFFFF"` | Primary text colour (ASS format) |
-| `secondary_color` | `str` | `"&H000000FF"` | Secondary text colour (ASS format) |
-| `back_color` | `str` | `"&H00000000"` | Background colour (ASS format) |
-| `border` | `BorderAndShadow\|None` | `BorderAndShadow()` | Border and shadow styling |
-| `position` | `Positioning\|None` | `Positioning()` | Caption alignment and margins |
-| `animation` | `CaptionAnimation\|None` | `None` | Animation effect (e.g., `box_highlight`, `reveal`, `karaoke`) |
+| `src` | `str` | `"auto"` | キャプションソース（`"auto"` またはbase64 ASS文字列） |
+| `font` | `FontStyling\|None` | `FontStyling()` | フォントスタイリング（名前、サイズ、太字、斜体など） |
+| `primary_color` | `str` | `"&H00FFFFFF"` | プライマリテキストカラー（ASS形式） |
+| `secondary_color` | `str` | `"&H000000FF"` | セカンダリテキストカラー（ASS形式） |
+| `back_color` | `str` | `"&H00000000"` | 背景色（ASS形式） |
+| `border` | `BorderAndShadow\|None` | `BorderAndShadow()` | 境界線と影のスタイリング |
+| `position` | `Positioning\|None` | `Positioning()` | キャプションの配置とマージン |
+| `animation` | `CaptionAnimation\|None` | `None` | アニメーション効果（例: `box_highlight`、`reveal`、`karaoke`） |
 
-## Compiling & Streaming
+## コンパイルとストリーミング
 
-After assembling a timeline, compile it into a streamable URL. Streams are generated instantly - no render wait times.
+タイムラインを組み立てた後、それをストリーム可能なURLにコンパイルします。ストリームは即座に生成され、レンダリングの待ち時間はありません。
 
 ```python
 stream_url = timeline.generate_stream()
 print(f"Stream: {stream_url}")
 ```
 
-For more streaming options (segment streams, search-to-stream, audio playback), see [streaming.md](streaming.md).
+より多くのストリーミングオプション（セグメントストリーム、検索からストリーム、音声再生）については、[streaming.md](streaming.md) を参照してください。
 
-## Complete Workflow Examples
+## 完全なワークフロー例
 
-### Highlight Reel with Title Card
+### タイトルカード付きハイライトリール
 
 ```python
 import videodb
@@ -320,7 +320,7 @@ stream_url = timeline.generate_stream()
 print(f"Highlight reel: {stream_url}")
 ```
 
-### Logo Overlay with Background Music
+### BGM付きロゴオーバーレイ
 
 ```python
 import videodb
@@ -355,7 +355,7 @@ stream_url = timeline.generate_stream()
 print(f"Final video: {stream_url}")
 ```
 
-### Multi-Clip Montage from Multiple Videos
+### 複数動画からのマルチクリップモンタージュ
 
 ```python
 import videodb
@@ -391,53 +391,53 @@ stream_url = timeline.generate_stream()
 print(f"Montage: {stream_url}")
 ```
 
-## Two Timeline APIs
+## 2つのタイムラインAPI
 
-VideoDB has two separate timeline systems. They are **not interchangeable**:
+VideoDBには2つの独立したタイムラインシステムがあります。**互換性はありません**:
 
-| | `videodb.timeline.Timeline` | `videodb.editor.Timeline` (Editor API) |
+| | `videodb.timeline.Timeline` | `videodb.editor.Timeline`（Editor API） |
 |---|---|---|
-| **Import** | `from videodb.timeline import Timeline` | `from videodb.editor import Timeline as EditorTimeline` |
-| **Assets** | `VideoAsset`, `AudioAsset`, `ImageAsset`, `TextAsset` | `CaptionAsset`, `Clip`, `Track` |
-| **Methods** | `add_inline()`, `add_overlay()` | `add_track()` with `Track` / `Clip` |
-| **Best for** | Video composition, overlays, multi-clip editing | Caption/subtitle styling with animations |
+| **インポート** | `from videodb.timeline import Timeline` | `from videodb.editor import Timeline as EditorTimeline` |
+| **アセット** | `VideoAsset`、`AudioAsset`、`ImageAsset`、`TextAsset` | `CaptionAsset`、`Clip`、`Track` |
+| **メソッド** | `add_inline()`、`add_overlay()` | `Track` / `Clip` を使った `add_track()` |
+| **最適な用途** | 動画合成、オーバーレイ、マルチクリップ編集 | アニメーション付きキャプション/字幕スタイリング |
 
-Do not mix assets from one API into the other. `CaptionAsset` only works with the Editor API. `VideoAsset` / `AudioAsset` / `ImageAsset` / `TextAsset` only work with `videodb.timeline.Timeline`.
+一方のAPIのアセットをもう一方に混在させないでください。`CaptionAsset` はEditor APIでのみ機能します。`VideoAsset` / `AudioAsset` / `ImageAsset` / `TextAsset` は `videodb.timeline.Timeline` でのみ機能します。
 
-## Limitations & Constraints
+## 制限事項と制約
 
-The timeline editor is designed for **non-destructive linear composition**. The following operations are **not supported**:
+タイムラインエディターは**非破壊的な線形合成**のために設計されています。以下の操作は**サポートされていません**:
 
-### Not Possible
+### 不可能な操作
 
-| Limitation | Detail |
+| 制限 | 詳細 |
 |---|---|
-| **No transitions or effects** | No crossfades, wipes, dissolves, or transitions between clips. All cuts are hard cuts. |
-| **No video-on-video (picture-in-picture)** | `add_inline()` only accepts `VideoAsset`. You cannot overlay one video stream on top of another. Image overlays can approximate static PiP but not live video. |
-| **No speed or playback control** | No slow-motion, fast-forward, reverse playback, or time remapping. `VideoAsset` has no `speed` parameter. |
-| **No crop, zoom, or pan** | Cannot crop a region of a video frame, apply zoom effects, or pan across a frame. `video.reframe()` is for aspect-ratio conversion only. |
-| **No video filters or color grading** | No brightness, contrast, saturation, hue, or color correction adjustments. |
-| **No animated text** | `TextAsset` is static for its full duration. No fade-in/out, movement, or animation. For animated captions, use `CaptionAsset` with the Editor API. |
-| **No mixed text styling** | A single `TextAsset` has one `TextStyle`. Cannot mix bold, italic, or colors within a single text block. |
-| **No blank or solid-color clips** | Cannot create a solid color frame, black screen, or standalone title card. Text and image overlays require a `VideoAsset` beneath them on the inline track. |
-| **No audio volume control** | `AudioAsset` has no `volume` parameter. Audio is either full volume or muted via `disable_other_tracks`. Cannot mix at a reduced level. |
-| **No keyframe animation** | Cannot change overlay properties over time (e.g., move an image from position A to B). |
+| **トランジションやエフェクトなし** | クリップ間のクロスフェード、ワイプ、ディゾルブ、トランジションはありません。すべてのカットはハードカットです。 |
+| **ビデオオンビデオなし（ピクチャーインピクチャー）** | `add_inline()` は `VideoAsset` のみを受け付けます。別の動画ストリームを動画の上に重ねることはできません。画像オーバーレイで静的なPiPを近似できますが、ライブ動画はできません。 |
+| **速度や再生コントロールなし** | スローモーション、早送り、逆再生、タイムリマッピングはありません。`VideoAsset` には `speed` パラメーターがありません。 |
+| **クロップ、ズーム、パンなし** | 動画フレームの領域をクロップしたり、ズームエフェクトを適用したり、フレームをパンしたりすることはできません。`video.reframe()` はアスペクト比変換専用です。 |
+| **動画フィルターやカラーグレーディングなし** | 明るさ、コントラスト、彩度、色相、色補正の調整はありません。 |
+| **テキストアニメーションなし** | `TextAsset` はその全期間静的です。フェードイン/アウト、移動、アニメーションはありません。アニメーションキャプションには、Editor APIの `CaptionAsset` を使用してください。 |
+| **混合テキストスタイリングなし** | 単一の `TextAsset` には1つの `TextStyle` があります。単一テキストブロック内でボールド、イタリック、色を混在させることはできません。 |
+| **空白または単色クリップなし** | 単色フレーム、黒いスクリーン、スタンドアロンのタイトルカードを作成することはできません。テキストと画像のオーバーレイはインライントラック上に `VideoAsset` が必要です。 |
+| **音量コントロールなし** | `AudioAsset` には `volume` パラメーターがありません。音声はフルボリュームか、`disable_other_tracks` でミュートされるかのどちらかです。低いレベルでミックスすることはできません。 |
+| **キーフレームアニメーションなし** | オーバーレイのプロパティを時間をかけて変化させることはできません（例: 画像を位置Aから位置Bに移動する）。 |
 
-### Constraints
+### 制約
 
-| Constraint | Detail |
+| 制約 | 詳細 |
 |---|---|
-| **Audio fade max 5 seconds** | `fade_in_duration` and `fade_out_duration` are capped at 5 seconds each. |
-| **Overlay positioning is absolute** | Overlays use absolute timestamps from the timeline start. Rearranging inline clips does not move their overlays. |
-| **Inline track is video only** | `add_inline()` only accepts `VideoAsset`. Audio, image, and text must use `add_overlay()`. |
-| **No overlay-to-clip binding** | Overlays are placed at a fixed timeline timestamp. There is no way to attach an overlay to a specific inline clip so it moves with it. |
+| **オーディオフェード最大5秒** | `fade_in_duration` と `fade_out_duration` はそれぞれ最大5秒です。 |
+| **オーバーレイの配置は絶対値** | オーバーレイはタイムライン開始からの絶対タイムスタンプを使用します。インラインクリップを並べ替えても、そのオーバーレイは移動しません。 |
+| **インライントラックは動画のみ** | `add_inline()` は `VideoAsset` のみを受け付けます。音声、画像、テキストは `add_overlay()` を使用する必要があります。 |
+| **オーバーレイとクリップのバインディングなし** | オーバーレイは固定のタイムラインタイムスタンプに配置されます。特定のインラインクリップにオーバーレイをアタッチして一緒に移動させる方法はありません。 |
 
-## Tips
+## ヒント
 
-- **Non-destructive**: Timelines never modify source media. You can create multiple timelines from the same assets.
-- **Overlay stacking**: Multiple overlays can start at the same timestamp. Audio overlays mix together; image/text overlays layer in add-order.
-- **Inline is VideoAsset only**: `add_inline()` only accepts `VideoAsset`. Use `add_overlay()` for `AudioAsset`, `ImageAsset`, and `TextAsset`.
-- **Trim precision**: `start`/`end` on `VideoAsset` and `AudioAsset` are in seconds.
-- **Muting video audio**: Set `disable_other_tracks=True` on `AudioAsset` to mute the original video audio when overlaying music or narration.
-- **Fade limits**: `fade_in_duration` and `fade_out_duration` on `AudioAsset` have a maximum of 5 seconds.
-- **Generated media**: Use `coll.generate_music()`, `coll.generate_sound_effect()`, `coll.generate_voice()`, and `coll.generate_image()` to create media that can be used as timeline assets immediately.
+- **非破壊的**: タイムラインはソースメディアを変更しません。同じアセットから複数のタイムラインを作成できます。
+- **オーバーレイのスタッキング**: 複数のオーバーレイを同じタイムスタンプから開始できます。オーディオオーバーレイは混合され、画像/テキストオーバーレイは追加順にレイヤー化されます。
+- **インラインはVideoAssetのみ**: `add_inline()` は `VideoAsset` のみを受け付けます。`AudioAsset`、`ImageAsset`、`TextAsset` には `add_overlay()` を使用します。
+- **トリム精度**: `VideoAsset` と `AudioAsset` の `start`/`end` は秒単位です。
+- **動画音声のミュート**: 音楽やナレーションをオーバーレイする際に元の動画音声をミュートするには、`AudioAsset` の `disable_other_tracks=True` を設定します。
+- **フェードの制限**: `AudioAsset` の `fade_in_duration` と `fade_out_duration` は最大5秒です。
+- **生成メディア**: `coll.generate_music()`、`coll.generate_sound_effect()`、`coll.generate_voice()`、`coll.generate_image()` を使用して、タイムラインアセットとしてすぐに使用できるメディアを作成できます。

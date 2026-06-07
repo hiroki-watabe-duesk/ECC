@@ -1,77 +1,77 @@
 ---
 name: hexagonal-architecture
-description: Design, implement, and refactor Ports & Adapters systems with clear domain boundaries, dependency inversion, and testable use-case orchestration across TypeScript, Java, Kotlin, and Go services.
+description: TypeScript、Java、Kotlin、Goサービスにわたる明確なドメイン境界、依存性逆転、テスト可能なユースケースオーケストレーションを持つPorts & Adaptersシステムの設計、実装、リファクタリング。
 origin: ECC
 ---
 
-# Hexagonal Architecture
+# ヘキサゴナルアーキテクチャ
 
-Hexagonal architecture (Ports and Adapters) keeps business logic independent from frameworks, transport, and persistence details. The core app depends on abstract ports, and adapters implement those ports at the edges.
+ヘキサゴナルアーキテクチャ（ポートとアダプター）はビジネスロジックをフレームワーク、トランスポート、および永続化の詳細から独立させます。コアアプリは抽象ポートに依存し、アダプターはエッジでこれらのポートを実装します。
 
-## When to Use
+## 使用タイミング
 
-- Building new features where long-term maintainability and testability matter.
-- Refactoring layered or framework-heavy code where domain logic is mixed with I/O concerns.
-- Supporting multiple interfaces for the same use case (HTTP, CLI, queue workers, cron jobs).
-- Replacing infrastructure (database, external APIs, message bus) without rewriting business rules.
+- 長期的な保守性とテスト可能性が重要な新機能を構築するとき。
+- ドメインロジックがI/O関心事と混在しているレイヤードまたはフレームワーク重視のコードをリファクタリングするとき。
+- 同じユースケースに対して複数のインターフェース（HTTP、CLI、キューワーカー、cronジョブ）をサポートするとき。
+- ビジネスルールを書き直さずにインフラ（データベース、外部API、メッセージバス）を置き換えるとき。
 
-Use this skill when the request involves boundaries, domain-centric design, refactoring tightly coupled services, or decoupling application logic from specific libraries.
+境界、ドメイン中心の設計、密結合サービスのリファクタリング、または特定のライブラリからアプリケーションロジックを分離するリクエストが含まれる場合にこのスキルを使用します。
 
-## Core Concepts
+## コアコンセプト
 
-- **Domain model**: Business rules and entities/value objects. No framework imports.
-- **Use cases (application layer)**: Orchestrate domain behavior and workflow steps.
-- **Inbound ports**: Contracts describing what the application can do (commands/queries/use-case interfaces).
-- **Outbound ports**: Contracts for dependencies the application needs (repositories, gateways, event publishers, clock, UUID, etc.).
-- **Adapters**: Infrastructure and delivery implementations of ports (HTTP controllers, DB repositories, queue consumers, SDK wrappers).
-- **Composition root**: Single wiring location where concrete adapters are bound to use cases.
+- **ドメインモデル**: ビジネスルールとエンティティ/値オブジェクト。フレームワークのインポートなし。
+- **ユースケース（アプリケーション層）**: ドメインの動作とワークフローのステップをオーケストレートする。
+- **インバウンドポート**: アプリケーションが何をできるかを記述するコントラクト（コマンド/クエリ/ユースケースインターフェース）。
+- **アウトバウンドポート**: アプリケーションが必要とする依存関係のコントラクト（リポジトリ、ゲートウェイ、イベントパブリッシャー、クロック、UUIDなど）。
+- **アダプター**: ポートのインフラと配信実装（HTTPコントローラー、DBリポジトリ、キューコンシューマー、SDKラッパー）。
+- **コンポジションルート**: 具体的なアダプターがユースケースにバインドされる単一の配線場所。
 
-Outbound port interfaces usually live in the application layer (or in domain only when the abstraction is truly domain-level), while infrastructure adapters implement them.
+アウトバウンドポートインターフェースは通常アプリケーション層（または抽象化が真にドメインレベルの場合はドメインのみ）に存在し、インフラアダプターがそれらを実装します。
 
-Dependency direction is always inward:
+依存の方向は常に内向き:
 
-- Adapters -> application/domain
-- Application -> port interfaces (inbound/outbound contracts)
-- Domain -> domain-only abstractions (no framework or infrastructure dependencies)
-- Domain -> nothing external
+- アダプター -> アプリケーション/ドメイン
+- アプリケーション -> ポートインターフェース（インバウンド/アウトバウンドコントラクト）
+- ドメイン -> ドメイン専用の抽象化（フレームワークやインフラ依存関係なし）
+- ドメイン -> 外部への依存なし
 
-## How It Works
+## 仕組み
 
-### Step 1: Model a use case boundary
+### ステップ1: ユースケース境界をモデル化する
 
-Define a single use case with a clear input and output DTO. Keep transport details (Express `req`, GraphQL `context`, job payload wrappers) outside this boundary.
+明確な入力と出力DTOを持つ単一のユースケースを定義します。トランスポートの詳細（Expressの `req`、GraphQLの `context`、ジョブペイロードラッパー）をこの境界の外に置きます。
 
-### Step 2: Define outbound ports first
+### ステップ2: まずアウトバウンドポートを定義する
 
-Identify every side effect as a port:
+すべてのサイドエフェクトをポートとして識別します:
 
-- persistence (`UserRepositoryPort`)
-- external calls (`BillingGatewayPort`)
-- cross-cutting (`LoggerPort`, `ClockPort`)
+- 永続化（`UserRepositoryPort`）
+- 外部呼び出し（`BillingGatewayPort`）
+- クロスカッティング（`LoggerPort`、`ClockPort`）
 
-Ports should model capabilities, not technologies.
+ポートは技術ではなく機能をモデル化すべきです。
 
-### Step 3: Implement the use case with pure orchestration
+### ステップ3: 純粋なオーケストレーションでユースケースを実装する
 
-Use case class/function receives ports via constructor/arguments. It validates application-level invariants, coordinates domain rules, and returns plain data structures.
+ユースケースクラス/関数はコンストラクター/引数でポートを受け取ります。アプリケーション層の不変条件を検証し、ドメインルールを調整し、プレーンなデータ構造を返します。
 
-### Step 4: Build adapters at the edge
+### ステップ4: エッジでアダプターを構築する
 
-- Inbound adapter converts protocol input to use-case input.
-- Outbound adapter maps app contracts to concrete APIs/ORM/query builders.
-- Mapping stays in adapters, not inside use cases.
+- インバウンドアダプターはプロトコル入力をユースケース入力に変換する。
+- アウトバウンドアダプターはアプリコントラクトを具体的なAPI/ORM/クエリビルダーにマップする。
+- マッピングはアダプターに留まり、ユースケース内には入れない。
 
-### Step 5: Wire everything in a composition root
+### ステップ5: コンポジションルートですべてを配線する
 
-Instantiate adapters, then inject them into use cases. Keep this wiring centralized to avoid hidden service-locator behavior.
+アダプターをインスタンス化し、ユースケースに注入します。この配線を集中化して、隠れたサービスロケーターの動作を避けます。
 
-### Step 6: Test per boundary
+### ステップ6: 境界ごとにテストする
 
-- Unit test use cases with fake ports.
-- Integration test adapters with real infra dependencies.
-- E2E test user-facing flows through inbound adapters.
+- フェイクポートでユースケースをユニットテストする。
+- 実際のインフラ依存関係でアダプターをインテグレーションテストする。
+- インバウンドアダプターを通じてユーザー向けのフローをE2Eテストする。
 
-## Architecture Diagram
+## アーキテクチャ図
 
 ```mermaid
 flowchart LR
@@ -83,9 +83,9 @@ flowchart LR
   UseCase --> DomainModel["DomainModel"]
 ```
 
-## Suggested Module Layout
+## 推奨モジュールレイアウト
 
-Use feature-first organization with explicit boundaries:
+明示的な境界を持つフィーチャーファースト構成を使用します:
 
 ```text
 src/
@@ -116,9 +116,9 @@ src/
         ordersContainer.ts
 ```
 
-## TypeScript Example
+## TypeScriptの例
 
-### Port definitions
+### ポートの定義
 
 ```typescript
 export interface OrderRepositoryPort {
@@ -131,7 +131,7 @@ export interface PaymentGatewayPort {
 }
 ```
 
-### Use case
+### ユースケース
 
 ```typescript
 type CreateOrderInput = {
@@ -158,7 +158,7 @@ export class CreateOrderUseCase {
       amountCents: order.amountCents,
     });
 
-    // markAuthorized returns a new Order instance; it does not mutate in place.
+    // markAuthorizedは新しいOrderインスタンスを返す。インプレースでのミューテーションは行わない。
     const authorizedOrder = order.markAuthorized(auth.authorizationId);
     await this.orderRepository.save(authorizedOrder);
 
@@ -170,7 +170,7 @@ export class CreateOrderUseCase {
 }
 ```
 
-### Outbound adapter
+### アウトバウンドアダプター
 
 ```typescript
 export class PostgresOrderRepository implements OrderRepositoryPort {
@@ -190,7 +190,7 @@ export class PostgresOrderRepository implements OrderRepositoryPort {
 }
 ```
 
-### Composition root
+### コンポジションルート
 
 ```typescript
 export const buildCreateOrderUseCase = (deps: { db: SqlClient; stripe: StripeClient }) => {
@@ -201,76 +201,76 @@ export const buildCreateOrderUseCase = (deps: { db: SqlClient; stripe: StripeCli
 };
 ```
 
-## Multi-Language Mapping
+## マルチ言語マッピング
 
-Use the same boundary rules across ecosystems; only syntax and wiring style change.
+同じ境界ルールをエコシステム全体に適用します。変わるのは構文と配線スタイルのみです。
 
 - **TypeScript/JavaScript**
-  - Ports: `application/ports/*` as interfaces/types.
-  - Use cases: classes/functions with constructor/argument injection.
-  - Adapters: `adapters/inbound/*`, `adapters/outbound/*`.
-  - Composition: explicit factory/container module (no hidden globals).
+  - ポート: インターフェース/型として `application/ports/*`。
+  - ユースケース: コンストラクター/引数注入を持つクラス/関数。
+  - アダプター: `adapters/inbound/*`、`adapters/outbound/*`。
+  - コンポジション: 明示的なファクトリー/コンテナモジュール（隠しグローバルなし）。
 - **Java**
-  - Packages: `domain`, `application.port.in`, `application.port.out`, `application.usecase`, `adapter.in`, `adapter.out`.
-  - Ports: interfaces in `application.port.*`.
-  - Use cases: plain classes (Spring `@Service` is optional, not required).
-  - Composition: Spring config or manual wiring class; keep wiring out of domain/use-case classes.
+  - パッケージ: `domain`、`application.port.in`、`application.port.out`、`application.usecase`、`adapter.in`、`adapter.out`。
+  - ポート: `application.port.*` のインターフェース。
+  - ユースケース: プレーンクラス（Springの `@Service` はオプション、必須ではない）。
+  - コンポジション: Spring設定または手動配線クラス。ドメイン/ユースケースクラスから配線を分離する。
 - **Kotlin**
-  - Modules/packages mirror the Java split (`domain`, `application.port`, `application.usecase`, `adapter`).
-  - Ports: Kotlin interfaces.
-  - Use cases: classes with constructor injection (Koin/Dagger/Spring/manual).
-  - Composition: module definitions or dedicated composition functions; avoid service locator patterns.
+  - モジュール/パッケージはJavaの分割を反映する（`domain`、`application.port`、`application.usecase`、`adapter`）。
+  - ポート: Kotlinインターフェース。
+  - ユースケース: コンストラクター注入を持つクラス（Koin/Dagger/Spring/手動）。
+  - コンポジション: モジュール定義または専用コンポジション関数。サービスロケーターパターンを避ける。
 - **Go**
-  - Packages: `internal/<feature>/domain`, `application`, `ports`, `adapters/inbound`, `adapters/outbound`.
-  - Ports: small interfaces owned by the consuming application package.
-  - Use cases: structs with interface fields plus explicit `New...` constructors.
-  - Composition: wire in `cmd/<app>/main.go` (or dedicated wiring package), keep constructors explicit.
+  - パッケージ: `internal/<feature>/domain`、`application`、`ports`、`adapters/inbound`、`adapters/outbound`。
+  - ポート: 消費するアプリケーションパッケージが所有する小さなインターフェース。
+  - ユースケース: インターフェースフィールドと明示的な `New...` コンストラクターを持つ構造体。
+  - コンポジション: `cmd/<app>/main.go`（または専用の配線パッケージ）で配線する。コンストラクターを明示的に保つ。
 
-## Anti-Patterns to Avoid
+## 避けるべきアンチパターン
 
-- Domain entities importing ORM models, web framework types, or SDK clients.
-- Use cases reading directly from `req`, `res`, or queue metadata.
-- Returning database rows directly from use cases without domain/application mapping.
-- Letting adapters call each other directly instead of flowing through use-case ports.
-- Spreading dependency wiring across many files with hidden global singletons.
+- ORMモデル、Webフレームワーク型、またはSDKクライアントをインポートするドメインエンティティ。
+- `req`、`res`、またはキューメタデータから直接読み取るユースケース。
+- ドメイン/アプリケーションのマッピングなしにデータベース行をユースケースから直接返す。
+- アダプターがユースケースポートを経由する代わりに直接お互いを呼び出す。
+- 隠れたグローバルシングルトンで多くのファイルに依存関係の配線を広げる。
 
-## Migration Playbook
+## 移行プレイブック
 
-1. Pick one vertical slice (single endpoint/job) with frequent change pain.
-2. Extract a use-case boundary with explicit input/output types.
-3. Introduce outbound ports around existing infrastructure calls.
-4. Move orchestration logic from controllers/services into the use case.
-5. Keep old adapters, but make them delegate to the new use case.
-6. Add tests around the new boundary (unit + adapter integration).
-7. Repeat slice-by-slice; avoid full rewrites.
+1. 変更の痛みが頻繁な1つの縦断的スライス（単一のエンドポイント/ジョブ）を選ぶ。
+2. 明示的な入力/出力型でユースケース境界を抽出する。
+3. 既存のインフラ呼び出しにアウトバウンドポートを導入する。
+4. オーケストレーションロジックをコントローラー/サービスからユースケースに移動する。
+5. 古いアダプターを保持しながら新しいユースケースに委譲させる。
+6. 新しい境界にテストを追加する（ユニット + アダプターインテグレーション）。
+7. スライスごとに繰り返す。完全な書き直しは避ける。
 
-### Refactoring Existing Systems
+### 既存システムのリファクタリング
 
-- **Strangler approach**: keep current endpoints, route one use case at a time through new ports/adapters.
-- **No big-bang rewrites**: migrate per feature slice and preserve behavior with characterization tests.
-- **Facade first**: wrap legacy services behind outbound ports before replacing internals.
-- **Composition freeze**: centralize wiring early so new dependencies do not leak into domain/use-case layers.
-- **Slice selection rule**: prioritize high-churn, low-blast-radius flows first.
-- **Rollback path**: keep a reversible toggle or route switch per migrated slice until production behavior is verified.
+- **ストラングラーアプローチ**: 現在のエンドポイントを保持し、一度に1つのユースケースを新しいポート/アダプターに通す。
+- **大規模な書き直しなし**: フィーチャースライスごとに移行し、キャラクタリゼーションテストで動作を保持する。
+- **まずファサード**: 内部を置き換える前にレガシーサービスをアウトバウンドポートの後ろにラップする。
+- **コンポジションフリーズ**: 新しい依存関係がドメイン/ユースケース層に漏れないように早期に配線を集中化する。
+- **スライス選択ルール**: 変更が頻繁でブラスト半径が小さいフローを最初に優先する。
+- **ロールバックパス**: 本番動作が検証されるまで移行したスライスごとにリバーシブルなトグルまたはルートスイッチを保持する。
 
-## Testing Guidance (Same Hexagonal Boundaries)
+## テストガイダンス（同じヘキサゴナル境界）
 
-- **Domain tests**: test entities/value objects as pure business rules (no mocks, no framework setup).
-- **Use-case unit tests**: test orchestration with fakes/stubs for outbound ports; assert business outcomes and port interactions.
-- **Outbound adapter contract tests**: define shared contract suites at port level and run them against each adapter implementation.
-- **Inbound adapter tests**: verify protocol mapping (HTTP/CLI/queue payload to use-case input and output/error mapping back to protocol).
-- **Adapter integration tests**: run against real infrastructure (DB/API/queue) for serialization, schema/query behavior, retries, and timeouts.
-- **End-to-end tests**: cover critical user journeys through inbound adapter -> use case -> outbound adapter.
-- **Refactor safety**: add characterization tests before extraction; keep them until new boundary behavior is stable and equivalent.
+- **ドメインテスト**: エンティティ/値オブジェクトを純粋なビジネスルールとしてテストする（モックなし、フレームワーク設定なし）。
+- **ユースケースユニットテスト**: アウトバウンドポートのフェイク/スタブでオーケストレーションをテストする。ビジネス成果とポートインタラクションをアサートする。
+- **アウトバウンドアダプターコントラクトテスト**: ポートレベルで共有コントラクトスイートを定義し、各アダプター実装に対して実行する。
+- **インバウンドアダプターテスト**: プロトコルマッピングを検証する（HTTP/CLI/キューペイロードからユースケース入力へ、出力/エラーのプロトコルへのマッピング）。
+- **アダプターインテグレーションテスト**: シリアライゼーション、スキーマ/クエリ動作、リトライ、タイムアウトのために実際のインフラ（DB/API/キュー）に対して実行する。
+- **エンドツーエンドテスト**: インバウンドアダプター -> ユースケース -> アウトバウンドアダプターを通じた重要なユーザージャーニーをカバーする。
+- **リファクタリング安全性**: 抽出前にキャラクタリゼーションテストを追加する。新しい境界の動作が安定して等価になるまで保持する。
 
-## Best Practices Checklist
+## ベストプラクティスチェックリスト
 
-- Domain and use-case layers import only internal types and ports.
-- Every external dependency is represented by an outbound port.
-- Validation occurs at boundaries (inbound adapter + use-case invariants).
-- Use immutable transformations (return new values/entities instead of mutating shared state).
-- Errors are translated across boundaries (infra errors -> application/domain errors).
-- Composition root is explicit and easy to audit.
-- Use cases are testable with simple in-memory fakes for ports.
-- Refactoring starts from one vertical slice with behavior-preserving tests.
-- Language/framework specifics stay in adapters, never in domain rules.
+- ドメインとユースケース層は内部型とポートのみをインポートする。
+- すべての外部依存関係はアウトバウンドポートで表現される。
+- バリデーションは境界で発生する（インバウンドアダプター + ユースケースの不変条件）。
+- 不変変換を使用する（共有状態をミューテートする代わりに新しい値/エンティティを返す）。
+- エラーは境界を越えて変換される（インフラエラー -> アプリケーション/ドメインエラー）。
+- コンポジションルートは明示的で監査しやすい。
+- ユースケースはポートのシンプルなインメモリフェイクでテスト可能。
+- リファクタリングは動作を保持するテストを持つ1つの縦断的スライスから始まる。
+- 言語/フレームワーク固有の詳細はアダプターに留まり、ドメインルールには入らない。

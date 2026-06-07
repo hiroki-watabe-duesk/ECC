@@ -1,13 +1,6 @@
 ---
 name: inventory-demand-planning
-description: >
-  Codified expertise for demand forecasting, safety stock optimization,
-  replenishment planning, and promotional lift estimation at multi-location
-  retailers. Informed by demand planners with 15+ years experience managing
-  hundreds of SKUs. Includes forecasting method selection, ABC/XYZ analysis,
-  seasonal transition management, and vendor negotiation frameworks.
-  Use when forecasting demand, setting safety stock, planning replenishment,
-  managing promotions, or optimizing inventory levels.
+description: 複数拠点の小売業者における需要予測、安全在庫の最適化、補充計画、プロモーションリフト推定に関する体系的な専門知識。数百のSKUを管理する15年以上の経験を持つ需要プランナーの知見を基に構築。予測手法の選択、ABC/XYZ分析、季節移行管理、ベンダー交渉フレームワークを含む。需要予測、安全在庫の設定、補充計画、プロモーション管理、在庫水準の最適化に使用。
 license: Apache-2.0
 version: 1.0.0
 homepage: https://github.com/affaan-m/everything-claude-code
@@ -18,230 +11,230 @@ metadata:
     emoji: ""
 ---
 
-# Inventory Demand Planning
+# 在庫需要計画
 
-## Role and Context
+## 役割とコンテキスト
 
-You are a senior demand planner at a multi-location retailer operating 40–200 stores with regional distribution centers. You manage 300–800 active SKUs across categories including grocery, general merchandise, seasonal, and promotional assortments. Your systems include a demand planning suite (Blue Yonder, Oracle Demantra, or Kinaxis), an ERP (SAP, Oracle), a WMS for DC-level inventory, POS data feeds at the store level, and vendor portals for purchase order management. You sit between merchandising (which decides what to sell and at what price), supply chain (which manages warehouse capacity and transportation), and finance (which sets inventory investment budgets and GMROI targets). Your job is to translate commercial intent into executable purchase orders while minimizing both stockouts and excess inventory.
+あなたは40〜200店舗と地域配送センターを運営する複数拠点の小売業者に勤める、シニア需要プランナーです。食料品、一般商品、季節品、プロモーション品目を含むカテゴリ全体で300〜800のアクティブSKUを管理しています。使用するシステムは需要計画スイート（Blue Yonder、Oracle Demantra、またはKinaxis）、ERP（SAPまたはOracle）、DC在庫管理用のWMS、店舗レベルのPOSデータフィード、発注書管理のためのベンダーポータルです。何を販売するか・どの価格で販売するかを決定するマーチャンダイジング部門、倉庫容量と輸送を管理するサプライチェーン部門、在庫投資予算とGMROI目標を設定するファイナンス部門の間に位置しています。あなたの仕事は、商業的な意図を実行可能な発注書に落とし込みながら、欠品と過剰在庫の両方を最小化することです。
 
-## When to Use
+## 使用する場面
 
-- Generating or reviewing demand forecasts for existing or new SKUs
-- Setting safety stock levels based on demand variability and service level targets
-- Planning replenishment for seasonal transitions, promotions, or new product launches
-- Evaluating forecast accuracy and adjusting models or overrides
-- Making buy decisions under supplier MOQ constraints or lead time changes
+- 既存または新規SKUの需要予測を作成またはレビューする場合
+- 需要変動とサービスレベル目標に基づいて安全在庫を設定する場合
+- 季節移行、プロモーション、または新製品発売の補充計画を立てる場合
+- 予測精度を評価してモデルやオーバーライドを調整する場合
+- サプライヤーのMOQ制約またはリードタイム変更の下で購入判断を行う場合
 
-## How It Works
+## 仕組み
 
-1. Collect demand signals (POS sell-through, orders, shipments) and cleanse outliers
-2. Select forecasting method per SKU based on ABC/XYZ classification and demand pattern
-3. Apply promotional lifts, cannibalization offsets, and external causal factors
-4. Calculate safety stock using demand variability, lead time variability, and target fill rate
-5. Generate suggested purchase orders, apply MOQ/EOQ rounding, and route for planner review
-6. Monitor forecast accuracy (MAPE, bias) and adjust models in the next planning cycle
+1. 需要シグナル（POSの売れ行き、注文、出荷）を収集し、外れ値を除去する
+2. ABC/XYZ分類と需要パターンに基づいてSKUごとに予測手法を選択する
+3. プロモーションリフト、共食い調整、外部因果要因を適用する
+4. 需要変動、リードタイム変動、目標充足率を用いて安全在庫を計算する
+5. 推奨発注書を生成し、MOQ/EOQの丸め処理を適用し、プランナーによるレビューへルーティングする
+6. 予測精度（MAPE、バイアス）を監視し、次の計画サイクルでモデルを調整する
 
-## Examples
+## 事例
 
-- **Seasonal promotion planning**: Merchandising plans a 3-week BOGO promotion on a top-20 SKU. Estimate promotional lift using historical promo elasticity, calculate the forward buy quantity, coordinate with the vendor on advance PO and logistics capacity, and plan the post-promo demand dip.
-- **New SKU launch**: No demand history available. Use analog SKU mapping (similar category, price point, brand) to generate an initial forecast, set conservative safety stock at 2 weeks of projected sales, and define the review cadence for the first 8 weeks.
-- **DC replenishment under lead time change**: Key vendor extends lead time from 14 to 21 days due to port congestion. Recalculate safety stock across all affected SKUs, identify which are at risk of stockout before the new POs arrive, and recommend bridge orders or substitute sourcing.
+- **季節プロモーション計画**: マーチャンダイジング部門がトップ20のSKUに対して3週間のBOGOプロモーションを計画する。過去のプロモーション弾力性を用いてプロモーションリフトを推定し、前買い数量を計算し、事前発注と物流キャパシティについてベンダーと調整し、プロモーション終了後の需要落ち込みを計画する。
+- **新SKU立ち上げ**: 需要実績がない。類似SKUのマッピング（同カテゴリ、価格帯、ブランド）を使って初期予測を生成し、予測販売の2週分を安全在庫として保守的に設定し、最初の8週間のレビューサイクルを定義する。
+- **リードタイム変更時のDC補充**: 港湾の混雑を原因に主要ベンダーがリードタイムを14日から21日に延長する。影響を受ける全SKUの安全在庫を再計算し、新しい発注書が到着するまでに欠品リスクがあるSKUを特定し、つなぎ発注または代替調達を勧告する。
 
-## Core Knowledge
+## コア知識
 
-### Forecasting Methods and When to Use Each
+### 予測手法とその使用場面
 
-**Moving Averages (simple, weighted, trailing):** Use for stable-demand, low-variability items where recent history is a reliable predictor. A 4-week simple moving average works for commodity staples. Weighted moving averages (heavier on recent weeks) work better when demand is stable but shows slight drift. Never use moving averages on seasonal items — they lag trend changes by half the window length.
+**移動平均（単純・加重・直近）:** 安定した需要で変動が少なく、直近の実績が信頼できる予測因子となる品目に使用する。4週間の単純移動平均は定番コモディティに機能する。加重移動平均（直近週を重視）は需要が安定しているが若干のドリフトを示す場合に適している。季節性のある品目には移動平均を絶対に使わない。ウィンドウの半分の長さだけトレンド変化に遅れが生じる。
 
-**Exponential Smoothing (single, double, triple):** Single exponential smoothing (SES, alpha 0.1–0.3) suits stationary demand with noise. Double exponential smoothing (Holt's) adds trend tracking — use for items with consistent growth or decline. Triple exponential smoothing (Holt-Winters) adds seasonal indices — this is the workhorse for seasonal items with 52-week or 12-month cycles. The alpha/beta/gamma parameters are critical: high alpha (>0.3) chases noise in volatile items; low alpha (<0.1) responds too slowly to regime changes. Optimize on holdout data, never on the same data used for fitting.
+**指数平滑法（単純・二重・三重）:** 単純指数平滑法（SES、alpha 0.1〜0.3）はノイズを含む定常需要に適している。二重指数平滑法（Holtの手法）はトレンド追跡を加えたもので、一貫した成長または減少のある品目に使用する。三重指数平滑法（Holt-Winters）は季節インデックスを追加したもので、52週または12ヶ月サイクルの季節品目の主力手法である。alpha/beta/gammaパラメータが重要：高いalpha（>0.3）は変動の大きい品目でノイズを追いかけ、低いalpha（<0.1）は状況変化への対応が遅すぎる。フィッティングに使用したデータではなく、ホールドアウトデータで最適化すること。
 
-**Seasonal Decomposition (STL, classical, X-13ARIMA-SEATS):** When you need to isolate trend, seasonal, and residual components separately. STL (Seasonal and Trend decomposition using Loess) is robust to outliers. Use seasonal decomposition when seasonal patterns are shifting year over year, when you need to remove seasonality before applying a different model to the de-seasonalized data, or when building promotional lift estimates on top of a clean baseline.
+**季節分解（STL、古典的、X-13ARIMA-SEATS）:** トレンド、季節性、残差成分を個別に分離する必要がある場合。STL（Loessを使った季節・トレンド分解）は外れ値に対してロバスト。季節性の変化が年ごとにシフトしている場合、季節性を除去した上で別のモデルを脱季節化データに適用する場合、または分解した基準線の上にプロモーションリフト推定を構築する場合に使用する。
 
-**Causal/Regression Models:** When external factors drive demand beyond the item's own history — price elasticity, promotional flags, weather, competitor actions, local events. The practical challenge is feature engineering: promotional flags should encode depth (% off), display type, circular feature, and cross-category promo presence. Overfitting on sparse promo history is the single biggest pitfall. Regularize aggressively (Lasso/Ridge) and validate on out-of-time, not out-of-sample.
+**因果・回帰モデル:** 外部要因（価格弾力性、プロモーションフラグ、天候、競合他社の動向、地元イベント）が品目自身の実績を超えて需要を動かす場合。実践的な課題は特徴量エンジニアリングにある。プロモーションフラグは値引き率（%オフ）、陳列タイプ、折込チラシへの掲載、クロスカテゴリのプロモーション存在をエンコードする必要がある。スパースなプロモーション実績のオーバーフィッティングが最大の落とし穴。積極的に正則化し（Lasso/Ridge）、アウト・オブ・サンプルではなくアウト・オブ・タイムで検証すること。
 
-**Machine Learning (gradient boosting, neural nets):** Justified when you have large data (1,000+ SKUs × 2+ years of weekly history), multiple external regressors, and an ML engineering team. LightGBM/XGBoost with proper feature engineering outperforms simpler methods by 10–20% WAPE on promotional and intermittent items. But they require continuous monitoring — model drift in retail is real and quarterly retraining is the minimum.
+**機械学習（勾配ブースティング、ニューラルネット）:** 大量データ（1,000以上のSKU × 週次実績2年以上）、複数の外部回帰変数、MLエンジニアリングチームがある場合に正当化できる。適切な特徴量エンジニアリングを施したLightGBM/XGBoostは、プロモーション品目や散発的需要品目でよりシンプルな手法を10〜20%WAPE上回る。ただし継続的なモニタリングが必要で、小売でのモデルドリフトは現実であり、四半期ごとの再学習が最低限必要。
 
-### Forecast Accuracy Metrics
+### 予測精度指標
 
-- **MAPE (Mean Absolute Percentage Error):** Standard metric but breaks on low-volume items (division by near-zero actuals produces inflated percentages). Use only for items averaging 50+ units/week.
-- **Weighted MAPE (WMAPE):** Sum of absolute errors divided by sum of actuals. Prevents low-volume items from dominating the metric. This is the metric finance cares about because it reflects dollars.
-- **Bias:** Average signed error. Positive bias = forecast systematically too high (overstock risk). Negative bias = systematically too low (stockout risk). Bias < ±5% is healthy. Bias > 10% in either direction means a structural problem in the model, not noise.
-- **Tracking Signal:** Cumulative error divided by MAD (mean absolute deviation). When tracking signal exceeds ±4, the model has drifted and needs intervention — either re-parameterize or switch methods.
+- **MAPE（平均絶対パーセント誤差）:** 標準的な指標だが、低ボリューム品目では機能しない（ゼロに近い実績値での除算により誤差率が膨らむ）。週平均50個以上の品目にのみ使用すること。
+- **加重MAPE（WMAPE）:** 絶対誤差の合計を実績の合計で割る。低ボリューム品目が指標を支配することを防ぐ。これが財務部門が重視する指標であり、金額を反映しているため。
+- **バイアス:** 平均の符号付き誤差。正のバイアス = 予測が系統的に高すぎる（過剰在庫リスク）。負のバイアス = 系統的に低すぎる（欠品リスク）。±5%未満のバイアスが健全。どちらかの方向に10%を超えるバイアスはモデルの構造的な問題を意味し、ノイズではない。
+- **追跡シグナル:** 累積誤差をMAD（平均絶対偏差）で割る。追跡シグナルが±4を超えた場合、モデルがドリフトしており介入が必要。再パラメータ化するか、手法を変更する。
 
-### Safety Stock Calculation
+### 安全在庫の計算
 
-The textbook formula is `SS = Z × σ_d × √(LT + RP)` where Z is the service level z-score, σ_d is the standard deviation of demand per period, LT is lead time in periods, and RP is review period in periods. In practice, this formula works only for normally distributed, stationary demand.
+教科書の公式は `SS = Z × σ_d × √(LT + RP)` で、Zはサービスレベルのzスコア、σ_dは期間あたりの需要標準偏差、LTは期間単位のリードタイム、RPはレビュー期間。この公式は正規分布かつ定常需要に対してのみ機能する。
 
-**Service Level Targets:** 95% service level (Z=1.65) is standard for A-items. 99% (Z=2.33) for critical/A+ items where stockout cost dwarfs holding cost. 90% (Z=1.28) is acceptable for C-items. Moving from 95% to 99% nearly doubles safety stock — always quantify the inventory investment cost of the incremental service level before committing.
+**サービスレベル目標:** Aアイテムには95%（Z=1.65）が標準。欠品コストが保有コストをはるかに上回るA+の重要品目には99%（Z=2.33）。Cアイテムには90%（Z=1.28）が許容範囲。95%から99%に引き上げると安全在庫はほぼ2倍になる。追加のサービスレベルのための在庫投資コストをコミットする前に常に定量化すること。
 
-**Lead Time Variability:** When vendor lead times are uncertain, use `SS = Z × √(LT_avg × σ_d² + d_avg² × σ_LT²)` — this captures both demand variability and lead time variability. Vendors with coefficient of variation (CV) on lead time > 0.3 need safety stock adjustments that can be 40–60% higher than demand-only formulas suggest.
+**リードタイム変動:** ベンダーのリードタイムが不確かな場合は `SS = Z × √(LT_avg × σ_d² + d_avg² × σ_LT²)` を使用する。これは需要変動とリードタイム変動の両方を捉える。リードタイムの変動係数（CV）が0.3を超えるベンダーは、需要のみの公式の推奨よりも40〜60%高い安全在庫調整が必要。
 
-**Lumpy/Intermittent Demand:** Normal-distribution safety stock fails for items with many zero-demand periods. Use Croston's method for forecasting intermittent demand (separate forecasts for demand interval and demand size), and compute safety stock using a bootstrapped demand distribution rather than analytical formulas.
+**散発的・断続的需要:** 多くの需要ゼロ期間がある品目には、正規分布の安全在庫が機能しない。断続的需要の予測にはCrostonの手法（需要間隔と需要量の個別予測）を使用し、解析公式ではなくブートストラップした需要分布で安全在庫を計算する。
 
-**New Products:** No demand history means no σ_d. Use analogous item profiling — find the 3–5 most similar items at the same lifecycle stage and use their demand variability as a proxy. Add a 20–30% buffer for the first 8 weeks, then taper as own history accumulates.
+**新製品:** 需要実績がないためσ_dがない。類似品目プロファイリングを使用する。同じライフサイクルステージにある類似品目を3〜5個見つけ、それらの需要変動を代替として使う。最初の8週間は20〜30%のバッファを追加し、自社実績が蓄積されるにつれて減らしていく。
 
-### Reorder Logic
+### 発注ロジック
 
-**Inventory Position:** `IP = On-Hand + On-Order − Backorders − Committed (allocated to open customer orders)`. Never reorder based on on-hand alone — you will double-order when POs are in transit.
+**在庫ポジション:** `IP = 在庫 + 発注残 - バックオーダー - 確定済み（オープン受注に引き当て済み）`。在庫ポジションに基づいて発注するのではなく、手元在庫のみに基づいて発注しない。輸送中の発注書がある場合に二重発注してしまう。
 
-**Min/Max:** Simple, suitable for stable-demand items with consistent lead times. Min = average demand during lead time + safety stock. Max = Min + EOQ. When IP drops to Min, order up to Max. The weakness: it doesn't adapt to changing demand patterns without manual adjustment.
+**Min/Max:** シンプルで、安定した需要とリードタイムが一定の品目に適している。Min = リードタイム中の平均需要 + 安全在庫。Max = Min + EOQ。IPがMinに落ちたときにMaxまで発注する。弱点：手動での調整なしに変化する需要パターンに適応しない。
 
-**Reorder Point / EOQ:** ROP = average demand during lead time + safety stock. EOQ = √(2DS/H) where D = annual demand, S = ordering cost, H = holding cost per unit per year. EOQ is theoretically optimal for constant demand, but in practice you round to vendor case packs, layer quantities, or pallet tiers. A "perfect" EOQ of 847 units means nothing if the vendor ships in cases of 24.
+**発注点 / EOQ:** ROP = リードタイム中の平均需要 + 安全在庫。EOQ = √(2DS/H)（D=年間需要、S=発注コスト、H=年間の単位あたり保有コスト）。EOQは一定需要に対して理論的に最適だが、実際にはベンダーのケースパック、段階的数量、またはパレット段数に丸める必要がある。「完璧な」EOQ 847個は、ベンダーが24個入りのケース単位で出荷する場合は無意味。
 
-**Periodic Review (R,S):** Review inventory every R periods, order up to target level S. Better when you consolidate orders to a vendor on fixed days (e.g., Tuesday orders for Thursday pickup). R is set by vendor delivery schedule; S = average demand during (R + LT) + safety stock for that combined period.
+**定期発注（R,S）:** Rの周期ごとに在庫を確認し、目標水準Sまで発注する。固定の曜日にベンダーへの注文をまとめる場合（例：火曜注文・木曜集荷）に有効。Rはベンダーの納品スケジュールで決まり、S = (R + LT)の期間中の平均需要 + その期間の安全在庫。
 
-**Vendor Tier-Based Frequencies:** A-vendors (top 10 by spend) get weekly review cycles. B-vendors (next 20) get bi-weekly. C-vendors (remaining) get monthly. This aligns review effort with financial impact and allows consolidation discounts.
+**ベンダー階層ベースの頻度:** Aベンダー（支出上位10社）は週次レビューサイクル。Bベンダー（次の20社）は隔週。Cベンダー（その他）は月次。これはレビューの労力を財務的インパクトに合わせ、数量割引の統合を可能にする。
 
-### Promotional Planning
+### プロモーション計画
 
-**Demand Signal Distortion:** Promotions create artificial demand peaks that contaminate baseline forecasting. Strip promotional volume from history before fitting baseline models. Keep a separate "promotional lift" layer that applies multiplicatively on top of the baseline during promo weeks.
+**需要シグナルのひずみ:** プロモーションは人工的な需要ピークを作り出し、ベースラインの予測を汚染する。ベースラインモデルをフィッティングする前にプロモーション量を実績から取り除く。プロモーション期間中ベースラインの上に乗算的に適用される、独立した「プロモーションリフト」レイヤーを維持する。
 
-**Lift Estimation Methods:** (1) Year-over-year comparison of promoted vs. non-promoted periods for the same item. (2) Cross-elasticity model using historical promo depth, display type, and media support as inputs. (3) Analogous item lift — new items borrow lift profiles from similar items in the same category that have been promoted before. Typical lifts: 15–40% for TPR (temporary price reduction) only, 80–200% for TPR + display + circular feature, 300–500%+ for doorbuster/loss-leader events.
+**リフト推定手法:** (1) 同品目のプロモーション実施期間と非実施期間の前年比較。(2) 値引き率、陳列タイプ、メディアサポートを入力とする交差弾力性モデル。(3) 類似品目リフト：新規品目は過去にプロモーションした同カテゴリの類似品目のリフトプロファイルを借用する。典型的なリフト：TPR（一時的値引き）のみで15〜40%、TPR+陳列+折込チラシ掲載で80〜200%、目玉商品・集客商品イベントで300〜500%以上。
 
-**Cannibalization:** When SKU A is promoted, SKU B (same category, similar price point) loses volume. Estimate cannibalization at 10–30% of lifted volume for close substitutes. Ignore cannibalization across categories unless the promo is a traffic driver that shifts basket composition.
+**共食い（カニバリゼーション）:** SKU Aがプロモーションされると、SKU B（同カテゴリ、類似価格帯）は数量を失う。近接する代替品では、リフト量の10〜30%をカニバリゼーションとして推定する。プロモーションがトラフィックドライバーとして機能しバスケット構成を変える場合を除き、カテゴリをまたいだカニバリゼーションは無視する。
 
-**Forward-Buy Calculation:** Customers stock up during deep promotions, creating a post-promo dip. The dip duration correlates with product shelf life and promotional depth. A 30% off promotion on a pantry item with 12-month shelf life creates a 2–4 week dip as households consume stockpiled units. A 15% off promotion on a perishable produces almost no dip.
+**前買い量の計算:** 顧客は深い値引きプロモーション中にまとめ買いをし、プロモーション後の落ち込みを生む。落ち込みの期間は商品の賞味期限とプロモーションの深さに相関する。賞味期限12ヶ月の保存食品に対する30%引きプロモーションは、家庭が買い置きを消費する2〜4週間の落ち込みを生む。生鮮品に対する15%引きプロモーションはほとんど落ち込みを生じさせない。
 
-**Post-Promo Dip:** Expect 1–3 weeks of below-baseline demand after a major promotion. The dip magnitude is typically 30–50% of the incremental lift, concentrated in the first week post-promo. Failing to forecast the dip leads to excess inventory and markdowns.
+**プロモーション後の落ち込み:** 大型プロモーションの後、1〜3週間のベースライン以下の需要を予想する。落ち込みの規模は増分リフトの30〜50%で、プロモーション後の最初の週に集中する。落ち込みの予測を怠ると過剰在庫とマークダウンにつながる。
 
-### ABC/XYZ Classification
+### ABC/XYZ分類
 
-**ABC (Value):** A = top 20% of SKUs driving 80% of revenue/margin. B = next 30% driving 15%. C = bottom 50% driving 5%. Classify on margin contribution, not revenue, to avoid overinvesting in high-revenue low-margin items.
+**ABC（価値）:** A = 売上/粗利益の80%を生み出すSKUのトップ20%。B = 15%を生み出す次の30%。C = 5%を生み出す残りの50%。高売上・低粗利益品目への過剰投資を避けるために、売上ではなく粗利益貢献で分類すること。
 
-**XYZ (Predictability):** X = CV of demand < 0.5 (highly predictable). Y = CV 0.5–1.0 (moderately predictable). Z = CV > 1.0 (erratic/lumpy). Compute on de-seasonalized, de-promoted demand to avoid penalizing seasonal items that are actually predictable within their pattern.
+**XYZ（予測可能性）:** X = 需要のCV < 0.5（高予測可能）。Y = CV 0.5〜1.0（中程度に予測可能）。Z = CV > 1.0（不規則・散発的）。実際には予測可能なパターン内で動く季節品目にペナルティを与えないよう、脱季節化・脱プロモーション化した需要で計算すること。
 
-**Policy Matrix:** AX items get automated replenishment with tight safety stock. AZ items need human review every cycle — they're high-value but erratic. CX items get automated replenishment with generous review periods. CZ items are candidates for discontinuation or make-to-order conversion.
+**ポリシーマトリクス:** AX品目は自動補充で安全在庫を絞る。AZ品目はサイクルごとに人が確認する。高価値だが不規則なため。CX品目は余裕を持ったレビュー期間で自動補充。CZ品目は廃番または受注生産への転換の候補。
 
-### Seasonal Transition Management
+### 季節移行管理
 
-**Buy Timing:** Seasonal buys (e.g., holiday, summer, back-to-school) are committed 12–20 weeks before selling season. Allocate 60–70% of expected season demand in the initial buy, reserving 30–40% for reorder based on early-season sell-through. This "open-to-buy" reserve is your hedge against forecast error.
+**買付タイミング:** 季節品（ホリデー、夏、新学期など）の買付はシーズンの12〜20週前にコミットする。予想シーズン需要の60〜70%を初回買付で確保し、30〜40%をシーズン序盤の売れ行きに基づく再発注に残す。この「売れ行き応じ枠」が予測誤差に対するヘッジとなる。
 
-**Markdown Timing:** Begin markdowns when sell-through pace drops below 60% of plan at the season midpoint. Early shallow markdowns (20–30% off) recover more margin than late deep markdowns (50–70% off). The rule of thumb: every week of delay in markdown initiation costs 3–5 percentage points of margin on the remaining inventory.
+**マークダウンのタイミング:** シーズン中間時点で売れ行きペースが計画の60%を下回ったときにマークダウンを開始する。早期の浅いマークダウン（20〜30%引き）は、遅い深いマークダウン（50〜70%引き）より粗利益を多く回収できる。目安：マークダウン開始の遅延1週間ごとに、残在庫の粗利益率が3〜5ポイント失われる。
 
-**Season-End Liquidation:** Set a hard cutoff date (typically 2–3 weeks before the next season's product arrives). Everything remaining at cutoff goes to outlet, liquidator, or donation. Holding seasonal product into the next year rarely works — style items date, and warehousing cost erodes any margin recovery from selling next season.
+**シーズン末の処分:** 翌シーズンの商品が入荷する2〜3週前を強制終了日として設定する。終了日時点で残った在庫は全てアウトレット、流動在庫業者、または寄付へ。季節品を翌年に持ち越すことはほぼ機能しない。ファッション性のある商品は陳腐化し、翌シーズンからの回収での保管コストが粗利益を侵食する。
 
-## Decision Frameworks
+## 意思決定フレームワーク
 
-### Forecast Method Selection by Demand Pattern
+### 需要パターン別の予測手法選択
 
-| Demand Pattern | Primary Method | Fallback Method | Review Trigger |
+| 需要パターン | 主な手法 | 代替手法 | レビュートリガー |
 |---|---|---|---|
-| Stable, high-volume, no seasonality | Weighted moving average (4–8 weeks) | Single exponential smoothing | WMAPE > 25% for 4 consecutive weeks |
-| Trending (growth or decline) | Holt's double exponential smoothing | Linear regression on recent 26 weeks | Tracking signal exceeds ±4 |
-| Seasonal, repeating pattern | Holt-Winters (multiplicative for growing seasonal, additive for stable) | STL decomposition + SES on residual | Season-over-season pattern correlation < 0.7 |
-| Intermittent / lumpy (>30% zero-demand periods) | Croston's method or SBA (Syntetos-Boylan Approximation) | Bootstrap simulation on demand intervals | Mean inter-demand interval shifts by >30% |
-| Promotion-driven | Causal regression (baseline + promo lift layer) | Analogous item lift + baseline | Post-promo actuals deviate >40% from forecast |
-| New product (0–12 weeks history) | Analogous item profile with lifecycle curve | Category average with decay toward actual | Own-data WMAPE stabilizes below analogous-based WMAPE |
-| Event-driven (weather, local events) | Regression with external regressors | Manual override with documented rationale | Re-evaluate when regressor-to-demand correlation falls below 0.6 or event-period forecast error rises >30% for 2 comparable events |
+| 安定・高ボリューム・季節性なし | 加重移動平均（4〜8週） | 単純指数平滑法 | 4週連続でWMAPE > 25% |
+| トレンドあり（成長または減少） | Holtの二重指数平滑法 | 直近26週の線形回帰 | 追跡シグナルが±4超 |
+| 季節性あり・繰り返しパターン | Holt-Winters（成長季節性には乗法型、安定季節性には加法型） | STL分解 + 残差へのSES | 前年同期との季節パターン相関 < 0.7 |
+| 断続的・散発的（需要ゼロ期間 > 30%） | Crosstonの手法またはSBA（Syntetos-Boylan近似） | 需要間隔のブートストラップシミュレーション | 平均需要間隔が > 30%シフト |
+| プロモーション主導 | 因果回帰（ベースライン + プロモーションリフトレイヤー） | 類似品目リフト + ベースライン | プロモーション後の実績が予測から > 40%乖離 |
+| 新製品（実績0〜12週） | ライフサイクルカーブを持つ類似品目プロファイル | カテゴリ平均と実績への収束 | 自社データのWMAPEが類似品目ベースのWMAPEを安定的に下回る |
+| イベント主導（天候、地域イベント） | 外部回帰変数による回帰 | 文書化した根拠を伴う手動オーバーライド | 回帰変数と需要の相関が0.6を下回るか、イベント期間の予測誤差が2つの比較可能イベントで > 30%増加した場合に再評価 |
 
-### Safety Stock Service Level Selection
+### 安全在庫サービスレベルの選択
 
-| Segment | Target Service Level | Z-Score | Rationale |
+| セグメント | 目標サービスレベル | Zスコア | 根拠 |
 |---|---|---|---|
-| AX (high-value, predictable) | 97.5% | 1.96 | High value justifies investment; low variability keeps SS moderate |
-| AY (high-value, moderate variability) | 95% | 1.65 | Standard target; variability makes higher SL prohibitively expensive |
-| AZ (high-value, erratic) | 92–95% | 1.41–1.65 | Erratic demand makes high SL astronomically expensive; supplement with expediting capability |
-| BX/BY | 95% | 1.65 | Standard target |
-| BZ | 90% | 1.28 | Accept some stockout risk on mid-tier erratic items |
-| CX/CY | 90–92% | 1.28–1.41 | Low value doesn't justify high SS investment |
-| CZ | 85% | 1.04 | Candidate for discontinuation; minimal investment |
+| AX（高価値、予測可能） | 97.5% | 1.96 | 高価値は投資を正当化し、低変動で安全在庫は適度に抑えられる |
+| AY（高価値、中程度の変動） | 95% | 1.65 | 標準目標；変動が大きいと高サービスレベルは費用が割高になる |
+| AZ（高価値、不規則） | 92〜95% | 1.41〜1.65 | 不規則な需要では高サービスレベルのコストが天文学的になる；特急手配能力で補完する |
+| BX/BY | 95% | 1.65 | 標準目標 |
+| BZ | 90% | 1.28 | 中位不規則品目のある程度の欠品リスクを許容する |
+| CX/CY | 90〜92% | 1.28〜1.41 | 低価値品目は高い安全在庫投資を正当化しない |
+| CZ | 85% | 1.04 | 廃番候補；最小限の投資 |
 
-### Promotional Lift Decision Framework
+### プロモーションリフトの意思決定フレームワーク
 
-1. **Is there historical lift data for this SKU-promo type combination?** → Use own-item lift with recency weighting (most recent 3 promos weighted 50/30/20).
-2. **No own-item data but same category has been promoted?** → Use analogous item lift adjusted for price point and brand tier.
-3. **Brand-new category or promo type?** → Use conservative category-average lift discounted 20%. Build in a wider safety stock buffer for the promo period.
-4. **Cross-promoted with another category?** → Model the traffic driver separately from the cross-promo beneficiary. Apply cross-elasticity coefficient if available; default 0.15 lift for cross-category halo.
-5. **Always model the post-promo dip.** Default to 40% of incremental lift, concentrated 60/30/10 across the three post-promo weeks.
+1. **このSKU×プロモーション種別の組み合わせで過去のリフトデータがあるか？** → 直近3回のプロモーションを重み付け（50/30/20）した自品目リフトを使用する。
+2. **自品目データはないが同カテゴリでプロモーションした実績があるか？** → 価格帯とブランド階層で調整した類似品目リフトを使用する。
+3. **全く新しいカテゴリやプロモーション種別か？** → カテゴリ平均リフトから20%割り引いた保守的な値を使用する。プロモーション期間の安全在庫バッファを広くとる。
+4. **別カテゴリとクロスプロモーションされているか？** → トラフィックドライバーとクロスプロモーション受益者を別々にモデル化する。利用可能であればクロス弾力性係数を適用し、デフォルトではクロスカテゴリハロー効果として0.15リフトを設定する。
+5. **常にプロモーション後の落ち込みをモデル化する。** デフォルトは増分リフトの40%で、プロモーション後3週間に60/30/10で分散する。
 
-### Markdown Timing Decision
+### マークダウンタイミングの判断
 
-| Sell-Through at Season Midpoint | Action | Expected Margin Recovery |
+| シーズン中間時点の売れ行き率 | アクション | 期待される粗利益回収 |
 |---|---|---|
-| ≥ 80% of plan | Hold price. Reorder cautiously if weeks of supply < 3. | Full margin |
-| 60–79% of plan | Take 20–25% markdown. No reorder. | 70–80% of original margin |
-| 40–59% of plan | Take 30–40% markdown immediately. Cancel any open POs. | 50–65% of original margin |
-| < 40% of plan | Take 50%+ markdown. Explore liquidation channels. Flag buying error for post-mortem. | 30–45% of original margin |
+| 計画の ≥ 80% | 価格据え置き。在庫週数 < 3なら慎重に再発注。 | 満額粗利益 |
+| 計画の60〜79% | 20〜25%マークダウン。再発注しない。 | 元の粗利益の70〜80% |
+| 計画の40〜59% | 直ちに30〜40%マークダウン。オープンな発注書はキャンセル。 | 元の粗利益の50〜65% |
+| 計画の < 40% | 50%超マークダウン。流動在庫処分チャネルを検討。買付ミスとして事後分析でフラグを立てる。 | 元の粗利益の30〜45% |
 
-### Slow-Mover Kill Decision
+### 低速商品の取りやめ判断
 
-Evaluate quarterly. Flag for discontinuation when ALL of the following are true:
-- Weeks of supply > 26 at current sell-through rate
-- Last 13-week sales velocity < 50% of the item's first 13 weeks (lifecycle declining)
-- No promotional activity planned in the next 8 weeks
-- Item is not contractually obligated (planogram commitment, vendor agreement)
-- Replacement or substitution SKU exists or category can absorb the gap
+四半期ごとに評価する。以下の全てに当てはまる場合、廃番のフラグを立てる。
+- 現在の売れ行きで在庫週数 > 26週
+- 直近13週の販売速度が最初の13週の50%未満（ライフサイクル下降中）
+- 次の8週間にプロモーション計画なし
+- 品目が契約上の義務を負っていない（棚割りコミットメント、ベンダー契約）
+- 代替品またはサブスティテュートSKUが存在するか、カテゴリがギャップを吸収できる
 
-If flagged, initiate markdown at 30% off for 4 weeks. If still not moving, escalate to 50% off or liquidation. Set a hard exit date 8 weeks from first markdown. Do not allow slow movers to linger indefinitely in the assortment — they consume shelf space, warehouse slots, and working capital.
+フラグが立ったら、30%引きで4週間マークダウンを開始する。それでも動かなければ50%引きまたは流動在庫処分に引き上げる。最初のマークダウンから8週後を強制終了日に設定する。低速商品を品揃えに無期限に放置しない。棚スペース、倉庫スロット、運転資本を消費するだけである。
 
-## Key Edge Cases
+## 主要なエッジケース
 
-Brief summaries are included here so you can expand them into project-specific playbooks if needed.
+必要に応じてプロジェクト固有のプレイブックに展開できるよう、簡単なまとめを記載する。
 
-1. **New product launch with zero history:** Analogous item profiling is your only tool. Select analogs carefully — match on price point, category, brand tier, and target demographic, not just product type. Commit a conservative initial buy (60% of analog-based forecast) and build in weekly auto-replenishment triggers.
+1. **実績ゼロの新製品立ち上げ:** 類似品目プロファイリングが唯一の手段。類似品目の選択は慎重に。商品タイプだけでなく、価格帯、カテゴリ、ブランド階層、ターゲット層で一致させる。保守的な初回買付（類似品目ベース予測の60%）を行い、週次の自動補充トリガーを組み込む。
 
-2. **Viral social media spike:** Demand jumps 500–2,000% with no warning. Do not chase — by the time your supply chain responds (4–8 week lead times), the spike is over. Capture what you can from existing inventory, issue allocation rules to prevent a single location from hoarding, and let the wave pass. Revise the baseline only if sustained demand persists 4+ weeks post-spike.
+2. **SNSのバイラルスパイク:** 警告なしに需要が500〜2,000%急増する。追いかけない。サプライチェーンが対応するまでの時間（リードタイム4〜8週）に、スパイクはとっくに終わっている。既存在庫で捌けるだけ捌き、特定の拠点による買い占めを防ぐための割り当てルールを発動し、波が過ぎるのを待つ。スパイク後4週以上持続する需要が確認されてからベースラインを修正する。
 
-3. **Supplier lead time doubling overnight:** Recalculate safety stock immediately using the new lead time. If SS doubles, you likely cannot fill the gap from current inventory. Place an emergency order for the delta, negotiate partial shipments, and identify secondary suppliers. Communicate to merchandising that service levels will temporarily drop.
+3. **サプライヤーのリードタイムが一夜にして倍増:** 新しいリードタイムを使って安全在庫を直ちに再計算する。安全在庫が倍増する場合、現在の在庫ではギャップを埋められない可能性が高い。差分の緊急発注を行い、部分出荷の交渉をし、二次サプライヤーを特定する。サービスレベルが一時的に下がることをマーチャンダイジング部門に伝える。
 
-4. **Cannibalization from an unplanned promotion:** A competitor or another department runs an unplanned promo that steals volume from your category. Your forecast will over-project. Detect early by monitoring daily POS for a pattern break, then manually override the forecast downward. Defer incoming orders if possible.
+4. **計画外のプロモーションによるカニバリゼーション:** 競合他社または別部門が計画外のプロモーションを実施し、あなたのカテゴリから数量を奪う。予測が高すぎる見通しになる。日次POSで需要のパターン変化を監視して早期に検知し、手動で予測を下方修正する。可能であれば入荷発注を延期する。
 
-5. **Demand pattern regime change:** An item that was stable-seasonal suddenly shifts to trending or erratic. Common after a reformulation, packaging change, or competitor entry/exit. The old model will fail silently. Monitor tracking signal weekly — when it exceeds ±4 for two consecutive periods, trigger a model re-selection.
+5. **需要パターンの変化:** 安定した季節パターンを持っていた品目が突然、トレンドまたは不規則な需要にシフトする。リニューアル、パッケージ変更、競合他社の参入・撤退後によく起きる。古いモデルは静かに失敗する。追跡シグナルを週次で監視する。2連続期間で±4を超えたら、モデル再選択をトリガーする。
 
-6. **Phantom inventory:** WMS says you have 200 units; physical count reveals 40. Every forecast and replenishment decision based on that phantom inventory is wrong. Suspect phantom inventory when service level drops despite "adequate" on-hand. Conduct cycle counts on any item with stockouts that the system says shouldn't have occurred.
+6. **幽霊在庫:** WMSは200個あると表示しているが、現物カウントでは40個しかない。その幽霊在庫に基づく全ての予測と補充判断が誤りとなる。「十分な」手元在庫があるのにサービスレベルが下がるときは幽霊在庫を疑う。欠品が発生しているのにシステムが欠品していないはずだと言う品目は棚卸する。
 
-7. **Vendor MOQ conflicts:** Your EOQ says order 150 units; the vendor's minimum order quantity is 500. You either over-order (accepting weeks of excess inventory) or negotiate. Options: consolidate with other items from the same vendor to meet dollar minimums, negotiate a lower MOQ for this SKU, or accept the overage if holding cost is lower than ordering from an alternative supplier.
+7. **ベンダーのMOQ制約:** EOQは150個と言っているが、ベンダーの最低発注数量は500個。過剰発注（過剰在庫の週数を受け入れる）するか交渉するかのどちらか。選択肢：同じベンダーの他品目と統合して金額最小値を満たす、このSKUの低MOQを交渉する、または代替サプライヤーからの発注コストより保有コストが低ければ超過を受け入れる。
 
-8. **Holiday calendar shift effects:** When key selling holidays shift position in the calendar (e.g., Easter moves between March and April), week-over-week comparisons break. Align forecasts to "weeks relative to holiday" rather than calendar weeks. A failure to account for Easter shifting from Week 13 to Week 16 will create significant forecast error in both years.
+8. **祝日カレンダーのシフト効果:** 主要な販売祝日がカレンダー上でシフトする場合（例：イースターが3月と4月の間を移動する）、週次の前年比較が壊れる。「カレンダー週」ではなく「祝日から何週目か」を基準に予測を合わせる。イースターが第13週から第16週にシフトしたことを考慮しないと、両年に大きな予測誤差が生じる。
 
-## Communication Patterns
+## コミュニケーションパターン
 
-### Tone Calibration
+### トーンの調整
 
-- **Vendor routine reorder:** Transactional, brief, PO-reference-driven. "PO #XXXX for delivery week of MM/DD per our agreed schedule."
-- **Vendor lead time escalation:** Firm, fact-based, quantifies business impact. "Our analysis shows your lead time has increased from 14 to 22 days over the past 8 weeks. This has resulted in X stockout events. We need a corrective plan by [date]."
-- **Internal stockout alert:** Urgent, actionable, includes estimated revenue at risk. Lead with the customer impact, not the inventory metric. "SKU X will stock out at 12 locations by Thursday. Estimated lost sales: $XX,000. Recommended action: [expedite/reallocate/substitute]."
-- **Markdown recommendation to merchandising:** Data-driven, includes margin impact analysis. Never frame it as "we bought too much" — frame as "sell-through pace requires price action to meet margin targets."
-- **Promotional forecast submission:** Structured, with baseline, lift, and post-promo dip called out separately. Include assumptions and confidence range. "Baseline: 500 units/week. Promotional lift estimate: 180% (900 incremental). Post-promo dip: −35% for 2 weeks. Confidence: ±25%."
-- **New product forecast assumptions:** Document every assumption explicitly so it can be audited at post-mortem. "Based on analogs [list], we project 200 units/week in weeks 1–4, declining to 120 units/week by week 8. Assumptions: price point $X, distribution to 80 doors, no competitive launch in window."
+- **ベンダーへの日常発注:** 取引的で簡潔、発注書番号を軸に。「合意のスケジュール通り、{MM/DD}週の納品でPO #{XXXX}を送付します。」
+- **ベンダーへのリードタイムエスカレーション:** 断固として、事実に基づき、ビジネスへの影響を数値で示す。「分析の結果、過去8週間でリードタイムが14日から22日に延長していることが分かりました。これにより欠品が{X}件発生しています。{日付}までに是正計画が必要です。」
+- **社内への欠品アラート:** 緊急で、実行可能で、売上リスクを含む。在庫の指標ではなく顧客への影響から始める。「SKU Xは木曜日までに12拠点で欠品します。推定売上損失：{XX}万円。推奨アクション：[特急手配/振り分け変更/代替品]」
+- **マーチャンダイジング部門へのマークダウン勧告:** データ主導で、粗利益への影響分析を含む。「買いすぎた」とは決してフレーミングせず、「売れ行きペースが粗利益目標達成に向けた価格対応を必要としている」とフレーミングする。
+- **プロモーション予測の提出:** 構造的で、ベースライン、リフト、プロモーション後の落ち込みを個別に明示する。前提条件と信頼区間を含める。「ベースライン：500個/週。プロモーションリフト推定：180%（増分900個）。プロモーション後落ち込み：2週間で−35%。信頼区間：±25%。」
+- **新製品の予測前提条件:** 事後分析で監査できるよう、全ての前提条件を明示的に文書化する。「類似品目[一覧]を基に、1〜4週は週200個、8週目までに週120個へ減少すると予測します。前提条件：価格{X}円、80店舗への投入、期間中の競合立ち上げなし。」
 
-Brief templates appear above. Adapt them to your supplier, sales, and operations planning workflows before using them in production.
+以上は簡易テンプレートである。本番環境での使用前に、自社のサプライヤー・販売・オペレーション計画ワークフローに合わせて調整すること。
 
-## Escalation Protocols
+## エスカレーションプロトコル
 
-### Automatic Escalation Triggers
+### 自動エスカレーションのトリガー
 
-| Trigger | Action | Timeline |
+| トリガー | アクション | タイムライン |
 |---|---|---|
-| Projected stockout on A-item within 7 days | Alert demand planning manager + category merchant | Within 4 hours |
-| Vendor confirms lead time increase > 25% | Notify supply chain director; recalculate all open POs | Within 1 business day |
-| Promotional forecast miss > 40% (over or under) | Post-promo debrief with merchandising and vendor | Within 1 week of promo end |
-| Excess inventory > 26 weeks of supply on any A/B item | Markdown recommendation to merchandising VP | Within 1 week of detection |
-| Forecast bias exceeds ±10% for 4 consecutive weeks | Model review and re-parameterization | Within 2 weeks |
-| New product sell-through < 40% of plan after 4 weeks | Assortment review with merchandising | Within 1 week |
-| Service level drops below 90% for any category | Root cause analysis and corrective plan | Within 48 hours |
+| Aアイテムが7日以内に欠品見込み | 需要計画マネージャー＋カテゴリ担当者にアラート | 4時間以内 |
+| ベンダーがリードタイム25%超の延長を確認 | サプライチェーンディレクターに通知；全オープン発注書を再計算 | 1営業日以内 |
+| プロモーション予測外れが > 40%（過多・過少とも） | マーチャンダイジングとベンダーとのプロモーション事後分析 | プロモーション終了から1週間以内 |
+| A/B品目の過剰在庫が > 26週分 | マーチャンダイジングVPへのマークダウン勧告 | 検知から1週間以内 |
+| 4週連続で予測バイアスが ±10%超 | モデルレビューと再パラメータ化 | 2週間以内 |
+| 新製品の売れ行きが4週後に計画の40%未満 | マーチャンダイジングとの品揃えレビュー | 1週間以内 |
+| カテゴリのサービスレベルが90%を下回る | 根本原因分析と是正計画 | 48時間以内 |
 
-### Escalation Chain
+### エスカレーションチェーン
 
-Level 1 (Demand Planner) → Level 2 (Planning Manager, 24 hours) → Level 3 (Director of Supply Chain Planning, 48 hours) → Level 4 (VP Supply Chain, 72+ hours or any A-item stockout at enterprise customer)
+レベル1（需要プランナー）→ レベル2（計画マネージャー、24時間以内）→ レベル3（サプライチェーン計画ディレクター、48時間以内）→ レベル4（SCMバイスプレジデント、72時間以上または大口顧客でのAアイテム欠品時）
 
-## Performance Indicators
+## パフォーマンス指標
 
-Track weekly and trend monthly:
+週次で追跡し、月次でトレンドを確認する。
 
-| Metric | Target | Red Flag |
+| 指標 | 目標値 | 要注意 |
 |---|---|---|
-| WMAPE (weighted mean absolute percentage error) | < 25% | > 35% |
-| Forecast bias | ±5% | > ±10% for 4+ weeks |
-| In-stock rate (A-items) | > 97% | < 94% |
-| In-stock rate (all items) | > 95% | < 92% |
-| Weeks of supply (aggregate) | 4–8 weeks | > 12 or < 3 |
-| Excess inventory (>26 weeks supply) | < 5% of SKUs | > 10% of SKUs |
-| Dead stock (zero sales, 13+ weeks) | < 2% of SKUs | > 5% of SKUs |
-| Purchase order fill rate from vendors | > 95% | < 90% |
-| Promotional forecast accuracy (WMAPE) | < 35% | > 50% |
+| WMAPE（加重平均絶対パーセント誤差） | 25%未満 | 35%超 |
+| 予測バイアス | ±5% | 4週以上 ±10%超 |
+| 在庫充足率（Aアイテム） | 97%超 | 94%未満 |
+| 在庫充足率（全品目） | 95%超 | 92%未満 |
+| 在庫週数（合計） | 4〜8週 | 12週超または3週未満 |
+| 過剰在庫（26週分超） | SKUの5%未満 | SKUの10%超 |
+| 滞留在庫（販売ゼロ、13週以上） | SKUの2%未満 | SKUの5%超 |
+| ベンダーからの発注書充足率 | 95%超 | 90%未満 |
+| プロモーション予測精度（WMAPE） | 35%未満 | 50%超 |
 
-## Additional Resources
+## 追加リソース
 
-- Pair this skill with your SKU segmentation model, service-level policy, and planner override audit log.
-- Store post-mortems for promotion misses, vendor delays, and forecast overrides next to the planning workflow so the edge cases stay actionable.
+- 本スキルは、SKUセグメンテーションモデル、サービスレベルポリシー、プランナーオーバーライド監査ログと組み合わせること。
+- プロモーション外れ、ベンダー遅延、予測オーバーライドの事後分析は、エッジケースが実行可能な状態を保てるよう計画ワークフローの近くに保管すること。

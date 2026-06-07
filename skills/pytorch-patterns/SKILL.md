@@ -1,44 +1,44 @@
 ---
 name: pytorch-patterns
-description: PyTorch deep learning patterns and best practices for building robust, efficient, and reproducible training pipelines, model architectures, and data loading.
+description: PyTorchのディープラーニングパターンとベストプラクティス。堅牢で効率的かつ再現性のあるトレーニングパイプライン・モデルアーキテクチャ・データ読み込みの構築に対応。
 origin: ECC
 ---
 
-# PyTorch Development Patterns
+# PyTorch開発パターン
 
-Idiomatic PyTorch patterns and best practices for building robust, efficient, and reproducible deep learning applications.
+堅牢で効率的かつ再現性のあるディープラーニングアプリケーション構築のためのイディオマティックなPyTorchパターンとベストプラクティス。
 
-## When to Activate
+## 有効化タイミング
 
-- Writing new PyTorch models or training scripts
-- Reviewing deep learning code
-- Debugging training loops or data pipelines
-- Optimizing GPU memory usage or training speed
-- Setting up reproducible experiments
+- 新しいPyTorchモデルまたはトレーニングスクリプトを書く場合
+- ディープラーニングコードのレビュー
+- トレーニングループまたはデータパイプラインのデバッグ
+- GPUメモリ使用量またはトレーニング速度の最適化
+- 再現可能な実験のセットアップ
 
-## Core Principles
+## 基本原則
 
-### 1. Device-Agnostic Code
+### 1. デバイス非依存のコード
 
-Always write code that works on both CPU and GPU without hardcoding devices.
+デバイスをハードコードせず、CPUとGPUの両方で動作するコードを常に書いてください。
 
 ```python
-# Good: Device-agnostic
+# 良い例: デバイス非依存
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = MyModel().to(device)
 data = data.to(device)
 
-# Bad: Hardcoded device
-model = MyModel().cuda()  # Crashes if no GPU
+# 悪い例: ハードコードされたデバイス
+model = MyModel().cuda()  # GPUがなければクラッシュ
 data = data.cuda()
 ```
 
-### 2. Reproducibility First
+### 2. 再現性を最優先
 
-Set all random seeds for reproducible results.
+再現可能な結果のためにすべての乱数シードを設定します。
 
 ```python
-# Good: Full reproducibility setup
+# 良い例: 完全な再現性セットアップ
 def set_seed(seed: int = 42) -> None:
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
@@ -47,16 +47,16 @@ def set_seed(seed: int = 42) -> None:
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
-# Bad: No seed control
-model = MyModel()  # Different weights every run
+# 悪い例: シード制御なし
+model = MyModel()  # 毎回異なる重み
 ```
 
-### 3. Explicit Shape Management
+### 3. 明示的なシェイプ管理
 
-Always document and verify tensor shapes.
+テンソルのシェイプを常に文書化し検証します。
 
 ```python
-# Good: Shape-annotated forward pass
+# 良い例: シェイプアノテーション付きフォワードパス
 def forward(self, x: torch.Tensor) -> torch.Tensor:
     # x: (batch_size, channels, height, width)
     x = self.conv1(x)    # -> (batch_size, 32, H, W)
@@ -64,20 +64,20 @@ def forward(self, x: torch.Tensor) -> torch.Tensor:
     x = x.view(x.size(0), -1)  # -> (batch_size, 32*H//2*W//2)
     return self.fc(x)    # -> (batch_size, num_classes)
 
-# Bad: No shape tracking
+# 悪い例: シェイプ追跡なし
 def forward(self, x):
     x = self.conv1(x)
     x = self.pool(x)
-    x = x.view(x.size(0), -1)  # What size is this?
-    return self.fc(x)           # Will this even work?
+    x = x.view(x.size(0), -1)  # このサイズは何？
+    return self.fc(x)           # これは動作する？
 ```
 
-## Model Architecture Patterns
+## モデルアーキテクチャパターン
 
-### Clean nn.Module Structure
+### クリーンなnn.Module構造
 
 ```python
-# Good: Well-organized module
+# 良い例: 整理されたモジュール
 class ImageClassifier(nn.Module):
     def __init__(self, num_classes: int, dropout: float = 0.5) -> None:
         super().__init__()
@@ -97,20 +97,20 @@ class ImageClassifier(nn.Module):
         x = x.view(x.size(0), -1)
         return self.classifier(x)
 
-# Bad: Everything in forward
+# 悪い例: forwardにすべてを詰め込む
 class ImageClassifier(nn.Module):
     def __init__(self):
         super().__init__()
 
     def forward(self, x):
-        x = F.conv2d(x, weight=self.make_weight())  # Creates weight each call!
+        x = F.conv2d(x, weight=self.make_weight())  # 毎回重みを作成！
         return x
 ```
 
-### Proper Weight Initialization
+### 適切な重みの初期化
 
 ```python
-# Good: Explicit initialization
+# 良い例: 明示的な初期化
 def _init_weights(self, module: nn.Module) -> None:
     if isinstance(module, nn.Linear):
         nn.init.kaiming_normal_(module.weight, mode="fan_out", nonlinearity="relu")
@@ -126,12 +126,12 @@ model = MyModel()
 model.apply(model._init_weights)
 ```
 
-## Training Loop Patterns
+## トレーニングループパターン
 
-### Standard Training Loop
+### 標準的なトレーニングループ
 
 ```python
-# Good: Complete training loop with best practices
+# 良い例: ベストプラクティスを備えた完全なトレーニングループ
 def train_one_epoch(
     model: nn.Module,
     dataloader: DataLoader,
@@ -140,15 +140,15 @@ def train_one_epoch(
     device: torch.device,
     scaler: torch.amp.GradScaler | None = None,
 ) -> float:
-    model.train()  # Always set train mode
+    model.train()  # 常にトレーニングモードを設定
     total_loss = 0.0
 
     for batch_idx, (data, target) in enumerate(dataloader):
         data, target = data.to(device), target.to(device)
 
-        optimizer.zero_grad(set_to_none=True)  # More efficient than zero_grad()
+        optimizer.zero_grad(set_to_none=True)  # zero_grad()より効率的
 
-        # Mixed precision training
+        # 混合精度トレーニング
         with torch.amp.autocast("cuda", enabled=scaler is not None):
             output = model(data)
             loss = criterion(output, target)
@@ -169,18 +169,18 @@ def train_one_epoch(
     return total_loss / len(dataloader)
 ```
 
-### Validation Loop
+### バリデーションループ
 
 ```python
-# Good: Proper evaluation
-@torch.no_grad()  # More efficient than wrapping in torch.no_grad() block
+# 良い例: 適切な評価
+@torch.no_grad()  # torch.no_grad()ブロックでラップするより効率的
 def evaluate(
     model: nn.Module,
     dataloader: DataLoader,
     criterion: nn.Module,
     device: torch.device,
 ) -> tuple[float, float]:
-    model.eval()  # Always set eval mode — disables dropout, uses running BN stats
+    model.eval()  # 常にevalモードを設定 — ドロップアウト無効化、BNのrunning statsを使用
     total_loss = 0.0
     correct = 0
     total = 0
@@ -195,12 +195,12 @@ def evaluate(
     return total_loss / len(dataloader), correct / total
 ```
 
-## Data Pipeline Patterns
+## データパイプラインパターン
 
-### Custom Dataset
+### カスタムデータセット
 
 ```python
-# Good: Clean Dataset with type hints
+# 良い例: 型ヒント付きのクリーンなデータセット
 class ImageDataset(Dataset):
     def __init__(
         self,
@@ -225,43 +225,43 @@ class ImageDataset(Dataset):
         return img, label
 ```
 
-### Efficient DataLoader Configuration
+### 効率的なDataLoader設定
 
 ```python
-# Good: Optimized DataLoader
+# 良い例: 最適化されたDataLoader
 dataloader = DataLoader(
     dataset,
     batch_size=32,
-    shuffle=True,            # Shuffle for training
-    num_workers=4,           # Parallel data loading
-    pin_memory=True,         # Faster CPU->GPU transfer
-    persistent_workers=True, # Keep workers alive between epochs
-    drop_last=True,          # Consistent batch sizes for BatchNorm
+    shuffle=True,            # トレーニング用にシャッフル
+    num_workers=4,           # 並列データ読み込み
+    pin_memory=True,         # より高速なCPU->GPU転送
+    persistent_workers=True, # エポック間でワーカーを維持
+    drop_last=True,          # BatchNormのために一貫したバッチサイズ
 )
 
-# Bad: Slow defaults
-dataloader = DataLoader(dataset, batch_size=32)  # num_workers=0, no pin_memory
+# 悪い例: 遅いデフォルト
+dataloader = DataLoader(dataset, batch_size=32)  # num_workers=0、pin_memoryなし
 ```
 
-### Custom Collate for Variable-Length Data
+### 可変長データのカスタムCollate
 
 ```python
-# Good: Pad sequences in collate_fn
+# 良い例: collate_fnでシーケンスをパディング
 def collate_fn(batch: list[tuple[torch.Tensor, int]]) -> tuple[torch.Tensor, torch.Tensor]:
     sequences, labels = zip(*batch)
-    # Pad to max length in batch
+    # バッチの最大長にパディング
     padded = nn.utils.rnn.pad_sequence(sequences, batch_first=True, padding_value=0)
     return padded, torch.tensor(labels)
 
 dataloader = DataLoader(dataset, batch_size=32, collate_fn=collate_fn)
 ```
 
-## Checkpointing Patterns
+## チェックポイントパターン
 
-### Save and Load Checkpoints
+### チェックポイントの保存と読み込み
 
 ```python
-# Good: Complete checkpoint with all training state
+# 良い例: すべてのトレーニング状態を含む完全なチェックポイント
 def save_checkpoint(
     model: nn.Module,
     optimizer: torch.optim.Optimizer,
@@ -287,16 +287,16 @@ def load_checkpoint(
         optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
     return checkpoint
 
-# Bad: Only saving model weights (can't resume training)
+# 悪い例: モデルの重みのみ保存（トレーニングを再開できない）
 torch.save(model.state_dict(), "model.pt")
 ```
 
-## Performance Optimization
+## パフォーマンス最適化
 
-### Mixed Precision Training
+### 混合精度トレーニング
 
 ```python
-# Good: AMP with GradScaler
+# 良い例: GradScalerを使ったAMP
 scaler = torch.amp.GradScaler("cuda")
 for data, target in dataloader:
     with torch.amp.autocast("cuda"):
@@ -308,89 +308,89 @@ for data, target in dataloader:
     optimizer.zero_grad(set_to_none=True)
 ```
 
-### Gradient Checkpointing for Large Models
+### 大型モデルのグラジェントチェックポイント
 
 ```python
-# Good: Trade compute for memory
+# 良い例: メモリのために計算をトレード
 from torch.utils.checkpoint import checkpoint
 
 class LargeModel(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # Recompute activations during backward to save memory
+        # メモリを節約するためにバックワード時にアクティベーションを再計算
         x = checkpoint(self.block1, x, use_reentrant=False)
         x = checkpoint(self.block2, x, use_reentrant=False)
         return self.head(x)
 ```
 
-### torch.compile for Speed
+### 速度向上のためのtorch.compile
 
 ```python
-# Good: Compile the model for faster execution (PyTorch 2.0+)
+# 良い例: より高速な実行のためにモデルをコンパイル（PyTorch 2.0+）
 model = MyModel().to(device)
 model = torch.compile(model, mode="reduce-overhead")
 
-# Modes: "default" (safe), "reduce-overhead" (faster), "max-autotune" (fastest)
+# モード: "default"（安全）、"reduce-overhead"（高速）、"max-autotune"（最高速）
 ```
 
-## Quick Reference: PyTorch Idioms
+## クイックリファレンス: PyTorchイディオム
 
-| Idiom | Description |
+| イディオム | 説明 |
 |-------|-------------|
-| `model.train()` / `model.eval()` | Always set mode before train/eval |
-| `torch.no_grad()` | Disable gradients for inference |
-| `optimizer.zero_grad(set_to_none=True)` | More efficient gradient clearing |
-| `.to(device)` | Device-agnostic tensor/model placement |
-| `torch.amp.autocast` | Mixed precision for 2x speed |
-| `pin_memory=True` | Faster CPU→GPU data transfer |
-| `torch.compile` | JIT compilation for speed (2.0+) |
-| `weights_only=True` | Secure model loading |
-| `torch.manual_seed` | Reproducible experiments |
-| `gradient_checkpointing` | Trade compute for memory |
+| `model.train()` / `model.eval()` | トレーニング/評価前に必ずモードを設定する |
+| `torch.no_grad()` | 推論時にグラジェントを無効化する |
+| `optimizer.zero_grad(set_to_none=True)` | より効率的なグラジェントのクリア |
+| `.to(device)` | デバイス非依存のテンソル/モデル配置 |
+| `torch.amp.autocast` | 2倍速のための混合精度 |
+| `pin_memory=True` | より高速なCPU→GPUデータ転送 |
+| `torch.compile` | 速度向上のためのJITコンパイル（2.0+） |
+| `weights_only=True` | セキュアなモデル読み込み |
+| `torch.manual_seed` | 再現可能な実験 |
+| `gradient_checkpointing` | メモリのために計算をトレード |
 
-## Anti-Patterns to Avoid
+## 避けるべきアンチパターン
 
 ```python
-# Bad: Forgetting model.eval() during validation
+# 悪い例: バリデーション中のmodel.eval()忘れ
 model.train()
 with torch.no_grad():
-    output = model(val_data)  # Dropout still active! BatchNorm uses batch stats!
+    output = model(val_data)  # ドロップアウトがまだ有効！BatchNormがバッチ統計を使用！
 
-# Good: Always set eval mode
+# 良い例: 常にevalモードを設定
 model.eval()
 with torch.no_grad():
     output = model(val_data)
 
-# Bad: In-place operations breaking autograd
-x = F.relu(x, inplace=True)  # Can break gradient computation
-x += residual                  # In-place add breaks autograd graph
+# 悪い例: autogradを破壊するインプレース演算
+x = F.relu(x, inplace=True)  # グラジェント計算を破壊する可能性
+x += residual                  # インプレース加算はautogradグラフを破壊する
 
-# Good: Out-of-place operations
+# 良い例: アウトオブプレース演算
 x = F.relu(x)
 x = x + residual
 
-# Bad: Moving data to GPU inside the training loop repeatedly
+# 悪い例: トレーニングループ内で繰り返しデータをGPUに移動する
 for data, target in dataloader:
-    model = model.cuda()  # Moves model EVERY iteration!
+    model = model.cuda()  # 毎イテレーションモデルを移動！
 
-# Good: Move model once before the loop
+# 良い例: ループ前に一度だけモデルを移動する
 model = model.to(device)
 for data, target in dataloader:
     data, target = data.to(device), target.to(device)
 
-# Bad: Using .item() before backward
-loss = criterion(output, target).item()  # Detaches from graph!
-loss.backward()  # Error: can't backprop through .item()
+# 悪い例: バックワード前に.item()を使用する
+loss = criterion(output, target).item()  # グラフから切り離す！
+loss.backward()  # エラー: .item()を通してバックプロップできない
 
-# Good: Call .item() only for logging
+# 良い例: ロギングのためだけに.item()を呼ぶ
 loss = criterion(output, target)
 loss.backward()
-print(f"Loss: {loss.item():.4f}")  # .item() after backward is fine
+print(f"Loss: {loss.item():.4f}")  # バックワード後の.item()は問題なし
 
-# Bad: Not using torch.save properly
-torch.save(model, "model.pt")  # Saves entire model (fragile, not portable)
+# 悪い例: torch.saveの不適切な使用
+torch.save(model, "model.pt")  # モデル全体を保存（脆弱で移植性なし）
 
-# Good: Save state_dict
+# 良い例: state_dictを保存する
 torch.save(model.state_dict(), "model.pt")
 ```
 
-__Remember__: PyTorch code should be device-agnostic, reproducible, and memory-conscious. When in doubt, profile with `torch.profiler` and check GPU memory with `torch.cuda.memory_summary()`.
+__覚えておいてください__: PyTorchコードはデバイス非依存・再現可能・メモリを意識したものであるべきです。迷った場合は `torch.profiler` でプロファイリングし、`torch.cuda.memory_summary()` でGPUメモリを確認してください。

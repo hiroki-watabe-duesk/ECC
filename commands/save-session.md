@@ -1,275 +1,268 @@
 ---
-description: Save current session state to a dated file in ~/.claude/session-data/ so work can be resumed in a future session with full context.
+description: 現在のセッション状態を ~/.claude/session-data/ 内の日付付きファイルに保存し、次回のセッションで完全なコンテキストを復元できるようにする。
 ---
 
-# Save Session Command
+# セッション保存コマンド
 
-Capture everything that happened in this session — what was built, what worked, what failed, what's left — and write it to a dated file so the next session can pick up exactly where this one left off.
+このセッションで発生したすべてのこと――構築したもの・うまくいったこと・失敗したこと・残っていること――を記録し、次のセッションが正確にここから再開できるよう、日付付きファイルに書き出す。
 
-## When to Use
+## 使用するタイミング
 
-- End of a work session before closing Claude Code
-- Before hitting context limits (run this first, then start a fresh session)
-- After solving a complex problem you want to remember
-- Any time you need to hand off context to a future session
+- Claude Codeを閉じる前の作業終了時
+- コンテキスト上限に達する前（先にこれを実行し、新しいセッションを開始する）
+- 複雑な問題を解決して記録に残したいとき
+- 将来のセッションにコンテキストを引き継ぐ必要があるとき
 
-## Process
+## 手順
 
-### Step 1: Gather context
+### ステップ1: コンテキストの収集
 
-Before writing the file, collect:
+ファイルを書く前に以下を収集する:
 
-- Read all files modified during this session (use git diff or recall from conversation)
-- Review what was discussed, attempted, and decided
-- Note any errors encountered and how they were resolved (or not)
-- Check current test/build status if relevant
+- このセッションで変更したすべてのファイルを読む（git diffを使うか、会話から思い出す）
+- 議論した内容・試みたこと・決定したことを振り返る
+- 発生したエラーと解決方法（または未解決の場合はその状況）を記録する
+- 関連する場合はテスト・ビルドの現在の状態を確認する
 
-### Step 2: Create the sessions folder if it doesn't exist
+### ステップ2: sessionsフォルダの作成（未存在の場合）
 
-Create the canonical sessions folder in the user's Claude home directory:
+ユーザーのClaudeホームディレクトリに正式なセッションフォルダを作成する:
 
 ```bash
 mkdir -p ~/.claude/session-data
 ```
 
-### Step 3: Write the session file
+### ステップ3: セッションファイルの書き込み
 
-Create `~/.claude/session-data/YYYY-MM-DD-<short-id>-session.tmp`, using today's actual date and a short-id that satisfies the rules enforced by `SESSION_FILENAME_REGEX` in `session-manager.js`:
+`~/.claude/session-data/YYYY-MM-DD-<short-id>-session.tmp` を作成する。今日の実際の日付と、`session-manager.js`の`SESSION_FILENAME_REGEX`で強制されるルールを満たすshort-idを使う:
 
-- Compatibility characters: letters `a-z` / `A-Z`, digits `0-9`, hyphens `-`, underscores `_`
-- Compatibility minimum length: 1 character
-- Recommended style for new files: lowercase letters, digits, and hyphens with 8+ characters to avoid collisions
+- 使用可能な文字: アルファベット`a-z` / `A-Z`、数字`0-9`、ハイフン`-`、アンダースコア`_`
+- 最小文字数: 1文字
+- 新規ファイルの推奨スタイル: 衝突を避けるため8文字以上の小文字・数字・ハイフン
 
-Valid examples: `abc123de`, `a1b2c3d4`, `frontend-worktree-1`, `ChezMoi_2`
-Avoid for new files: `A`, `test_id1`, `ABC123de`
+有効な例: `abc123de`、`a1b2c3d4`、`frontend-worktree-1`、`ChezMoi_2`
+新規ファイルで避けるべき形式: `A`、`test_id1`、`ABC123de`
 
-Full valid filename example: `2024-01-15-abc123de-session.tmp`
+完全なファイル名の例: `2024-01-15-abc123de-session.tmp`
 
-The legacy filename `YYYY-MM-DD-session.tmp` is still valid, but new session files should prefer the short-id form to avoid same-day collisions.
+レガシーのファイル名形式`YYYY-MM-DD-session.tmp`は引き続き有効だが、同日の衝突を避けるため新規セッションファイルはshort-id形式を推奨する。
 
-### Step 4: Populate the file with all sections below
+### ステップ4: 以下のすべてのセクションをファイルに記入する
 
-Write every section honestly. Do not skip sections — write "Nothing yet" or "N/A" if a section genuinely has no content. An incomplete file is worse than an honest empty section.
+各セクションを正直に書く。セクションを省略しない――内容が本当にない場合は「まだなし」または「該当なし」と書く。不完全なファイルは、正直に空のセクションを書くよりも悪い。
 
-### Step 5: Show the file to the user
+### ステップ5: ファイルをユーザーに見せる
 
-After writing, display the full contents and ask:
+書き込み後、全内容を表示し、次のように確認する:
 
 ```
-Session saved to [actual resolved path to the session file]
+セッションを [セッションファイルへの実際の解決済みパス] に保存しました
 
-Does this look accurate? Anything to correct or add before we close?
+この内容は正確ですか？閉じる前に修正または追加はありますか？
 ```
 
-Wait for confirmation. Make edits if requested.
+確認を待つ。要求があれば編集する。
 
 ---
 
-## Session File Format
+## セッションファイルのフォーマット
 
 ```markdown
 # Session: YYYY-MM-DD
 
-**Started:** [approximate time if known]
-**Last Updated:** [current time]
-**Project:** [project name or path]
-**Topic:** [one-line summary of what this session was about]
+**Started:** [判明している場合はおおよその時刻]
+**Last Updated:** [現在時刻]
+**Project:** [プロジェクト名またはパス]
+**Topic:** [このセッションの内容を1行で要約]
 
 ---
 
-## What We Are Building
+## 構築しているもの
 
-[1-3 paragraphs describing the feature, bug fix, or task. Include enough
-context that someone with zero memory of this session can understand the goal.
-Include: what it does, why it's needed, how it fits into the larger system.]
-
----
-
-## What WORKED (with evidence)
-
-[List only things that are confirmed working. For each item include WHY you
-know it works — test passed, ran in browser, Postman returned 200, etc.
-Without evidence, move it to "Not Tried Yet" instead.]
-
-- **[thing that works]** — confirmed by: [specific evidence]
-- **[thing that works]** — confirmed by: [specific evidence]
-
-If nothing is confirmed working yet: "Nothing confirmed working yet — all approaches still in progress or untested."
+[機能・バグ修正・タスクを1〜3段落で説明。このセッションの記憶がゼロの人が
+目標を理解できるだけのコンテキストを含める。
+含める内容: 何をするか・なぜ必要か・大きなシステムにどう組み込まれるか。]
 
 ---
 
-## What Did NOT Work (and why)
+## うまくいったこと（証拠付き）
 
-[This is the most important section. List every approach tried that failed.
-For each failure write the EXACT reason so the next session doesn't retry it.
-Be specific: "threw X error because Y" is useful. "didn't work" is not.]
+[確認済みの動作するものだけを列挙。各項目について、なぜ動作するとわかったかを記載――
+テストが通った・ブラウザで動いた・Postmanが200を返した、など。
+証拠がなければ「まだ試していないこと」に移す。]
 
-- **[approach tried]** — failed because: [exact reason / error message]
-- **[approach tried]** — failed because: [exact reason / error message]
+- **[動作しているもの]** — 確認方法: [具体的な証拠]
+- **[動作しているもの]** — 確認方法: [具体的な証拠]
 
-If nothing failed: "No failed approaches yet."
-
----
-
-## What Has NOT Been Tried Yet
-
-[Approaches that seem promising but haven't been attempted. Ideas from the
-conversation. Alternative solutions worth exploring. Be specific enough that
-the next session knows exactly what to try.]
-
-- [approach / idea]
-- [approach / idea]
-
-If nothing is queued: "No specific untried approaches identified."
+まだ何も確認できていない場合: 「まだ確認できたものなし――すべてのアプローチが進行中または未テスト。」
 
 ---
 
-## Current State of Files
+## うまくいかなかったこと（理由付き）
 
-[Every file touched this session. Be precise about what state each file is in.]
+[これが最重要セクション。失敗したすべてのアプローチを列挙する。
+次のセッションが同じことを再試行しないよう、各失敗について正確な理由を書く。
+「Xエラーが発生したのはYのため」は有用。「うまくいかなかった」は無用。]
 
-| File              | Status         | Notes                      |
+- **[試みたアプローチ]** — 失敗の理由: [正確な理由 / エラーメッセージ]
+- **[試みたアプローチ]** — 失敗の理由: [正確な理由 / エラーメッセージ]
+
+失敗がない場合: 「失敗したアプローチはまだなし。」
+
+---
+
+## まだ試していないこと
+
+[有望に見えるが未着手のアプローチ。会話中に出たアイデア。
+検討する価値のある代替解決策。次のセッションが何を試せばよいか
+正確にわかるよう、具体的に書く。]
+
+- [アプローチ / アイデア]
+- [アプローチ / アイデア]
+
+キューが空の場合: 「具体的な未試行アプローチなし。」
+
+---
+
+## 各ファイルの現在の状態
+
+[このセッションで触れたすべてのファイル。各ファイルの状態を正確に記載する。]
+
+| ファイル              | 状態         | メモ                      |
 | ----------------- | -------------- | -------------------------- |
-| `path/to/file.ts` | PASS: Complete    | [what it does]             |
-| `path/to/file.ts` |  In Progress | [what's done, what's left] |
-| `path/to/file.ts` | FAIL: Broken      | [what's wrong]             |
-| `path/to/file.ts` |  Not Started | [planned but not touched]  |
+| `path/to/file.ts` | PASS: 完了    | [何をするか]             |
+| `path/to/file.ts` | 進行中 | [完了済みの内容、残りの内容] |
+| `path/to/file.ts` | FAIL: 破損      | [何が問題か]             |
+| `path/to/file.ts` | 未着手 | [予定しているが未着手]  |
 
-If no files were touched: "No files modified this session."
-
----
-
-## Decisions Made
-
-[Architecture choices, tradeoffs accepted, approaches chosen and why.
-These prevent the next session from relitigating settled decisions.]
-
-- **[decision]** — reason: [why this was chosen over alternatives]
-
-If no significant decisions: "No major decisions made this session."
+このセッションでファイルを変更していない場合: 「このセッションでファイルの変更なし。」
 
 ---
 
-## Blockers & Open Questions
+## 決定事項
 
-[Anything unresolved that the next session needs to address or investigate.
-Questions that came up but weren't answered. External dependencies waiting on.]
+[アーキテクチャの選択・受け入れたトレードオフ・選んだアプローチとその理由。
+次のセッションが決着済みの決定を蒸し返さないよう記録する。]
 
-- [blocker / open question]
+- **[決定]** — 理由: [他の選択肢ではなくこれを選んだ理由]
 
-If none: "No active blockers."
-
----
-
-## Exact Next Step
-
-[If known: The single most important thing to do when resuming. Be precise
-enough that resuming requires zero thinking about where to start.]
-
-[If not known: "Next step not determined — review 'What Has NOT Been Tried Yet'
-and 'Blockers' sections to decide on direction before starting."]
+重要な決定がない場合: 「このセッションで主要な決定はなし。」
 
 ---
 
-## Environment & Setup Notes
+## ブロッカーと未解決の質問
 
-[Only fill this if relevant — commands needed to run the project, env vars
-required, services that need to be running, etc. Skip if standard setup.]
+[次のセッションで対処または調査が必要な未解決事項。
+出てきたが回答されなかった質問。待機中の外部依存関係。]
 
-[If none: omit this section entirely.]
+- [ブロッカー / 未解決の質問]
+
+ない場合: 「アクティブなブロッカーなし。」
+
+---
+
+## 次の正確なステップ
+
+[判明している場合: 再開時に行う最も重要な1つのこと。
+開始地点についてゼロ思考で済むよう、十分に具体的に書く。]
+
+[不明な場合: 「次のステップ未確定――「まだ試していないこと」と
+「ブロッカー」セクションを参照して方向性を決めてから開始すること。」]
+
+---
+
+## 環境とセットアップのメモ
+
+[関連する場合のみ記入――プロジェクトの実行に必要なコマンド、
+必要な環境変数、起動が必要なサービスなど。標準的なセットアップであれば省略。]
+
+[なければ: このセクション全体を省略する。]
 ```
 
 ---
 
-## Example Output
+## 出力例
 
 ```markdown
 # Session: 2024-01-15
 
-**Started:** ~2pm
-**Last Updated:** 5:30pm
+**Started:** ~14:00
+**Last Updated:** 17:30
 **Project:** my-app
-**Topic:** Building JWT authentication with httpOnly cookies
+**Topic:** httpOnlyクッキーを使ったJWT認証の構築
 
 ---
 
-## What We Are Building
+## 構築しているもの
 
-User authentication system for the Next.js app. Users register with email/password,
-receive a JWT stored in an httpOnly cookie (not localStorage), and protected routes
-check for a valid token via middleware. The goal is session persistence across browser
-refreshes without exposing the token to JavaScript.
-
----
-
-## What WORKED (with evidence)
-
-- **`/api/auth/register` endpoint** — confirmed by: Postman POST returns 200 with user
-  object, row visible in Supabase dashboard, bcrypt hash stored correctly
-- **JWT generation in `lib/auth.ts`** — confirmed by: unit test passes
-  (`npm test -- auth.test.ts`), decoded token at jwt.io shows correct payload
-- **Password hashing** — confirmed by: `bcrypt.compare()` returns true in test
+Next.jsアプリ用のユーザー認証システム。ユーザーはメール/パスワードで登録し、
+localStorageではなくhttpOnlyクッキーに格納されたJWTを受け取る。
+保護されたルートはミドルウェアで有効なトークンを確認する。
+目標はJavaScriptにトークンを公開せずにブラウザリフレッシュをまたいだセッション永続化。
 
 ---
 
-## What Did NOT Work (and why)
+## うまくいったこと（証拠付き）
 
-- **Next-Auth library** — failed because: conflicts with our custom Prisma adapter,
-  threw "Cannot use adapter with credentials provider in this configuration" on every
-  request. Not worth debugging — too opinionated for our setup.
-- **Storing JWT in localStorage** — failed because: SSR renders happen before
-  localStorage is available, caused React hydration mismatch error on every page load.
-  This approach is fundamentally incompatible with Next.js SSR.
+- **`/api/auth/register`エンドポイント** — 確認方法: PostmanのPOSTが200とユーザーオブジェクトを返した。Supabaseダッシュボードで行が確認できた。bcryptハッシュが正しく保存されている。
+- **`lib/auth.ts`でのJWT生成** — 確認方法: ユニットテストが通った（`npm test -- auth.test.ts`）。jwt.ioでデコードしたトークンに正しいペイロードが含まれていた。
+- **パスワードハッシュ** — 確認方法: `bcrypt.compare()`がテストでtrueを返した。
 
 ---
 
-## What Has NOT Been Tried Yet
+## うまくいかなかったこと（理由付き）
 
-- Store JWT as httpOnly cookie in the login route response (most likely solution)
-- Use `cookies()` from `next/headers` to read token in server components
-- Write middleware.ts to protect routes by checking cookie existence
+- **Next-Authライブラリ** — 失敗の理由: カスタムPrismaアダプターと競合し、すべてのリクエストで「Cannot use adapter with credentials provider in this configuration」がスローされた。デバッグに値しない――私たちのセットアップには制約が多すぎる。
+- **localStorageにJWTを保存** — 失敗の理由: SSRレンダリングはlocalStorageが利用可能になる前に発生するため、すべてのページロードでReactのハイドレーションミスマッチエラーが発生した。このアプローチはNext.jsのSSRと根本的に相容れない。
 
 ---
 
-## Current State of Files
+## まだ試していないこと
 
-| File                             | Status         | Notes                                           |
+- ログインルートのレスポンスでJWTをhttpOnlyクッキーとして保存（最有力候補）
+- サーバーコンポーネントで`next/headers`の`cookies()`を使ってトークンを読み取る
+- クッキーの存在確認でルートを保護するmiddleware.tsを書く
+
+---
+
+## 各ファイルの現在の状態
+
+| ファイル                             | 状態         | メモ                                           |
 | -------------------------------- | -------------- | ----------------------------------------------- |
-| `app/api/auth/register/route.ts` | PASS: Complete    | Works, tested                                   |
-| `app/api/auth/login/route.ts`    |  In Progress | Token generates but not setting cookie yet      |
-| `lib/auth.ts`                    | PASS: Complete    | JWT helpers, all tested                         |
-| `middleware.ts`                  |  Not Started | Route protection, needs cookie read logic first |
-| `app/login/page.tsx`             |  Not Started | UI not started                                  |
+| `app/api/auth/register/route.ts` | PASS: 完了    | 動作確認済み・テスト済み                                   |
+| `app/api/auth/login/route.ts`    | 進行中 | トークン生成済みだがクッキー設定がまだ      |
+| `lib/auth.ts`                    | PASS: 完了    | JWTヘルパー、すべてテスト済み                         |
+| `middleware.ts`                  | 未着手 | ルート保護、先にクッキー読み取りロジックが必要 |
+| `app/login/page.tsx`             | 未着手 | UIは未着手                                  |
 
 ---
 
-## Decisions Made
+## 決定事項
 
-- **httpOnly cookie over localStorage** — reason: prevents XSS token theft, works with SSR
-- **Custom auth over Next-Auth** — reason: Next-Auth conflicts with our Prisma setup, not worth the fight
-
----
-
-## Blockers & Open Questions
-
-- Does `cookies().set()` work inside a Route Handler or only in Server Actions? Need to verify.
+- **localStorageよりhttpOnlyクッキー** — 理由: XSSによるトークン盗難を防ぐ、SSRで動作する
+- **Next-Authよりカスタム認証** — 理由: Next-AuthはPrismaセットアップと競合し、対処する価値がない
 
 ---
 
-## Exact Next Step
+## ブロッカーと未解決の質問
 
-In `app/api/auth/login/route.ts`, after generating the JWT, set it as an httpOnly
-cookie using `cookies().set('token', jwt, { httpOnly: true, secure: true, sameSite: 'strict' })`.
-Then test with Postman — the response should include a `Set-Cookie` header.
+- `cookies().set()`はRoute Handler内で動作するか、Server Actionsのみか？要確認。
+
+---
+
+## 次の正確なステップ
+
+`app/api/auth/login/route.ts`で、JWTを生成した後、`cookies().set('token', jwt, { httpOnly: true, secure: true, sameSite: 'strict' })`を使ってhttpOnlyクッキーとして設定する。
+次にPostmanでテスト――レスポンスに`Set-Cookie`ヘッダーが含まれているはず。
 ```
 
 ---
 
-## Notes
+## メモ
 
-- Each session gets its own file — never append to a previous session's file
-- The "What Did NOT Work" section is the most critical — future sessions will blindly retry failed approaches without it
-- If the user asks to save mid-session (not just at the end), save what's known so far and mark in-progress items clearly
-- The file is meant to be read by Claude at the start of the next session via `/resume-session`
-- Use the canonical global session store: `~/.claude/session-data/`
-- Prefer the short-id filename form (`YYYY-MM-DD-<short-id>-session.tmp`) for any new session file
+- セッションごとに個別のファイルを作成する――以前のセッションファイルに追記しない
+- 「うまくいかなかったこと」セクションが最重要――このセクションがないと次のセッションが失敗したアプローチを盲目的に再試行する
+- ユーザーがセッション終了時ではなく途中で保存を求めた場合、わかっている内容を保存し、進行中の項目を明確にマークする
+- このファイルは次のセッション開始時に`/resume-session`でClaudeが読むためのもの
+- 正式なグローバルセッションストア `~/.claude/session-data/` を使用する
+- 新規セッションファイルにはshort-idのファイル名形式（`YYYY-MM-DD-<short-id>-session.tmp`）を推奨する

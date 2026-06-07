@@ -1,34 +1,34 @@
 ---
 name: quarkus-tdd
-description: Test-driven development for Quarkus 3.x LTS using JUnit 5, Mockito, REST Assured, Camel testing, and JaCoCo. Use when adding features, fixing bugs, or refactoring event-driven services.
+description: JUnit 5、Mockito、REST Assured、Camelテスト、JaCoCoを使用したQuarkus 3.x LTS向けテスト駆動開発。機能追加、バグ修正、イベント駆動サービスのリファクタリング時に使用。
 origin: ECC
 ---
 
-# Quarkus TDD Workflow
+# Quarkus TDDワークフロー
 
-TDD guidance for Quarkus 3.x services with 80%+ coverage (unit + integration). Optimized for event-driven architectures with Apache Camel.
+Quarkus 3.xサービスのTDDガイダンス（ユニット+インテグレーションで80%以上のカバレッジ）。Apache Camelを使用したイベント駆動アーキテクチャに最適化されています。
 
-## When to Use
+## 使用場面
 
-- New features or REST endpoints
-- Bug fixes or refactors
-- Adding data access logic, security rules, or reactive streams
-- Testing Apache Camel routes and event handlers
-- Testing event-driven services with RabbitMQ
-- Testing conditional flow logic
-- Validating CompletableFuture async operations
-- Testing LogContext propagation
+- 新機能またはRESTエンドポイント
+- バグ修正またはリファクタリング
+- データアクセスロジック、セキュリティルール、リアクティブストリームの追加
+- Apache Camelルートとイベントハンドラーのテスト
+- RabbitMQを使用したイベント駆動サービスのテスト
+- 条件付きフローロジックのテスト
+- CompletableFuture非同期操作の検証
+- LogContextの伝播テスト
 
-## Workflow
+## ワークフロー
 
-1. Write tests first (they should fail)
-2. Implement minimal code to pass
-3. Refactor with tests green
-4. Enforce coverage with JaCoCo (80%+ target)
+1. テストを先に書く（失敗するはず）
+2. テストをパスする最小限のコードを実装
+3. テストがグリーンな状態でリファクタリング
+4. JaCoCoでカバレッジを強制（目標80%以上）
 
-## Unit Tests with @Nested Organization
+## @Nested構成によるユニットテスト
 
-Follow this structured approach for comprehensive, readable tests:
+包括的で読みやすいテストのための構造化アプローチ：
 
 ```java
 @ExtendWith(MockitoExtension.class)
@@ -132,20 +132,20 @@ class OrderServiceTest {
 }
 ```
 
-### Key Testing Patterns
+### 主要なテストパターン
 
-1. **@Nested Classes**: Group tests by method being tested
-2. **@DisplayName**: Provide readable test descriptions for test reports
-3. **Naming Convention**: `givenX_whenY_thenZ` for clarity
-4. **AAA Pattern**: Explicit `// ARRANGE`, `// ACT`, `// ASSERT` comments
-5. **@BeforeEach**: Setup common test data to reduce duplication
-6. **assertDoesNotThrow**: Test success scenarios without catching exceptions
-7. **assertThrows**: Test exception scenarios with message validation using AssertJ
-8. **Comprehensive Coverage**: Test happy paths, null inputs, edge cases, exceptions
-9. **Verify Interactions**: Use Mockito `verify()` to ensure methods are called correctly
-10. **Never Verify**: Use `never()` to ensure methods are NOT called in error scenarios
+1. **@Nested クラス**: テスト対象メソッドごとにテストをグループ化する
+2. **@DisplayName**: テストレポートで読みやすいテスト説明を提供する
+3. **命名規則**: 明確性のために`givenX_whenY_thenZ`を使用する
+4. **AAAパターン**: `// ARRANGE`、`// ACT`、`// ASSERT`のコメントを明示する
+5. **@BeforeEach**: 重複を減らすために共通テストデータをセットアップする
+6. **assertDoesNotThrow**: 例外をキャッチせずに成功シナリオをテストする
+7. **assertThrows**: AssertJを使用してメッセージ検証付きで例外シナリオをテストする
+8. **包括的なカバレッジ**: ハッピーパス、null入力、エッジケース、例外をテストする
+9. **インタラクションの検証**: Mockitoの`verify()`でメソッドが正しく呼ばれることを確認する
+10. **呼び出しなしの検証**: エラーシナリオでメソッドが呼ばれないことを確認するために`never()`を使用する
 
-## Testing Camel Routes
+## Camelルートのテスト
 
 ```java
 @QuarkusTest
@@ -286,7 +286,7 @@ class BusinessRulesRouteTest {
 }
 ```
 
-## Testing Event Services
+## イベントサービスのテスト
 
 ```java
 @ExtendWith(MockitoExtension.class)
@@ -391,7 +391,7 @@ class EventServiceTest {
 }
 ```
 
-## Testing CompletableFuture
+## CompletableFutureのテスト
 
 ```java
 @ExtendWith(MockitoExtension.class)
@@ -498,7 +498,7 @@ class FileStorageServiceTest {
 }
 ```
 
-## Resource Layer Tests (REST Assured)
+## リソース層テスト（REST Assured）
 
 ```java
 @QuarkusTest
@@ -586,7 +586,7 @@ class DocumentResourceTest {
 }
 ```
 
-## Integration Tests with Real Database
+## 実データベースを使ったインテグレーションテスト
 
 ```java
 @QuarkusTest
@@ -624,9 +624,9 @@ class DocumentIntegrationTest {
 }
 ```
 
-## Coverage with JaCoCo
+## JaCoCoによるカバレッジ
 
-### Maven Configuration (Complete)
+### Maven設定（完全版）
 
 ```xml
 <plugin>
@@ -681,7 +681,7 @@ class DocumentIntegrationTest {
 </plugin>
 ```
 
-Run tests with coverage:
+カバレッジ付きでテストを実行：
 ```bash
 mvn clean test
 mvn jacoco:report
@@ -690,7 +690,7 @@ mvn jacoco:check
 # Report at: target/site/jacoco/index.html
 ```
 
-## Test Dependencies
+## テスト依存関係
 
 ```xml
 <dependencies>
@@ -737,75 +737,75 @@ mvn jacoco:check
 </dependencies>
 ```
 
-## Best Practices
+## ベストプラクティス
 
-### Test Organization
-- Use `@Nested` classes to group tests by method being tested
-- Use `@DisplayName` for readable test descriptions visible in reports
-- Follow `givenX_whenY_thenZ` naming convention for test methods
-- Use `@BeforeEach` for common test data setup to reduce duplication
+### テスト構成
+- テスト対象メソッドごとにテストをグループ化するために`@Nested`クラスを使用する
+- レポートに表示される読みやすいテスト説明のために`@DisplayName`を使用する
+- テストメソッドには`givenX_whenY_thenZ`命名規則に従う
+- 重複を減らすために共通テストデータのセットアップには`@BeforeEach`を使用する
 
-### Test Structure
-- Follow AAA pattern with explicit comments (`// ARRANGE`, `// ACT`, `// ASSERT`)
-- Use `assertDoesNotThrow` for success scenarios
-- Use `assertThrows` for exception scenarios with message validation
-- Verify exception messages match expected values using AssertJ `contains()` or `isEqualTo()`
+### テスト構造
+- 明示的なコメント（`// ARRANGE`、`// ACT`、`// ASSERT`）でAAAパターンに従う
+- 成功シナリオには`assertDoesNotThrow`を使用する
+- メッセージ検証付きの例外シナリオには`assertThrows`を使用する
+- AssertJの`contains()`または`isEqualTo()`を使用して例外メッセージが期待値に一致することを確認する
 
-### Test Coverage
-- Test happy paths for all public methods
-- Test null input handling
-- Test edge cases (empty collections, boundary values, negative IDs, blank strings)
-- Test exception scenarios comprehensively
-- Mock all external dependencies (repositories, services, Camel endpoints)
-- Aim for 80%+ line coverage, 70%+ branch coverage
+### テストカバレッジ
+- すべてのパブリックメソッドのハッピーパスをテストする
+- null入力処理をテストする
+- エッジケース（空のコレクション、境界値、負のID、空白文字列）をテストする
+- 例外シナリオを包括的にテストする
+- すべての外部依存関係（リポジトリ、サービス、Camelエンドポイント）をモックする
+- ライン80%以上、ブランチ70%以上のカバレッジを目指す
 
-### Assertions
-- **Prefer AssertJ** (`assertThat`) over JUnit assertions for value checks
-- Use fluent AssertJ API for readability: `assertThat(list).hasSize(3).contains(item)`
-- For exceptions: use JUnit `assertThrows` to capture, then AssertJ to validate the message
-- For non-throwing success paths: use JUnit `assertDoesNotThrow`
-- For collections: `extracting()`, `filteredOn()`, `containsExactly()`
+### アサーション
+- 値チェックにはJUnitアサーションより**AssertJ**（`assertThat`）を優先する
+- 読みやすさのためにfluentなAssertJ APIを使用する：`assertThat(list).hasSize(3).contains(item)`
+- 例外の場合：JUnitの`assertThrows`でキャプチャし、AssertJでメッセージを検証する
+- 例外が発生しない成功パスの場合：JUnitの`assertDoesNotThrow`を使用する
+- コレクションの場合：`extracting()`、`filteredOn()`、`containsExactly()`
 
-### Testing Integration
-- Use `@QuarkusTest` for integration tests
-- Use `@InjectMock` to mock dependencies in Quarkus tests
-- Prefer REST Assured for API testing
-- Use `@TestProfile` for test-specific configuration
+### インテグレーションテスト
+- インテグレーションテストには`@QuarkusTest`を使用する
+- Quarkusテストで依存関係をモックするには`@InjectMock`を使用する
+- APIテストにはREST Assuredを優先する
+- テスト固有の設定には`@TestProfile`を使用する
 
-### Event-Driven Testing
-- Test Camel routes with `AdviceWith` and `MockEndpoint`
-- Use `@CamelQuarkusTest` annotation (if using standalone Camel tests)
-- Verify message content, headers, and routing logic
-- Test error handling routes separately
-- Mock external systems (RabbitMQ, S3, databases) in unit tests
+### イベント駆動テスト
+- `AdviceWith`と`MockEndpoint`でCamelルートをテストする
+- `@CamelQuarkusTest`アノテーションを使用する（スタンドアロンCamelテストの場合）
+- メッセージコンテンツ、ヘッダー、ルーティングロジックを検証する
+- エラーハンドリングルートを別々にテストする
+- ユニットテストでは外部システム（RabbitMQ、S3、データベース）をモックする
 
-### Camel Route Testing
-- Use `MockEndpoint` for asserting message flow
-- Use `AdviceWith` to modify routes for testing (replace endpoints with mocks)
-- Test message transformation and marshalling
-- Test exception handling and dead letter queues
+### Camelルートテスト
+- メッセージフローのアサーションに`MockEndpoint`を使用する
+- テスト用のルート変更（エンドポイントをモックに置き換える）に`AdviceWith`を使用する
+- メッセージ変換とマーシャリングをテストする
+- 例外処理とデッドレターキューをテストする
 
-### Testing Async Operations
-- Test CompletableFuture success and failure scenarios
-- Use `.join()` in tests to wait for async completion
-- Test exception propagation from CompletableFuture
-- Verify LogContext propagation to async operations
+### 非同期操作のテスト
+- CompletableFutureの成功と失敗シナリオをテストする
+- テストで非同期完了を待つために`.join()`を使用する
+- CompletableFutureからの例外伝播をテストする
+- 非同期操作へのLogContext伝播を検証する
 
-### Performance
-- Keep tests fast and isolated
-- Run tests in continuous mode: `mvn quarkus:test`
-- Use parameterized tests (`@ParameterizedTest`) for input variations
-- Build reusable test data builders or factory methods
+### パフォーマンス
+- テストは高速で分離された状態を維持する
+- 継続モードでテストを実行する：`mvn quarkus:test`
+- 入力のバリエーションにパラメータ化テスト（`@ParameterizedTest`）を使用する
+- 再利用可能なテストデータビルダーまたはファクトリメソッドを構築する
 
-### Quarkus-Specific
-- Stay on latest LTS version (Quarkus 3.x)
-- Test native compilation compatibility periodically
-- Use Quarkus test profiles for different scenarios
-- Leverage Quarkus dev services for local testing
-- Use `@InjectMock` instead of `@MockBean` (Quarkus-specific)
+### Quarkus固有
+- 最新のLTSバージョン（Quarkus 3.x）を使用する
+- ネイティブコンパイルの互換性を定期的にテストする
+- 異なるシナリオにはQuarkusテストプロファイルを使用する
+- ローカルテストにはQuarkusデブサービスを活用する
+- `@MockBean`の代わりに`@InjectMock`を使用する（Quarkus固有）
 
-### Verification Best Practices
-- Always verify interactions on mocked dependencies
-- Use `verify(mock, never())` to ensure methods are NOT called in error scenarios
-- Use `argThat()` for complex argument matching
-- Verify the order of calls when it matters: `InOrder` from Mockito
+### 検証のベストプラクティス
+- モック依存関係のインタラクションを常に検証する
+- エラーシナリオでメソッドが呼ばれないことを確認するために`verify(mock, never())`を使用する
+- 複雑な引数マッチングには`argThat()`を使用する
+- 順序が重要な場合は呼び出し順序を検証する：Mockitoの`InOrder`

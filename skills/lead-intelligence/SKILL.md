@@ -1,133 +1,133 @@
 ---
 name: lead-intelligence
-description: AI-native lead intelligence and outreach pipeline. Replaces Apollo, Clay, and ZoomInfo with agent-powered signal scoring, mutual ranking, warm path discovery, source-derived voice modeling, and channel-specific outreach across email, LinkedIn, and X. Use when the user wants to find, qualify, and reach high-value contacts.
+description: AIネイティブなリードインテリジェンス・アウトリーチパイプライン。Apollo・Clay・ZoomInfoをエージェント駆動のシグナルスコアリング・相互ランキング・ウォームパス探索・ソース由来ボイスモデリング・チャネル別アウトリーチ（メール・LinkedIn・X）で代替。高価値コンタクトの発見・評価・リーチに使用。
 origin: ECC
 ---
 
-# Lead Intelligence
+# リードインテリジェンス
 
-Agent-powered lead intelligence pipeline that finds, scores, and reaches high-value contacts through social graph analysis and warm path discovery.
+ソーシャルグラフ分析とウォームパス探索を通じて高価値コンタクトを発見・スコアリング・リーチするエージェント駆動のリードインテリジェンスパイプライン。
 
-## When to Activate
+## 有効化タイミング
 
-- User wants to find leads or prospects in a specific industry
-- Building an outreach list for partnerships, sales, or fundraising
-- Researching who to reach out to and the best path to reach them
-- User says "find leads", "outreach list", "who should I reach out to", "warm intros"
-- Needs to score or rank a list of contacts by relevance
-- Wants to map mutual connections to find warm introduction paths
+- 特定業界のリードや見込み客を探したい場合
+- パートナーシップ・営業・資金調達のためのアウトリーチリスト構築
+- 誰に連絡すべきか、最善のアプローチ方法を調査する場合
+- ユーザーが「リードを探して」「アウトリーチリスト」「誰に連絡すべきか」「温かい紹介」と言った場合
+- コンタクトリストを関連性でスコアリング・ランキングする必要がある場合
+- 温かい紹介パスを見つけるために共通のつながりをマッピングしたい場合
 
-## Tool Requirements
+## ツール要件
 
-### Required
-- **Exa MCP** — Deep web search for people, companies, and signals (`web_search_exa`)
-- **X API** — Follower/following graph, mutual analysis, recent activity (`X_BEARER_TOKEN`, plus write-context credentials such as `X_CONSUMER_KEY`, `X_CONSUMER_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_TOKEN_SECRET`)
+### 必須
+- **Exa MCP** — 人物・企業・シグナルの深いウェブ検索（`web_search_exa`）
+- **X API** — フォロワー/フォロー中のグラフ・相互分析・最近のアクティビティ（`X_BEARER_TOKEN`、さらに書き込みコンテキストの認証情報として `X_CONSUMER_KEY`、`X_CONSUMER_SECRET`、`X_ACCESS_TOKEN`、`X_ACCESS_TOKEN_SECRET`）
 
-### Optional (enhance results)
-- **LinkedIn** — Direct API if available, otherwise browser control for search, profile inspection, and drafting
-- **Apollo/Clay API** — For enrichment cross-reference if user has access
-- **GitHub MCP** — For developer-centric lead qualification
-- **Apple Mail / Mail.app** — Draft cold or warm email without sending automatically
-- **Browser control** — For LinkedIn and X when API coverage is missing or constrained
+### オプション（結果を強化）
+- **LinkedIn** — 利用可能であれば直接API、それ以外は検索・プロフィール確認・下書きのためのブラウザコントロール
+- **Apollo/Clay API** — ユーザーがアクセスできる場合のエンリッチメントクロスリファレンス
+- **GitHub MCP** — 開発者中心のリード評価用
+- **Apple Mail / Mail.app** — 自動送信せずにコールドまたはウォームメールの下書き
+- **ブラウザコントロール** — APIカバレッジが不足または制限されている場合のLinkedInとX
 
-## Pipeline Overview
+## パイプライン概要
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌─────────────────┐     ┌──────────────┐     ┌─────────────────┐
-│ 1. Signal   │────>│ 2. Mutual    │────>│ 3. Warm Path    │────>│ 4. Enrich    │────>│ 5. Outreach     │
-│    Scoring  │     │    Ranking   │     │    Discovery    │     │              │     │    Draft        │
+│ 1. シグナル │────>│ 2. 相互      │────>│ 3. ウォームパス │────>│ 4. エンリッチ│────>│ 5. アウトリーチ │
+│    スコアリング    │     │    ランキング │     │    探索         │     │    メント    │     │    下書き       │
 └─────────────┘     └──────────────┘     └─────────────────┘     └──────────────┘     └─────────────────┘
 ```
 
-## Voice Before Outreach
+## アウトリーチ前のボイス確認
 
-Do not draft outbound from generic sales copy.
+汎用的な営業コピーからアウトバウンドを作成しないでください。
 
-Run `brand-voice` first whenever the user's voice matters. Reuse its `VOICE PROFILE` instead of re-deriving style ad hoc inside this skill.
+ユーザーのボイスが重要な場合は、必ず最初に `brand-voice` を実行してください。このスキル内でスタイルをアドホックに再導出するのではなく、その `VOICE PROFILE` を再利用します。
 
-If live X access is available, pull recent original posts before drafting. If not, use supplied examples or the best repo/site material available.
+ライブXアクセスが利用可能な場合は、下書き前に最近のオリジナル投稿を取得してください。利用できない場合は、提供されたサンプルまたは利用可能な最良のリポジトリ/サイト素材を使用してください。
 
-## Stage 1: Signal Scoring
+## ステージ1: シグナルスコアリング
 
-Search for high-signal people in target verticals. Assign a weight to each based on:
+ターゲット業界の高シグナル人物を検索します。各人物に以下に基づいた重みを割り当てます:
 
-| Signal | Weight | Source |
+| シグナル | 重み | ソース |
 |--------|--------|--------|
-| Role/title alignment | 30% | Exa, LinkedIn |
-| Industry match | 25% | Exa company search |
-| Recent activity on topic | 20% | X API search, Exa |
-| Follower count / influence | 10% | X API |
-| Location proximity | 10% | Exa, LinkedIn |
-| Engagement with your content | 5% | X API interactions |
+| 役割/肩書きの一致 | 30% | Exa、LinkedIn |
+| 業界の一致 | 25% | Exa企業検索 |
+| トピックに関する最近のアクティビティ | 20% | X API検索、Exa |
+| フォロワー数 / 影響力 | 10% | X API |
+| 地理的近接性 | 10% | Exa、LinkedIn |
+| ユーザーのコンテンツへのエンゲージメント | 5% | X APIインタラクション |
 
-### Signal Search Approach
+### シグナル検索アプローチ
 
 ```python
-# Step 1: Define target parameters
+# ステップ1: ターゲットパラメーターを定義する
 target_verticals = ["prediction markets", "AI tooling", "developer tools"]
 target_roles = ["founder", "CEO", "CTO", "VP Engineering", "investor", "partner"]
 target_locations = ["San Francisco", "New York", "London", "remote"]
 
-# Step 2: Exa deep search for people
+# ステップ2: 人物のExa深層検索
 for vertical in target_verticals:
     results = web_search_exa(
         query=f"{vertical} {role} founder CEO",
         category="company",
         numResults=20
     )
-    # Score each result
+    # 各結果をスコアリング
 
-# Step 3: X API search for active voices
+# ステップ3: アクティブな声のX API検索
 x_search = search_recent_tweets(
     query="prediction markets OR AI tooling OR developer tools",
     max_results=100
 )
-# Extract and score unique authors
+# ユニークな著者を抽出してスコアリング
 ```
 
-## Stage 2: Mutual Ranking
+## ステージ2: 相互ランキング
 
-For each scored target, analyze the user's social graph to find the warmest path.
+スコアリングされた各ターゲットについて、ユーザーのソーシャルグラフを分析して最も温かいパスを見つけます。
 
-### Ranking Model
+### ランキングモデル
 
-1. Pull user's X following list and LinkedIn connections
-2. For each high-signal target, check for shared connections
-3. Apply the `social-graph-ranker` model to score bridge value
-4. Rank mutuals by:
+1. ユーザーのXフォローリストとLinkedIn接続を取得する
+2. 高シグナルの各ターゲットについて、共通の接続を確認する
+3. `social-graph-ranker` モデルを適用してブリッジ価値をスコアリングする
+4. 以下でミューチュアルをランキング:
 
-| Factor | Weight |
+| 要因 | 重み |
 |--------|--------|
-| Number of connections to targets | 40% — highest weight, most connections = highest rank |
-| Mutual's current role/company | 20% — decision maker vs individual contributor |
-| Mutual's location | 15% — same city = easier intro |
-| Industry alignment | 15% — same vertical = natural intro |
-| Mutual's X handle / LinkedIn | 10% — identifiability for outreach |
+| ターゲットへの接続数 | 40% — 最高重み、接続数が多いほど高ランク |
+| ミューチュアルの現在の役割/企業 | 20% — 意思決定者対個人貢献者 |
+| ミューチュアルの所在地 | 15% — 同じ都市 = より容易な紹介 |
+| 業界の一致 | 15% — 同じ業界 = 自然な紹介 |
+| ミューチュアルのXハンドル / LinkedIn | 10% — アウトリーチのための識別可能性 |
 
-Canonical rule:
+正規ルール:
 
 ```text
 Use social-graph-ranker when the user wants the graph math itself,
 the bridge ranking as a standalone report, or explicit decay-model tuning.
 ```
 
-Inside this skill, use the same weighted bridge model:
+このスキル内では、同じ加重ブリッジモデルを使用します:
 
 ```text
 B(m) = Σ_{t ∈ T} w(t) · λ^(d(m,t) - 1)
 R(m) = B_ext(m) · (1 + β · engagement(m))
 ```
 
-Interpretation:
-- Tier 1: high `R(m)` and direct bridge paths -> warm intro asks
-- Tier 2: medium `R(m)` and one-hop bridge paths -> conditional intro asks
-- Tier 3: no viable bridge -> direct cold outreach using the same lead record
+解釈:
+- ティア1: 高い `R(m)` と直接ブリッジパス -> 温かい紹介依頼
+- ティア2: 中程度の `R(m)` と1ホップブリッジパス -> 条件付き紹介依頼
+- ティア3: 有効なブリッジなし -> 同じリードレコードを使用した直接コールドアウトリーチ
 
-### Output Format
+### 出力フォーマット
 
 ```
 
-If the user explicitly wants the ranking engine broken out, the math visualized, or the network scored outside the full lead workflow, run `social-graph-ranker` as a standalone pass first and feed the result back into this pipeline.
+ユーザーがランキングエンジンを個別に必要とする場合、数学を可視化したい場合、またはフルリードワークフロー外でネットワークをスコアリングしたい場合は、最初に `social-graph-ranker` を単独で実行し、その結果をこのパイプラインに戻してください。
 MUTUAL RANKING REPORT
 =====================
 
@@ -143,143 +143,143 @@ MUTUAL RANKING REPORT
     ...
 ```
 
-## Stage 3: Warm Path Discovery
+## ステージ3: ウォームパス探索
 
-For each target, find the shortest introduction chain:
+各ターゲットについて、最短の紹介チェーンを見つけます:
 
 ```
-You ──[follows]──> Mutual A ──[invested in]──> Target Company
-You ──[follows]──> Mutual B ──[co-founded with]──> Target Person
-You ──[met at]──> Event ──[also attended]──> Target Person
+あなた ──[フォロー]──> ミューチュアルA ──[投資]──> ターゲット企業
+あなた ──[フォロー]──> ミューチュアルB ──[共同創業]──> ターゲット人物
+あなた ──[参加]──> イベント ──[共同参加]──> ターゲット人物
 ```
 
-### Path Types (ordered by warmth)
-1. **Direct mutual** — You both follow/know the same person
-2. **Portfolio connection** — Mutual invested in or advises target's company
-3. **Co-worker/alumni** — Mutual worked at same company or attended same school
-4. **Event overlap** — Both attended same conference/program
-5. **Content engagement** — Target engaged with mutual's content or vice versa
+### パスの種類（温かさの順）
+1. **直接の共通知人** — あなたと相手が同じ人物をフォロー/知っている
+2. **ポートフォリオ接続** — ミューチュアルがターゲットの企業に投資またはアドバイザー
+3. **同僚/同窓** — ミューチュアルが同じ会社で働いたか同じ学校に通った
+4. **イベント重複** — 同じカンファレンス/プログラムに参加した
+5. **コンテンツエンゲージメント** — ターゲットがミューチュアルのコンテンツにエンゲージ（またはその逆）
 
-## Stage 4: Enrichment
+## ステージ4: エンリッチメント
 
-For each qualified lead, pull:
+評価された各リードについて以下を取得します:
 
-- Full name, current title, company
-- Company size, funding stage, recent news
-- Recent X posts (last 30 days) — topics, tone, interests
-- Mutual interests with user (shared follows, similar content)
-- Recent company events (product launch, funding round, hiring)
+- フルネーム、現在の役職、企業
+- 企業規模、資金調達ステージ、最近のニュース
+- 最近のXポスト（過去30日間）— トピック、トーン、関心事
+- ユーザーとの共通の関心事（共通フォロー、類似コンテンツ）
+- 最近の企業イベント（製品ローンチ、資金調達ラウンド、採用）
 
-### Enrichment Sources
-- Exa: company data, news, blog posts
-- X API: recent tweets, bio, followers
-- GitHub: open source contributions (for developer-centric leads)
-- LinkedIn (via browser-use): full profile, experience, education
+### エンリッチメントソース
+- Exa: 企業データ、ニュース、ブログポスト
+- X API: 最近のツイート、プロフィール、フォロワー
+- GitHub: オープンソースへの貢献（開発者中心のリード向け）
+- LinkedIn（browser-use経由）: 完全なプロフィール、経験、学歴
 
-## Stage 5: Outreach Draft
+## ステージ5: アウトリーチ下書き
 
-Generate personalized outreach for each lead. The draft should match the source-derived voice profile and the target channel.
+各リードに対してパーソナライズされたアウトリーチを生成します。下書きはソース由来のボイスプロフィールとターゲットチャネルに合致している必要があります。
 
-### Channel Rules
+### チャネルルール
 
-#### Email
+#### メール
 
-- Use for the highest-value cold outreach, warm intros, investor outreach, and partnership asks
-- Default to drafting in Apple Mail / Mail.app when local desktop control is available
-- Create drafts first, do not send automatically unless the user explicitly asks
-- Subject line should be plain and specific, not clever
+- 最高価値のコールドアウトリーチ、温かい紹介、投資家アウトリーチ、パートナーシップ依頼に使用する
+- ローカルデスクトップコントロールが利用可能な場合はApple Mail / Mail.appでの下書きをデフォルトとする
+- まず下書きを作成し、ユーザーが明示的に依頼しない限り自動送信しない
+- 件名はシンプルで具体的にする（巧みな表現は避ける）
 
 #### LinkedIn
 
-- Use when the target is active there, when mutual graph context is stronger on LinkedIn, or when email confidence is low
-- Prefer API access if available
-- Otherwise use browser control to inspect profiles, recent activity, and draft the message
-- Keep it shorter than email and avoid fake professional warmth
+- ターゲットがアクティブな場合、LinkedInでの共通グラフのコンテキストが強い場合、またはメールの確信が低い場合に使用する
+- 利用可能であればAPIアクセスを優先する
+- それ以外の場合はブラウザコントロールを使用してプロフィール・最近のアクティビティを確認しメッセージを下書きする
+- メールより短くし、偽物の業務的な親しみやすさを避ける
 
 #### X
 
-- Use for high-context operator, builder, or investor outreach where public posting behavior matters
-- Prefer API access for search, timeline, and engagement analysis
-- Fall back to browser control when needed
-- DMs and public replies should be much tighter than email and should reference something real from the target's timeline
+- 公開投稿の行動が重要なオペレーター・ビルダー・投資家へのアウトリーチに使用する
+- 検索・タイムライン・エンゲージメント分析にはAPIアクセスを優先する
+- 必要に応じてブラウザコントロールにフォールバックする
+- DMと公開リプライはメールよりもはるかに簡潔にし、ターゲットのタイムラインの実際の内容を参照する
 
-#### Channel Selection Heuristic
+#### チャネル選択のヒューリスティック
 
-Pick one primary channel in this order:
+以下の順序で一つのメインチャネルを選択します:
 
-1. warm intro by email
-2. direct email
+1. メールでの温かい紹介
+2. 直接メール
 3. LinkedIn DM
-4. X DM or reply
+4. X DMまたはリプライ
 
-Use multi-channel only when there is a strong reason and the cadence will not feel spammy.
+スパムに感じさせない十分な理由がある場合のみマルチチャネルを使用します。
 
-### Warm Intro Request (to mutual)
+### 温かい紹介依頼（ミューチュアルへ）
 
-Goal:
+目標:
 
-- one clear ask
-- one concrete reason this intro makes sense
-- easy-to-forward blurb if needed
+- 一つの明確な依頼
+- この紹介が意味をなす具体的な理由一つ
+- 必要に応じて転送しやすいブラブ
 
-Avoid:
+避けること:
 
-- overexplaining your company
-- social-proof stacking
-- sounding like a fundraiser template
+- 会社について過度に説明する
+- 社会的証明の積み重ね
+- 資金調達のテンプレートのような印象を与える
 
-### Direct Cold Outreach (to target)
+### 直接コールドアウトリーチ（ターゲットへ）
 
-Goal:
+目標:
 
-- open from something specific and recent
-- explain why the fit is real
-- make one low-friction ask
+- 具体的で最近の事柄から始める
+- フィットが本物である理由を説明する
+- 摩擦の少ない依頼を一つする
 
-Avoid:
+避けること:
 
-- generic admiration
-- feature dumping
-- broad asks like "would love to connect"
-- forced rhetorical questions
+- 一般的な称賛
+- 機能の羅列
+- 「ぜひつながりましょう」のような広すぎる依頼
+- 強制的なレトリカルな質問
 
-### Execution Pattern
+### 実行パターン
 
-For each target, produce:
+各ターゲットについて以下を生成します:
 
-1. the recommended channel
-2. the reason that channel is best
-3. the message draft
-4. optional follow-up draft
-5. if email is the chosen channel and Apple Mail is available, create a draft instead of only returning text
+1. 推奨チャネル
+2. そのチャネルが最適な理由
+3. メッセージ下書き
+4. オプションのフォローアップ下書き
+5. メールが選択されたチャネルでApple Mailが利用可能な場合、テキストを返すだけでなく下書きを作成する
 
-If browser control is available:
+ブラウザコントロールが利用可能な場合:
 
-- LinkedIn: inspect target profile, recent activity, and mutual context, then draft or prepare the message
-- X: inspect recent posts or replies, then draft DM or public reply language
+- LinkedIn: ターゲットプロフィール・最近のアクティビティ・共通コンテキストを確認し、メッセージを下書きまたは準備する
+- X: 最近の投稿やリプライを確認し、DMまたは公開リプライの文章を下書きする
 
-If desktop automation is available:
+デスクトップオートメーションが利用可能な場合:
 
-- Apple Mail: create draft email with subject, body, and recipient
+- Apple Mail: 件名・本文・受信者付きのメール下書きを作成する
 
-Do not send messages automatically without explicit user approval.
+ユーザーの明示的な承認なしにメッセージを自動送信しないでください。
 
-### Anti-Patterns
+### アンチパターン
 
-- generic templates with no personalization
-- long paragraphs explaining your whole company
-- multiple asks in one message
-- fake familiarity without specifics
-- bulk-sent messages with visible merge fields
-- identical copy reused for email, LinkedIn, and X
-- platform-shaped slop instead of the author's actual voice
+- パーソナライズなしの汎用テンプレート
+- 会社全体を説明する長い段落
+- 一つのメッセージに複数の依頼
+- 具体性のない偽の親しみやすさ
+- マージフィールドが見えるバルク送信メッセージ
+- メール・LinkedIn・X で再利用された同一コピー
+- 著者の実際のボイスではなくプラットフォーム型の凡庸な文章
 
-## Configuration
+## 設定
 
-Users should set these environment variables:
+ユーザーは以下の環境変数を設定する必要があります:
 
 ```bash
-# Required
+# 必須
 export X_BEARER_TOKEN="..."
 export X_ACCESS_TOKEN="..."
 export X_ACCESS_TOKEN_SECRET="..."
@@ -287,35 +287,35 @@ export X_CONSUMER_KEY="..."
 export X_CONSUMER_SECRET="..."
 export EXA_API_KEY="..."
 
-# Optional
-export LINKEDIN_COOKIE="..." # For browser-use LinkedIn access
-export APOLLO_API_KEY="..."  # For Apollo enrichment
+# オプション
+export LINKEDIN_COOKIE="..." # browser-use LinkedIn アクセス用
+export APOLLO_API_KEY="..."  # Apolloエンリッチメント用
 ```
 
-## Agents
+## エージェント
 
-This skill includes specialized agents in the `agents/` subdirectory:
+このスキルには `agents/` サブディレクトリに特化したエージェントが含まれます:
 
-- **signal-scorer** — Searches and ranks prospects by relevance signals
-- **mutual-mapper** — Maps social graph connections and finds warm paths
-- **enrichment-agent** — Pulls detailed profile and company data
-- **outreach-drafter** — Generates personalized messages
+- **signal-scorer** — 関連性シグナルで見込み客を検索・ランキング
+- **mutual-mapper** — ソーシャルグラフの接続をマッピングしウォームパスを発見
+- **enrichment-agent** — 詳細なプロフィールと企業データを取得
+- **outreach-drafter** — パーソナライズされたメッセージを生成
 
-## Example Usage
+## 使用例
 
 ```
 User: find me the top 20 people in prediction markets I should reach out to
 
-Agent workflow:
-1. signal-scorer searches Exa and X for prediction market leaders
-2. mutual-mapper checks user's X graph for shared connections
-3. enrichment-agent pulls company data and recent activity
-4. outreach-drafter generates personalized messages for top ranked leads
+エージェントワークフロー:
+1. signal-scorer がExaとXでprediction market リーダーを検索
+2. mutual-mapper がユーザーのXグラフで共通の接続を確認
+3. enrichment-agent が企業データと最近のアクティビティを取得
+4. outreach-drafter が上位ランクのリードに対してパーソナライズされたメッセージを生成
 
-Output: Ranked list with warm paths, voice profile summary, and channel-specific outreach drafts or drafts-in-app
+出力: ウォームパス・ボイスプロフィール概要・チャネル別アウトリーチ下書きまたはアプリ内下書きを含むランク付きリスト
 ```
 
-## Related Skills
+## 関連スキル
 
-- `brand-voice` for canonical voice capture
-- `connections-optimizer` for review-first network pruning and expansion before outreach
+- `brand-voice` — 正規のボイスキャプチャ
+- `connections-optimizer` — アウトリーチ前のレビューファーストなネットワーク整理と拡大

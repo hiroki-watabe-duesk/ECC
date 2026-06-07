@@ -1,92 +1,92 @@
 ---
 name: search-first
-description: Research-before-coding workflow. Search for existing tools, libraries, and patterns before writing custom code. Invokes the researcher agent.
+description: コードを書く前に既存のツール・ライブラリ・パターンを調査するワークフロー。カスタムコードを書く前に既存解決策を探す。researcherエージェントを呼び出す。
 origin: ECC
 ---
 
-# /search-first — Research Before You Code
+# /search-first — コードを書く前に調査する
 
-Systematizes the "search for existing solutions before implementing" workflow.
+「実装する前に既存の解決策を探す」ワークフローを体系化します。
 
-## Trigger
+## トリガー
 
-Use this skill when:
-- Starting a new feature that likely has existing solutions
-- Adding a dependency or integration
-- The user asks "add X functionality" and you're about to write code
-- Before creating a new utility, helper, or abstraction
+次の場合にこのスキルを使用してください:
+- 既存の解決策がありそうな新機能を開始するとき
+- 依存関係やインテグレーションを追加するとき
+- ユーザーが「X機能を追加して」と言い、コードを書こうとするとき
+- 新しいユーティリティ・ヘルパー・抽象化を作成する前
 
-## Workflow
+## ワークフロー
 
 ```
 ┌─────────────────────────────────────────────┐
-│  0. TOOL AVAILABILITY PREFLIGHT             │
-│     Check search channels before relying on │
-│     them; report skipped channels honestly   │
+│  0. ツール利用可能性の事前確認               │
+│     頼る前に検索チャネルを確認;             │
+│     スキップしたチャネルは正直に報告する    │
 ├─────────────────────────────────────────────┤
-│  1. NEED ANALYSIS                           │
-│     Define what functionality is needed      │
-│     Identify language/framework constraints  │
+│  1. 要件分析                                │
+│     必要な機能を定義する                    │
+│     言語/フレームワークの制約を確認する     │
 ├─────────────────────────────────────────────┤
-│  2. PARALLEL SEARCH (researcher agent)      │
+│  2. 並列検索 (researcherエージェント)        │
 │     ┌──────────┐ ┌──────────┐ ┌──────────┐  │
 │     │  npm /   │ │  MCP /   │ │  GitHub / │  │
 │     │  PyPI    │ │  Skills  │ │  Web      │  │
 │     └──────────┘ └──────────┘ └──────────┘  │
 ├─────────────────────────────────────────────┤
-│  3. EVALUATE                                │
-│     Score candidates (functionality, maint, │
-│     community, docs, license, deps)         │
+│  3. 評価                                    │
+│     候補をスコアリング(機能性、保守性、     │
+│     コミュニティ、ドキュメント、ライセンス、│
+│     依存関係)                               │
 ├─────────────────────────────────────────────┤
-│  4. DECIDE                                  │
+│  4. 決定                                    │
 │     ┌─────────┐  ┌──────────┐  ┌─────────┐  │
-│     │  Adopt  │  │  Extend  │  │  Build   │  │
-│     │ as-is   │  │  /Wrap   │  │  Custom  │  │
+│     │  採用   │  │ 拡張/   │  │ カスタム │  │
+│     │ そのまま│  │ ラップ   │  │  構築   │  │
 │     └─────────┘  └──────────┘  └─────────┘  │
 ├─────────────────────────────────────────────┤
-│  5. IMPLEMENT                               │
-│     Install package / Configure MCP /       │
-│     Write minimal custom code               │
+│  5. 実装                                    │
+│     パッケージのインストール / MCP設定 /    │
+│     最小限のカスタムコードを書く           │
 └─────────────────────────────────────────────┘
 ```
 
-## Decision Matrix
+## 意思決定マトリクス
 
-| Signal | Action |
+| シグナル | 行動 |
 |--------|--------|
-| Exact match, well-maintained, MIT/Apache | **Adopt** — install and use directly |
-| Partial match, good foundation | **Extend** — install + write thin wrapper |
-| Multiple weak matches | **Compose** — combine 2-3 small packages |
-| Nothing suitable found | **Build** — write custom, but informed by research |
+| 完全一致、適切に保守されている、MIT/Apache | **採用** — そのままインストールして使用 |
+| 部分一致、良好な基盤 | **拡張** — インストール＋薄いラッパーを書く |
+| 複数の弱い一致 | **合成** — 2〜3の小さなパッケージを組み合わせる |
+| 適切なものが見つからない | **構築** — カスタムを書く（ただし調査結果を参考にする） |
 
-## How to Use
+## 使い方
 
-### Step 0: Tool Availability Preflight
+### ステップ0: ツール利用可能性の事前確認
 
-This is agent guidance, not an executable setup script. Check only the channels
-that are relevant to the task and project in front of you.
+これはエージェント向けのガイダンスであり、実行可能なセットアップスクリプトではありません。目の前のタスクとプロジェクトに関連するチャネルのみ確認してください。
 
-| Channel | Check | If missing |
+| チャネル | 確認方法 | 利用できない場合 |
 |---------|-------|------------|
-| Repository search | `rg --files` and targeted `rg` queries | State that only visible files were inspected |
-| Package registry | `npm --version`, `python -m pip --version`, or project package manager | Use web/docs search and avoid claiming registry coverage |
-| GitHub CLI | `gh auth status` | Use public web or local git history only |
-| MCP/docs tools | Available tool list or local MCP config | Fall back to official docs/web search |
-| Skills directory | `ls ~/.claude/skills ~/.codex/skills` where applicable | Say no local skill catalog was available |
+| リポジトリ検索 | `rg --files` および対象を絞った `rg` クエリ | 可視ファイルのみを調査したことを明記する |
+| パッケージレジストリ | `npm --version`、`python -m pip --version`、またはプロジェクトのパッケージマネージャー | ウェブ/ドキュメント検索を使用し、レジストリを網羅したとは主張しない |
+| GitHub CLI | `gh auth status` | 公開ウェブまたはローカルgit履歴のみ使用 |
+| MCP/docsツール | 利用可能なツール一覧またはローカルMCP設定 | 公式ドキュメント/ウェブ検索にフォールバック |
+| スキルディレクトリ | `ls ~/.claude/skills ~/.codex/skills`（該当する場合） | ローカルのスキルカタログは利用不可と伝える |
 
-### Quick Mode (inline)
+### クイックモード（インライン）
 
-Before writing a utility or adding functionality, mentally run through:
+ユーティリティを書いたり機能を追加する前に、次の流れを頭の中で実行してください:
 
-0. Does this already exist in the repo? → `rg` through relevant modules/tests first
-1. Is this a common problem? → Search npm/PyPI
-2. Is there an MCP for this? → Check `~/.claude/settings.json` and search
-3. Is there a skill for this? → Check `~/.claude/skills/`
-4. Is there a GitHub implementation/template? → Run GitHub code search for maintained OSS before writing net-new code
+0. これはリポジトリ内に既に存在するか？ → まず関連するモジュール/テストを `rg` で検索する
+1. よくある問題か？ → npm/PyPIで検索する
+2. MCPがあるか？ → `~/.claude/settings.json` を確認して検索する
+3. スキルがあるか？ → `~/.claude/skills/` を確認する
+4. GitHubに実装例/テンプレートがあるか？ → 新規コードを書く前に、保守されているOSSのGitHubコード検索を実行する
 
-### Full Mode (agent)
+### フルモード（エージェント）
 
-For non-trivial functionality, launch the researcher agent:
+非自明な機能については、researcherエージェントを起動してください:
 
 ```
 Agent(subagent_type="general-purpose", prompt="
@@ -99,54 +99,53 @@ Agent(subagent_type="general-purpose", prompt="
 ")
 ```
 
-Older Claude Code docs may call this `Task(...)`; use the current agent/subagent
-tool name exposed by the active harness.
+古いClaude Codeドキュメントでは `Task(...)` と呼んでいる場合があります。現在のハーネスが公開しているエージェント/サブエージェントのツール名を使用してください。
 
-## Search Shortcuts by Category
+## カテゴリ別検索ショートカット
 
-### Development Tooling
-- Linting → `eslint`, `ruff`, `textlint`, `markdownlint`
-- Formatting → `prettier`, `black`, `gofmt`
-- Testing → `jest`, `pytest`, `go test`
-- Pre-commit → `husky`, `lint-staged`, `pre-commit`
+### 開発ツール
+- リンティング → `eslint`、`ruff`、`textlint`、`markdownlint`
+- フォーマット → `prettier`、`black`、`gofmt`
+- テスト → `jest`、`pytest`、`go test`
+- プリコミット → `husky`、`lint-staged`、`pre-commit`
 
-### AI/LLM Integration
-- Claude SDK → Context7 for latest docs
-- Prompt management → Check MCP servers
-- Document processing → `unstructured`, `pdfplumber`, `mammoth`
+### AI/LLMインテグレーション
+- Claude SDK → 最新ドキュメントはContext7を参照
+- プロンプト管理 → MCPサーバーを確認
+- ドキュメント処理 → `unstructured`、`pdfplumber`、`mammoth`
 
-### Data & APIs
-- HTTP clients → `httpx` (Python), `ky`/`undici` (Node)
-- Validation → `zod` (TS), `pydantic` (Python)
-- Database → Check for MCP servers first
+### データ＆API
+- HTTPクライアント → `httpx`（Python）、`ky`/`undici`（Node）
+- バリデーション → `zod`（TS）、`pydantic`（Python）
+- データベース → まずMCPサーバーを確認
 
-### Content & Publishing
-- Markdown processing → `remark`, `unified`, `markdown-it`
-- Image optimization → `sharp`, `imagemin`
+### コンテンツ＆公開
+- Markdown処理 → `remark`、`unified`、`markdown-it`
+- 画像最適化 → `sharp`、`imagemin`
 
-## Integration Points
+## インテグレーションポイント
 
-### With planner agent
-The planner should invoke researcher before Phase 1 (Architecture Review):
-- Researcher identifies available tools
-- Planner incorporates them into the implementation plan
-- Avoids "reinventing the wheel" in the plan
+### plannerエージェントとの連携
+plannerはフェーズ1（アーキテクチャレビュー）の前にresearcherを呼び出すべきです:
+- researcherが利用可能なツールを特定する
+- plannerがそれらを実装計画に組み込む
+- 計画での「車輪の再発明」を回避する
 
-### With architect agent
-The architect should consult researcher for:
-- Technology stack decisions
-- Integration pattern discovery
-- Existing reference architectures
+### architectエージェントとの連携
+architectはresearcherに以下を相談すべきです:
+- 技術スタックの選定
+- インテグレーションパターンの探索
+- 既存のリファレンスアーキテクチャ
 
-### With iterative-retrieval skill
-Combine for progressive discovery:
-- Cycle 1: Broad search (npm, PyPI, MCP)
-- Cycle 2: Evaluate top candidates in detail
-- Cycle 3: Test compatibility with project constraints
+### iterative-retrievalスキルとの連携
+段階的な発見のために組み合わせます:
+- サイクル1: 広範な検索（npm、PyPI、MCP）
+- サイクル2: 上位候補を詳しく評価する
+- サイクル3: プロジェクトの制約との互換性をテストする
 
-## Examples
+## 例
 
-### Example 1: "Add dead link checking"
+### 例1: 「デッドリンクチェックを追加する」
 ```
 Need: Check markdown files for broken links
 Search: npm "markdown dead link checker"
@@ -155,7 +154,7 @@ Action: ADOPT — npm install textlint-rule-no-dead-link
 Result: Zero custom code, battle-tested solution
 ```
 
-### Example 2: "Add HTTP client wrapper"
+### 例2: 「HTTPクライアントラッパーを追加する」
 ```
 Need: Resilient HTTP client with retries and timeout handling
 Search: npm "http client retry", PyPI "httpx retry"
@@ -164,7 +163,7 @@ Action: ADOPT — use got/httpx directly with retry config
 Result: Zero custom code, production-proven libraries
 ```
 
-### Example 3: "Add config file linter"
+### 例3: 「設定ファイルリンターを追加する」
 ```
 Need: Validate project config files against a schema
 Search: npm "config linter schema", "json schema validator cli"
@@ -173,10 +172,10 @@ Action: ADOPT + EXTEND — install ajv-cli, write project-specific schema
 Result: 1 package + 1 schema file, no custom validation logic
 ```
 
-## Anti-Patterns
+## アンチパターン
 
-- **Jumping to code**: Writing a utility without checking if one exists
-- **Ignoring MCP**: Not checking if an MCP server already provides the capability
-- **Silent skipping**: Reporting "nothing found" when a search channel was unavailable
-- **Over-customizing**: Wrapping a library so heavily it loses its benefits
-- **Dependency bloat**: Installing a massive package for one small feature
+- **コードに飛びつく**: 既存のものがあるか確認せずにユーティリティを書く
+- **MCPを無視する**: MCPサーバーが既に機能を提供しているか確認しない
+- **黙ってスキップする**: 検索チャネルが利用できなかったのに「何も見つからなかった」と報告する
+- **過度なカスタマイズ**: ライブラリを過剰にラップしてそのメリットを失う
+- **依存関係の肥大化**: 一つの小さな機能のために巨大なパッケージをインストールする

@@ -1,42 +1,42 @@
 ---
 name: redis-patterns
-description: Redis data structure patterns, caching strategies, distributed locks, rate limiting, pub/sub, and connection management for production applications.
+description: Redisのデータ構造パターン、キャッシュ戦略、分散ロック、レート制限、Pub/Sub、および本番アプリケーション向けコネクション管理。
 origin: ECC
 ---
 
-# Redis Patterns
+# Redisパターン
 
-Quick reference for Redis best practices across common backend use cases.
+一般的なバックエンドユースケースにおけるRedisベストプラクティスのクイックリファレンス。
 
-## How It Works
+## 仕組み
 
-Redis is an in-memory data structure store that supports strings, hashes, lists, sets, sorted sets, streams, and more. Individual Redis commands are atomic on a single instance; multi-step workflows require Lua scripts, MULTI/EXEC transactions, or explicit synchronization to stay atomic. Data is optionally persisted via RDB snapshots or AOF logs. Clients communicate over TCP using the RESP protocol; connection pools are essential to avoid per-request handshake overhead.
+Redisはインメモリデータ構造ストアで、文字列・ハッシュ・リスト・セット・ソート済みセット・ストリームなどをサポートします。個々のRedisコマンドはシングルインスタンスでアトミックですが、複数ステップのワークフローをアトミックに保つにはLuaスクリプト・MULTI/EXECトランザクション・明示的な同期が必要です。データはRDBスナップショットまたはAOFログによってオプションで永続化されます。クライアントはRESPプロトコルを使用してTCP通信を行います。リクエストごとのハンドシェイクオーバーヘッドを避けるためにコネクションプールが必須です。
 
-## When to Activate
+## 有効化タイミング
 
-- Adding caching to an application
-- Implementing rate limiting or throttling
-- Building distributed locks or coordination
-- Setting up session or token storage
-- Using Pub/Sub or Redis Streams for messaging
-- Configuring Redis in production (pooling, eviction, clustering)
+- アプリケーションへのキャッシュの追加
+- レート制限またはスロットリングの実装
+- 分散ロックまたはコーディネーションの構築
+- セッションまたはトークンストレージのセットアップ
+- メッセージングのためのPub/SubまたはRedisストリームの使用
+- 本番環境でのRedisの設定（プーリング・エビクション・クラスタリング）
 
-## Data Structure Cheat Sheet
+## データ構造チートシート
 
-| Use Case | Structure | Example Key |
+| ユースケース | 構造 | キー例 |
 |----------|-----------|-------------|
-| Simple cache | String | `product:123` |
-| User session | Hash | `session:abc` |
-| Leaderboard | Sorted Set | `scores:weekly` |
-| Unique visitors | Set | `visitors:2024-01-01` |
-| Activity feed | List | `feed:user:456` |
-| Event stream | Stream | `events:orders` |
-| Counters / rate limits | String (INCR) | `ratelimit:user:123` |
-| Bloom filter / HLL | HyperLogLog | `hll:pageviews` |
+| シンプルなキャッシュ | 文字列 | `product:123` |
+| ユーザーセッション | ハッシュ | `session:abc` |
+| リーダーボード | ソート済みセット | `scores:weekly` |
+| ユニーク訪問者 | セット | `visitors:2024-01-01` |
+| アクティビティフィード | リスト | `feed:user:456` |
+| イベントストリーム | ストリーム | `events:orders` |
+| カウンター / レート制限 | 文字列（INCR） | `ratelimit:user:123` |
+| ブルームフィルター / HLL | HyperLogLog | `hll:pageviews` |
 
-## Core Patterns
+## コアパターン
 
-### Cache-Aside (Lazy Loading)
+### キャッシュアサイド（遅延ロード）
 
 ```python
 import redis
@@ -52,26 +52,26 @@ def get_product(product_id: int):
         return json.loads(cached)
 
     product = db.query("SELECT * FROM products WHERE id = %s", product_id)
-    r.setex(cache_key, 3600, json.dumps(product))  # TTL: 1 hour
+    r.setex(cache_key, 3600, json.dumps(product))  # TTL: 1時間
     return product
 ```
 
-### Write-Through Cache
+### ライトスルーキャッシュ
 
 ```python
 def update_product(product_id: int, data: dict):
-    # Write to DB first
+    # まずDBに書き込む
     db.execute("UPDATE products SET ... WHERE id = %s", product_id)
 
-    # Immediately update cache
+    # 即座にキャッシュを更新する
     cache_key = f"product:{product_id}"
     r.setex(cache_key, 3600, json.dumps(data))
 ```
 
-### Cache Invalidation
+### キャッシュの無効化
 
 ```python
-# Tag-based invalidation — group related keys under a set
+# タグベースの無効化 — 関連するキーをセットにまとめる
 def cache_product(product_id: int, category_id: int, data: dict):
     key = f"product:{product_id}"
     tag = f"tag:category:{category_id}"
@@ -89,7 +89,7 @@ def invalidate_category(category_id: int):
     r.delete(tag)
 ```
 
-### Session Storage
+### セッションストレージ
 
 ```python
 import time
@@ -115,9 +115,9 @@ def delete_session(session_id: str):
     r.delete(f"session:{session_id}")
 ```
 
-## Rate Limiting
+## レート制限
 
-### Fixed Window (Simple)
+### 固定ウィンドウ（シンプル）
 
 ```python
 def is_rate_limited(user_id: int, limit: int = 100, window: int = 60) -> bool:
@@ -129,7 +129,7 @@ def is_rate_limited(user_id: int, limit: int = 100, window: int = 60) -> bool:
     return count > limit
 ```
 
-### Sliding Window (Lua — Atomic)
+### スライディングウィンドウ（Lua — アトミック）
 
 ```lua
 -- sliding_window.lua
@@ -142,7 +142,7 @@ redis.call('ZREMRANGEBYSCORE', key, 0, now - window)
 local count = redis.call('ZCARD', key)
 
 if count < limit then
-    -- Use unique member (now + sequence) to avoid collisions within the same millisecond
+    -- 同一ミリ秒内の衝突を避けるためにユニークなメンバー（now + シーケンス）を使用する
     local seq_key = key .. ':seq'
     local seq = redis.call('INCR', seq_key)
     redis.call('EXPIRE', seq_key, math.ceil(window / 1000))
@@ -162,9 +162,9 @@ def allow_request(user_id: int) -> bool:
     return bool(sliding_window(keys=[key], args=[now, 60000, 100]))
 ```
 
-## Distributed Locks
+## 分散ロック
 
-### Distributed Lock (Single Node — SET NX PX)
+### 分散ロック（シングルノード — SET NX PX）
 
 ```python
 import uuid
@@ -186,7 +186,7 @@ def release_lock(resource: str, token: str) -> bool:
     result = r.eval(release_script, 1, f"lock:{resource}", token)
     return bool(result)
 
-# Usage
+# 使用例
 token = acquire_lock("order:payment:123")
 if token:
     try:
@@ -195,18 +195,18 @@ if token:
         release_lock("order:payment:123", token)
 ```
 
-> For multi-node setups use the `redlock-py` library which implements the full Redlock algorithm.
+> マルチノード構成の場合は、完全なRedlockアルゴリズムを実装する `redlock-py` ライブラリを使用してください。
 
-## Pub/Sub & Streams
+## Pub/SubとストリームPayloads
 
-### Pub/Sub (Fire-and-Forget)
+### Pub/Sub（ファイア・アンド・フォーゲット）
 
 ```python
-# Publisher
+# パブリッシャー
 def publish_event(channel: str, payload: dict):
     r.publish(channel, json.dumps(payload))
 
-# Subscriber (blocking — run in separate thread/process)
+# サブスクライバー（ブロッキング — 別スレッド/プロセスで実行）
 def subscribe_events(channel: str):
     pubsub = r.pubsub()
     pubsub.subscribe(channel)
@@ -215,18 +215,18 @@ def subscribe_events(channel: str):
             handle(json.loads(message['data']))
 ```
 
-### Redis Streams (Durable Queue)
+### Redisストリーム（耐久性のあるキュー）
 
 ```python
-# Producer
+# プロデューサー
 def emit(stream: str, event: dict):
-    r.xadd(stream, event, maxlen=10000)  # Cap stream length
+    r.xadd(stream, event, maxlen=10000)  # ストリーム長の上限設定
 
-# Consumer group — guarantees at-least-once delivery
+# コンシューマーグループ — 少なくとも1回の配信を保証
 try:
     r.xgroup_create('events:orders', 'processor', id='0', mkstream=True)
 except Exception:
-    pass  # Group already exists
+    pass  # グループはすでに存在する
 
 def consume(stream: str, group: str, consumer: str):
     while True:
@@ -237,42 +237,42 @@ def consume(stream: str, group: str, consumer: str):
                 r.xack(stream, group, msg_id)
 ```
 
-> Prefer **Streams** over Pub/Sub when you need delivery guarantees, consumer groups, or replay.
+> 配信保証・コンシューマーグループ・リプレイが必要な場合はPub/Subより**ストリーム**を優先してください。
 
-## Key Design
+## キー設計
 
-### Naming Conventions
+### 命名規則
 
 ```
-# Pattern: resource:id:field
+# パターン: resource:id:field
 user:123:profile
 order:456:status
 cache:product:789
 
-# Pattern: namespace:resource:id
+# パターン: namespace:resource:id
 myapp:session:abc123
 myapp:ratelimit:user:123
 
-# Pattern: resource:date (time-bound keys)
+# パターン: resource:date（時間制限付きキー）
 stats:pageviews:2024-01-01
 ```
 
-### TTL Strategy
+### TTL戦略
 
-| Data Type | Suggested TTL |
+| データ型 | 推奨TTL |
 |-----------|--------------|
-| User session | 24h (`86400`) |
-| API response cache | 5–15 min |
-| Rate limit window | Match window size |
-| Short-lived tokens | 5–10 min |
-| Leaderboard | 1h–24h |
-| Static/reference data | 1h–1 week |
+| ユーザーセッション | 24時間（`86400`） |
+| APIレスポンスキャッシュ | 5〜15分 |
+| レート制限ウィンドウ | ウィンドウサイズに合わせる |
+| 短命なトークン | 5〜10分 |
+| リーダーボード | 1時間〜24時間 |
+| 静的/参照データ | 1時間〜1週間 |
 
-Always set a TTL. Keys without TTL accumulate indefinitely and cause memory pressure.
+必ずTTLを設定してください。TTLのないキーは際限なく蓄積され、メモリ負荷を引き起こします。
 
-## Connection Management
+## コネクション管理
 
-### Connection Pooling
+### コネクションプーリング
 
 ```python
 from redis import ConnectionPool, Redis
@@ -290,7 +290,7 @@ pool = ConnectionPool(
 r = Redis(connection_pool=pool)
 ```
 
-### Cluster Mode
+### クラスターモード
 
 ```python
 from redis.cluster import RedisCluster
@@ -302,7 +302,7 @@ r = RedisCluster(
 )
 ```
 
-### Sentinel (High Availability)
+### Sentinel（高可用性）
 
 ```python
 from redis.sentinel import Sentinel
@@ -315,31 +315,31 @@ master = sentinel.master_for('mymaster', decode_responses=True)
 replica = sentinel.slave_for('mymaster', decode_responses=True)
 ```
 
-## Eviction Policies
+## エビクションポリシー
 
-| Policy | Behavior | Best For |
+| ポリシー | 動作 | 最適用途 |
 |--------|----------|----------|
-| `noeviction` | Error on write when full | Queues / critical data |
-| `allkeys-lru` | Evict least recently used | General cache |
-| `volatile-lru` | LRU only among keys with TTL | Mixed data store |
-| `allkeys-lfu` | Evict least frequently used | Skewed access patterns |
-| `volatile-ttl` | Evict soonest-to-expire | Prioritize long-lived data |
+| `noeviction` | 満杯時に書き込みエラー | キュー / 重要データ |
+| `allkeys-lru` | 最近最も使われていないキーをエビクト | 汎用キャッシュ |
+| `volatile-lru` | TTL付きキーのみLRU | 混在データストア |
+| `allkeys-lfu` | 最も使用頻度が低いキーをエビクト | アクセス偏りパターン |
+| `volatile-ttl` | 最も早く期限切れになるキーをエビクト | 長命なデータを優先 |
 
-Set via `redis.conf`: `maxmemory-policy allkeys-lru`
+`redis.conf` で設定: `maxmemory-policy allkeys-lru`
 
-## Anti-Patterns
+## アンチパターン
 
-| Anti-Pattern | Problem | Fix |
+| アンチパターン | 問題 | 対策 |
 |---|---|---|
-| Keys with no TTL | Memory grows unbounded | Always set TTL |
-| `KEYS *` in production | Blocks the server (O(N)) | Use `SCAN` cursor |
-| Storing large blobs (>100KB) | Slow serialization, memory pressure | Store reference + fetch from object store |
-| Single Redis for everything | No isolation between cache & queue | Use separate DBs or instances |
-| Ignoring connection pool limits | Connection exhaustion under load | Size pool to workload |
-| Not handling cache miss stampede | Thundering herd on cold start | Use locks or probabilistic early expiry |
-| `FLUSHALL` without thought | Wipes entire instance | Scope deletes by key pattern |
+| TTLなしのキー | メモリが無制限に増大 | 常にTTLを設定する |
+| 本番環境での `KEYS *` | サーバーをブロック（O(N)） | `SCAN` カーソルを使用する |
+| 大きなブロブの保存（>100KB） | シリアライズが遅く、メモリ負荷大 | 参照を保存してオブジェクトストアから取得 |
+| 全てに単一のRedisを使用 | キャッシュとキューの分離なし | 別々のDBまたはインスタンスを使用する |
+| コネクションプール制限を無視 | 高負荷時のコネクション枯渇 | ワークロードに応じてプールをサイジングする |
+| キャッシュミススタンピードの未対策 | コールドスタート時のサンダリングハード | ロックまたは確率的早期期限切れを使用する |
+| 考慮なしの `FLUSHALL` | インスタンス全体を消去 | キーパターンでスコープを絞って削除する |
 
-### Cache Miss Stampede Prevention
+### キャッシュミススタンピード対策
 
 ```python
 import threading
@@ -357,7 +357,7 @@ def get_with_lock(key: str, fetch_fn, ttl: int = 300):
             _locks[key] = threading.Lock()
         lock = _locks[key]
     with lock:
-        cached = r.get(key)  # Re-check after acquiring lock
+        cached = r.get(key)  # ロック取得後に再チェック
         if cached:
             return json.loads(cached)
         value = fetch_fn()
@@ -365,39 +365,39 @@ def get_with_lock(key: str, fetch_fn, ttl: int = 300):
         return value
 ```
 
-> Note: for multi-process deployments, replace the in-process lock with `acquire_lock`/`release_lock` from the Distributed Locks section above.
+> 注意: マルチプロセスのデプロイメントでは、プロセス内ロックを上記の「分散ロック」セクションの `acquire_lock`/`release_lock` に置き換えてください。
 
-## Examples
+## 使用例
 
-**Add caching to a Django/Flask API endpoint:**
-Use cache-aside with `setex` and a 5-minute TTL on the response. Key on the request parameters.
+**Django/Flask APIエンドポイントへのキャッシュ追加:**
+`setex` を使ったキャッシュアサイドと、レスポンスに対する5分間のTTLを使用します。リクエストパラメーターをキーとします。
 
-**Rate-limit an API by user:**
-Use fixed-window with `pipeline(transaction=True)` for low-traffic endpoints; use sliding-window Lua for accurate per-user throttling.
+**ユーザーごとのAPIレート制限:**
+低トラフィックエンドポイントには `pipeline(transaction=True)` を使った固定ウィンドウを使用し、正確なユーザーごとのスロットリングにはスライディングウィンドウLuaを使用します。
 
-**Coordinate a background job across workers:**
-Use `acquire_lock` with a TTL that exceeds the expected job duration. Always release in a `finally` block.
+**ワーカー間でのバックグラウンドジョブの調整:**
+予想されるジョブ時間を超えるTTLで `acquire_lock` を使用します。`finally` ブロックで必ず解放してください。
 
-**Fan-out notifications to multiple subscribers:**
-Use Pub/Sub for fire-and-forget. Switch to Streams if you need guaranteed delivery or replay for late consumers.
+**複数のサブスクライバーへのファンアウト通知:**
+ファイア・アンド・フォーゲットにはPub/Subを使用します。遅延コンシューマーへの配信保証やリプレイが必要な場合はストリームに切り替えてください。
 
-## Quick Reference
+## クイックリファレンス
 
-| Pattern | When to Use |
+| パターン | 使用タイミング |
 |---------|-------------|
-| Cache-aside | Read-heavy, tolerate slight staleness |
-| Write-through | Strong consistency required |
-| Distributed lock | Prevent concurrent access to a resource |
-| Sliding window rate limit | Accurate per-user throttling |
-| Redis Streams | Durable event queue with consumer groups |
-| Pub/Sub | Broadcast with no delivery guarantees needed |
-| Sorted Set leaderboard | Ranked scoring, pagination |
-| HyperLogLog | Approximate unique count at low memory |
+| キャッシュアサイド | 読み取り多め、軽微な鮮度低下を許容できる |
+| ライトスルー | 強い一貫性が必要 |
+| 分散ロック | リソースへの並行アクセスを防ぐ |
+| スライディングウィンドウレート制限 | 正確なユーザーごとのスロットリング |
+| Redisストリーム | コンシューマーグループ付きの耐久イベントキュー |
+| Pub/Sub | 配信保証不要のブロードキャスト |
+| ソート済みセットリーダーボード | ランク付きスコアリング、ページネーション |
+| HyperLogLog | 低メモリでの近似ユニーク数カウント |
 
-## Related
+## 関連
 
-- Skill: `postgres-patterns` — relational data patterns
-- Skill: `backend-patterns` — API and service layer patterns
-- Skill: `database-migrations` — schema versioning
-- Skill: `django-patterns` — Django cache framework integration
-- Agent: `database-reviewer` — full database review workflow
+- スキル: `postgres-patterns` — リレーショナルデータパターン
+- スキル: `backend-patterns` — APIとサービスレイヤーパターン
+- スキル: `database-migrations` — スキーマバージョン管理
+- スキル: `django-patterns` — DjangoキャッシュフレームワークI連携
+- エージェント: `database-reviewer` — データベースレビューワークフロー全体

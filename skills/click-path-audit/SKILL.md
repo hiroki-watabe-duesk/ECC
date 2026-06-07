@@ -1,65 +1,65 @@
 ---
 name: click-path-audit
-description: "Trace every user-facing button/touchpoint through its full state change sequence to find bugs where functions individually work but cancel each other out, produce wrong final state, or leave the UI in an inconsistent state. Use when: systematic debugging found no bugs but users report broken buttons, or after any major refactor touching shared state stores."
+description: "ユーザーが操作するすべてのボタン/タッチポイントをその完全な状態変更シーケンスでトレースし、個々の関数は動作するが互いに打ち消し合ったり、最終状態が誤っていたり、UIが矛盾した状態になるバグを発見する。使用時: 系統的なデバッグでバグが見つからないのにユーザーがボタン不具合を報告する場合、または共有ステートストアに触れる大規模リファクタリング後。"
 origin: community
 ---
 
-# /click-path-audit — Behavioural Flow Audit
+# /click-path-audit — 動作フロー監査
 
-Find bugs that static code reading misses: state interaction side effects, race conditions between sequential calls, and handlers that silently undo each other.
+静的なコード読み取りでは見逃すバグを発見します: ステートの相互作用の副作用、連続呼び出し間の競合状態、ハンドラーが互いに無音でアンドゥし合う問題。
 
-## The Problem This Solves
+## この問題が解決すること
 
-Traditional debugging checks:
-- Does the function exist? (missing wiring)
-- Does it crash? (runtime errors)
-- Does it return the right type? (data flow)
+従来のデバッグが確認すること:
+- 関数は存在するか？（配線の欠落）
+- クラッシュするか？（ランタイムエラー）
+- 正しい型を返すか？（データフロー）
 
-But it does NOT check:
-- **Does the final UI state match what the button label promises?**
-- **Does function B silently undo what function A just did?**
-- **Does shared state (Zustand/Redux/context) have side effects that cancel the intended action?**
+しかし確認**しない**こと:
+- **最終的なUIの状態はボタンラベルが約束するものと一致しているか？**
+- **関数Bが関数Aの変更を無音でアンドゥしていないか？**
+- **共有ステート（Zustand/Redux/context）が意図した操作をキャンセルする副作用を持っていないか？**
 
-Real example: A "New Email" button called `setComposeMode(true)` then `selectThread(null)`. Both worked individually. But `selectThread` had a side effect resetting `composeMode: false`. The button did nothing. 54 bugs were found by systematic debugging — this one was missed.
-
----
-
-## How It Works
-
-For EVERY interactive touchpoint in the target area:
-
-```
-1. IDENTIFY the handler (onClick, onSubmit, onChange, etc.)
-2. TRACE every function call in the handler, IN ORDER
-3. For EACH function call:
-   a. What state does it READ?
-   b. What state does it WRITE?
-   c. Does it have SIDE EFFECTS on shared state?
-   d. Does it reset/clear any state as a side effect?
-4. CHECK: Does any later call UNDO a state change from an earlier call?
-5. CHECK: Is the FINAL state what the user expects from the button label?
-6. CHECK: Are there race conditions (async calls that resolve in wrong order)?
-```
+実際の例: 「新規メール」ボタンが `setComposeMode(true)` を呼び出し、次に `selectThread(null)` を呼び出していました。両者は個別に動作していました。しかし `selectThread` には `composeMode: false` をリセットする副作用があり、ボタンは何もしませんでした。系統的なデバッグで54件のバグが発見されましたが、このバグは見逃されていました。
 
 ---
 
-## Execution Steps
+## 動作原理
 
-### Step 1: Map State Stores
-
-Before auditing any touchpoint, build a side-effect map of every state store action:
+対象領域のすべてのインタラクティブなタッチポイントについて:
 
 ```
-For each Zustand store / React context in scope:
-  For each action/setter:
-    - What fields does it set?
-    - Does it RESET other fields as a side effect?
-    - Document: actionName → {sets: [...], resets: [...]}
+1. ハンドラーを特定する（onClick, onSubmit, onChange等）
+2. ハンドラー内のすべての関数呼び出しを順番にトレースする
+3. 各関数呼び出しについて:
+   a. どのステートをREADするか？
+   b. どのステートをWRITEするか？
+   c. 共有ステートへのSIDE EFFECTがあるか？
+   d. 副作用でステートをリセット/クリアするか？
+4. 後の呼び出しが前の呼び出しのステート変更をUNDOするか確認する
+5. 最終ステートがボタンラベルからユーザーが期待するものと一致するか確認する
+6. 競合状態はあるか（非同期呼び出しが誤った順序で解決する）を確認する
 ```
 
-This is the critical reference. The "New Email" bug was invisible without knowing that `selectThread` resets `composeMode`.
+---
 
-**Output format:**
+## 実行ステップ
+
+### ステップ1: ステートストアをマップする
+
+タッチポイントを監査する前に、すべてのステートストアアクションの副作用マップを構築します:
+
+```
+スコープ内の各Zustandストア / Reactコンテキストについて:
+  各アクション/セッターについて:
+    - どのフィールドをセットするか？
+    - 副作用として他のフィールドをRESETするか？
+    - ドキュメント化: actionName → {sets: [...], resets: [...]}
+```
+
+これが重要なリファレンスです。「新規メール」バグは `selectThread` が `composeMode` をリセットすることを知らなければ見えませんでした。
+
+**出力フォーマット:**
 ```
 STORE: emailStore
   setComposeMode(bool) → sets: {composeMode}
@@ -67,157 +67,157 @@ STORE: emailStore
   setDraftGenerating(bool) → sets: {draftGenerating}
   ...
 
-DANGEROUS RESETS (actions that clear state they don't own):
-  selectThread → resets composeMode (owned by setComposeMode)
-  reset → resets everything
+危険なリセット（所有していないステートをクリアするアクション）:
+  selectThread → setComposeMode所有のcomposeModeをリセット
+  reset → すべてをリセット
 ```
 
-### Step 2: Audit Each Touchpoint
+### ステップ2: 各タッチポイントを監査する
 
-For each button/toggle/form submit in the target area:
+対象領域の各ボタン/トグル/フォーム送信について:
 
 ```
-TOUCHPOINT: [Button label] in [Component:line]
-  HANDLER: onClick → {
-    call 1: functionA() → sets {X: true}
-    call 2: functionB() → sets {Y: null} RESETS {X: false}  ← CONFLICT
+タッチポイント: [ボタンラベル] in [Component:行番号]
+  ハンドラー: onClick → {
+    呼び出し1: functionA() → sets {X: true}
+    呼び出し2: functionB() → sets {Y: null} RESETS {X: false}  ← 競合
   }
-  EXPECTED: User sees [description of what button label promises]
-  ACTUAL: X is false because functionB reset it
-  VERDICT: BUG — [description]
+  期待値: ユーザーがボタンラベルから期待すること
+  実際: functionBがリセットしたためXはfalse
+  判定: バグ — [説明]
 ```
 
-**Check each of these bug patterns:**
+**次のバグパターンを確認してください:**
 
-#### Pattern 1: Sequential Undo
+#### パターン1: 連続アンドゥ
 ```
 handler() {
   setState_A(true)     // sets X = true
   setState_B(null)     // side effect: resets X = false
 }
-// Result: X is false. First call was pointless.
+// 結果: Xはfalse。最初の呼び出しは無意味だった。
 ```
 
-#### Pattern 2: Async Race
+#### パターン2: 非同期競合
 ```
 handler() {
   fetchA().then(() => setState({ loading: false }))
   fetchB().then(() => setState({ loading: true }))
 }
-// Result: final loading state depends on which resolves first
+// 結果: 最終的なloadingの状態はどちらが先に解決するかによる
 ```
 
-#### Pattern 3: Stale Closure
+#### パターン3: ステールクロージャ
 ```
 const [count, setCount] = useState(0)
 const handler = useCallback(() => {
-  setCount(count + 1)  // captures stale count
-  setCount(count + 1)  // same stale count — increments by 1, not 2
+  setCount(count + 1)  // 古いcountをキャプチャ
+  setCount(count + 1)  // 同じ古いcount — 2ではなく1だけ増加する
 }, [count])
 ```
 
-#### Pattern 4: Missing State Transition
+#### パターン4: ステート遷移の欠落
 ```
-// Button says "Save" but handler only validates, never actually saves
-// Button says "Delete" but handler sets a flag without calling the API
-// Button says "Send" but the API endpoint is removed/broken
+// ボタンには「保存」と書かれているが、ハンドラーは検証するだけで実際には保存しない
+// ボタンには「削除」と書かれているが、ハンドラーはAPIを呼び出さずフラグをセットするだけ
+// ボタンには「送信」と書かれているが、APIエンドポイントが削除/壊れている
 ```
 
-#### Pattern 5: Conditional Dead Path
+#### パターン5: 条件付きデッドパス
 ```
 handler() {
-  if (someState) {        // someState is ALWAYS false at this point
-    doTheActualThing()    // never reached
+  if (someState) {        // someStateはこの時点で常にfalse
+    doTheActualThing()    // 到達しない
   }
 }
 ```
 
-#### Pattern 6: useEffect Interference
+#### パターン6: useEffectの干渉
 ```
-// Button sets stateX = true
-// A useEffect watches stateX and resets it to false
-// User sees nothing happen
+// ボタンがstateX = trueをセットする
+// useEffectがstateXを監視してfalseにリセットする
+// ユーザーには何も起きていないように見える
 ```
 
-### Step 3: Report
+### ステップ3: レポート
 
-For each bug found:
+発見された各バグについて:
 
 ```
 CLICK-PATH-NNN: [severity: CRITICAL/HIGH/MEDIUM/LOW]
-  Touchpoint: [Button label] in [file:line]
-  Pattern: [Sequential Undo / Async Race / Stale Closure / Missing Transition / Dead Path / useEffect Interference]
-  Handler: [function name or inline]
-  Trace:
-    1. [call] → sets {field: value}
-    2. [call] → RESETS {field: value}  ← CONFLICT
-  Expected: [what user expects]
-  Actual: [what actually happens]
-  Fix: [specific fix]
+  タッチポイント: [ボタンラベル] in [file:line]
+  パターン: [連続アンドゥ / 非同期競合 / ステールクロージャ / 遷移欠落 / デッドパス / useEffect干渉]
+  ハンドラー: [関数名またはインライン]
+  トレース:
+    1. [呼び出し] → sets {field: value}
+    2. [呼び出し] → RESETS {field: value}  ← 競合
+  期待値: [ユーザーが期待すること]
+  実際: [実際に起きること]
+  修正: [具体的な修正方法]
 ```
 
 ---
 
-## Scope Control
+## スコープ制御
 
-This audit is expensive. Scope it appropriately:
+この監査はコストが高いです。適切にスコープを設定してください:
 
-- **Full app audit:** Use when launching or after major refactor. Launch parallel agents per page.
-- **Single page audit:** Use after building a new page or after a user reports a broken button.
-- **Store-focused audit:** Use after modifying a Zustand store — audit all consumers of the changed actions.
+- **アプリ全体の監査:** ローンチ時や大規模リファクタリング後に使用。ページごとに並列エージェントを起動する。
+- **単一ページ監査:** 新しいページを作成した後や、ユーザーが壊れたボタンを報告した後に使用。
+- **ストア重点監査:** Zustandストアを変更した後に使用 — 変更されたアクションの全消費者を監査する。
 
-### Recommended agent split for full app:
+### アプリ全体のおすすめエージェント分割:
 
 ```
-Agent 1: Map ALL state stores (Step 1) — this is shared context for all other agents
-Agent 2: Dashboard (Tasks, Notes, Journal, Ideas)
-Agent 3: Chat (DanteChatColumn, JustChatPage)
-Agent 4: Emails (ThreadList, DraftArea, EmailsPage)
-Agent 5: Projects (ProjectsPage, ProjectOverviewTab, NewProjectWizard)
-Agent 6: CRM (all sub-tabs)
-Agent 7: Profile, Settings, Vault, Notifications
-Agent 8: Management Suite (all pages)
+Agent 1: すべてのステートストアをマップ（ステップ1）— 他のすべてのエージェントの共有コンテキスト
+Agent 2: ダッシュボード（Tasks, Notes, Journal, Ideas）
+Agent 3: チャット（DanteChatColumn, JustChatPage）
+Agent 4: メール（ThreadList, DraftArea, EmailsPage）
+Agent 5: プロジェクト（ProjectsPage, ProjectOverviewTab, NewProjectWizard）
+Agent 6: CRM（全サブタブ）
+Agent 7: プロフィール、設定、Vault、通知
+Agent 8: マネジメントスイート（全ページ）
 ```
 
-Agent 1 MUST complete first. Its output is input for all other agents.
+Agent 1は最初に完了しなければなりません。その出力は他のすべてのエージェントへの入力です。
 
 ---
 
-## When to Use
+## 使用すべき時
 
-- After systematic debugging finds "no bugs" but users report broken UI
-- After modifying any Zustand store action (check all callers)
-- After any refactor that touches shared state
-- Before release, on critical user flows
-- When a button "does nothing" — this is THE tool for that
+- 系統的なデバッグで「バグなし」と判定されたにもかかわらず、ユーザーがUIの不具合を報告する場合
+- 任意のZustandストアアクションを変更した後（全呼び出し元を確認する）
+- 共有ステートに触れるリファクタリングの後
+- リリース前の重要なユーザーフローで
+- ボタンが「何もしない」場合 — これがそのためのツールです
 
-## When NOT to Use
+## 使用すべきでない時
 
-- For API-level bugs (wrong response shape, missing endpoint) — use systematic-debugging
-- For styling/layout issues — visual inspection
-- For performance issues — profiling tools
-
----
-
-## Integration with Other Skills
-
-- Run AFTER `/superpowers:systematic-debugging` (which finds the other 54 bug types)
-- Run BEFORE `/superpowers:verification-before-completion` (which verifies fixes work)
-- Feeds into `/superpowers:test-driven-development` — every bug found here should get a test
+- APIレベルのバグ（誤ったレスポンス形状、欠落したエンドポイント）— systematic-debuggingを使用
+- スタイル/レイアウトの問題 — 視覚的な検査
+- パフォーマンスの問題 — プロファイリングツール
 
 ---
 
-## Example: The Bug That Inspired This Skill
+## 他のスキルとの連携
 
-**ThreadList.tsx "New Email" button:**
+- `/superpowers:systematic-debugging` の後に実行する（他の54種類のバグを発見する）
+- `/superpowers:verification-before-completion` の前に実行する（修正が機能することを検証する）
+- `/superpowers:test-driven-development` に繋げる — ここで発見された各バグはテストを持つべき
+
+---
+
+## 例: このスキルを生み出したバグ
+
+**ThreadList.tsx「New Email」ボタン:**
 ```
 onClick={() => {
-  useEmailStore.getState().setComposeMode(true)   // ✓ sets composeMode = true
-  useEmailStore.getState().selectThread(null)      // ✗ RESETS composeMode = false
+  useEmailStore.getState().setComposeMode(true)   // ✓ composeMode = true をセット
+  useEmailStore.getState().selectThread(null)      // ✗ composeMode = false にリセット
 }}
 ```
 
-Store definition:
+ストア定義:
 ```
 selectThread: (thread) => set({
   selectedThread: thread,
@@ -226,19 +226,19 @@ selectThread: (thread) => set({
   drafts: [],
   selectedDraft: null,
   summary: null,
-  composeMode: false,     // ← THIS silent reset killed the button
+  composeMode: false,     // ← この無音リセットがボタンを殺した
   composeData: null,
   redraftOpen: false,
 })
 ```
 
-**Systematic debugging missed it** because:
-- The button has an onClick handler (not dead)
-- Both functions exist (no missing wiring)
-- Neither function crashes (no runtime error)
-- The data types are correct (no type mismatch)
+**系統的なデバッグが見逃した理由:**
+- ボタンにはonClickハンドラーがある（デッドではない）
+- 両方の関数が存在する（配線の欠落なし）
+- どちらの関数もクラッシュしない（ランタイムエラーなし）
+- データ型は正しい（型不一致なし）
 
-**Click-path audit catches it** because:
-- Step 1 maps `selectThread` resets `composeMode`
-- Step 2 traces the handler: call 1 sets true, call 2 resets false
-- Verdict: Sequential Undo — final state contradicts button intent
+**クリックパス監査が発見した理由:**
+- ステップ1が `selectThread` は `composeMode` をリセットするとマップする
+- ステップ2がハンドラーをトレースする: 呼び出し1がtrueをセット、呼び出し2がfalseにリセット
+- 判定: 連続アンドゥ — 最終ステートがボタンの意図と矛盾する

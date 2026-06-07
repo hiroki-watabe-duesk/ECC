@@ -1,25 +1,25 @@
 ---
 name: perl-testing
-description: Perl testing patterns using Test2::V0, Test::More, prove runner, mocking, coverage with Devel::Cover, and TDD methodology.
+description: Test2::V0、Test::More、prove ランナー、モック、Devel::Cover によるカバレッジ、TDD 手法を使用した Perl テストパターン。
 origin: ECC
 ---
 
-# Perl Testing Patterns
+# Perl テストパターン
 
-Comprehensive testing strategies for Perl applications using Test2::V0, Test::More, prove, and TDD methodology.
+Test2::V0、Test::More、prove、TDD 手法を使用した Perl アプリケーションの包括的なテスト戦略。
 
-## When to Activate
+## アクティブにするタイミング
 
-- Writing new Perl code (follow TDD: red, green, refactor)
-- Designing test suites for Perl modules or applications
-- Reviewing Perl test coverage
-- Setting up Perl testing infrastructure
-- Migrating tests from Test::More to Test2::V0
-- Debugging failing Perl tests
+- 新しい Perl コードを書くとき（TDD に従う: レッド、グリーン、リファクタリング）
+- Perl モジュールまたはアプリケーションのテストスイートを設計するとき
+- Perl テストカバレッジをレビューするとき
+- Perl テストインフラをセットアップするとき
+- Test::More から Test2::V0 へテストを移行するとき
+- 失敗している Perl テストをデバッグするとき
 
-## TDD Workflow
+## TDD ワークフロー
 
-Always follow the RED-GREEN-REFACTOR cycle.
+常に RED-GREEN-REFACTOR サイクルに従う。
 
 ```perl
 # Step 1: RED — Write a failing test
@@ -54,11 +54,11 @@ sub add($self, $a, $b) {
 # Run: prove -lv t/unit/calculator.t
 ```
 
-## Test::More Fundamentals
+## Test::More の基礎
 
-The standard Perl testing module — widely used, ships with core.
+標準的な Perl テストモジュール — 広く使われており、コアに同梱されている。
 
-### Basic Assertions
+### 基本的なアサーション
 
 ```perl
 use v5.36;
@@ -93,7 +93,7 @@ can_ok($obj, 'save', 'delete');
 done_testing;
 ```
 
-### SKIP and TODO
+### SKIP と TODO
 
 ```perl
 use v5.36;
@@ -117,19 +117,19 @@ TODO: {
 done_testing;
 ```
 
-## Test2::V0 Modern Framework
+## Test2::V0 モダンフレームワーク
 
-Test2::V0 is the modern replacement for Test::More — richer assertions, better diagnostics, and extensible.
+Test2::V0 は Test::More の現代的な代替品 — より豊富なアサーション、より良い診断、拡張可能。
 
-### Why Test2?
+### なぜ Test2 を使うのか？
 
-- Superior deep comparison with hash/array builders
-- Better diagnostic output on failures
-- Subtests with cleaner scoping
-- Extensible via Test2::Tools::* plugins
-- Backward-compatible with Test::More tests
+- ハッシュ/配列ビルダーによる優れた深い比較
+- 失敗時のより良い診断出力
+- よりクリーンなスコープを持つサブテスト
+- Test2::Tools::* プラグインによる拡張性
+- Test::More テストとの後方互換性
 
-### Deep Comparison with Builders
+### ビルダーによる深い比較
 
 ```perl
 use v5.36;
@@ -171,7 +171,7 @@ is(
 );
 ```
 
-### Subtests
+### サブテスト
 
 ```perl
 use v5.36;
@@ -194,7 +194,7 @@ subtest 'User validation' => sub {
 done_testing;
 ```
 
-### Exception Testing with Test2
+### Test2 による例外テスト
 
 ```perl
 use v5.36;
@@ -223,9 +223,9 @@ subtest 'error handling' => sub {
 done_testing;
 ```
 
-## Test Organization and prove
+## テスト構成と prove
 
-### Directory Structure
+### ディレクトリ構造
 
 ```text
 t/
@@ -245,7 +245,7 @@ t/
     └── users.csv
 ```
 
-### prove Commands
+### prove コマンド
 
 ```bash
 # Run all tests
@@ -273,7 +273,7 @@ prove -l --color --timer t/
 prove -l --formatter TAP::Formatter::JUnit t/ > results.xml
 ```
 
-### .proverc Configuration
+### .proverc 設定
 
 ```text
 -l
@@ -284,9 +284,9 @@ prove -l --formatter TAP::Formatter::JUnit t/ > results.xml
 --state=save
 ```
 
-## Fixtures and Setup/Teardown
+## フィクスチャとセットアップ/ティアダウン
 
-### Subtest Isolation
+### サブテストの分離
 
 ```perl
 use v5.36;
@@ -308,11 +308,11 @@ subtest 'file processing' => sub {
 };
 ```
 
-### Shared Test Helpers
+### 共有テストヘルパー
 
-Place reusable helpers in `t/lib/TestHelper.pm` and load with `use lib 't/lib'`. Export factory functions like `create_test_db()`, `create_temp_dir()`, and `fixture_path()` via `Exporter`.
+再利用可能なヘルパーは `t/lib/TestHelper.pm` に置き、`use lib 't/lib'` で読み込む。`Exporter` を介して `create_test_db()`、`create_temp_dir()`、`fixture_path()` などのファクトリー関数をエクスポートする。
 
-## Mocking
+## モック
 
 ### Test::MockModule
 
@@ -347,11 +347,11 @@ subtest 'mock external API' => sub {
 # *MyApp::API::fetch_user = sub { ... };  # NEVER — leaks across tests
 ```
 
-For lightweight mock objects, use `Test::MockObject` to create injectable test doubles with `->mock()` and verify calls with `->called_ok()`.
+軽量なモックオブジェクトには `Test::MockObject` を使用して、`->mock()` で注入可能なテストダブルを作成し、`->called_ok()` で呼び出しを確認する。
 
-## Coverage with Devel::Cover
+## Devel::Cover によるカバレッジ
 
-### Running Coverage
+### カバレッジの実行
 
 ```bash
 # Basic coverage report
@@ -373,9 +373,9 @@ cover -test && cover -report text -select '^lib/' \
   | perl -ne 'if (/Total.*?(\d+\.\d+)/) { exit 1 if $1 < 80 }'
 ```
 
-### Integration Testing
+### インテグレーションテスト
 
-Use in-memory SQLite for database tests, mock HTTP::Tiny for API tests.
+データベーステストにはインメモリ SQLite を使用し、API テストには HTTP::Tiny をモックする。
 
 ```perl
 use v5.36;
@@ -396,50 +396,50 @@ subtest 'database integration' => sub {
 done_testing;
 ```
 
-## Best Practices
+## ベストプラクティス
 
-### DO
+### すべきこと
 
-- **Follow TDD**: Write tests before implementation (red-green-refactor)
-- **Use Test2::V0**: Modern assertions, better diagnostics
-- **Use subtests**: Group related assertions, isolate state
-- **Mock external dependencies**: Network, database, file system
-- **Use `prove -l`**: Always include lib/ in `@INC`
-- **Name tests clearly**: `'user login with invalid password fails'`
-- **Test edge cases**: Empty strings, undef, zero, boundary values
-- **Aim for 80%+ coverage**: Focus on business logic paths
-- **Keep tests fast**: Mock I/O, use in-memory databases
+- **TDD に従う**: 実装前にテストを書く（レッド・グリーン・リファクタリング）
+- **Test2::V0 を使う**: モダンなアサーション、より良い診断
+- **サブテストを使う**: 関連するアサーションをグループ化し、状態を分離する
+- **外部依存関係をモックする**: ネットワーク、データベース、ファイルシステム
+- **`prove -l` を使う**: `@INC` に常に lib/ を含める
+- **テストに明確な名前を付ける**: `'user login with invalid password fails'`
+- **エッジケースをテストする**: 空文字列、undef、ゼロ、境界値
+- **80% 以上のカバレッジを目指す**: ビジネスロジックのパスに集中する
+- **テストを速く保つ**: I/O をモックし、インメモリデータベースを使用する
 
-### DON'T
+### してはいけないこと
 
-- **Don't test implementation**: Test behavior and output, not internals
-- **Don't share state between subtests**: Each subtest should be independent
-- **Don't skip `done_testing`**: Ensures all planned tests ran
-- **Don't over-mock**: Mock boundaries only, not the code under test
-- **Don't use `Test::More` for new projects**: Prefer Test2::V0
-- **Don't ignore test failures**: All tests must pass before merge
-- **Don't test CPAN modules**: Trust libraries to work correctly
-- **Don't write brittle tests**: Avoid over-specific string matching
+- **実装をテストしない**: 内部ではなく動作と出力をテストする
+- **サブテスト間で状態を共有しない**: 各サブテストは独立すべき
+- **`done_testing` を省略しない**: 全ての計画されたテストが実行されたことを保証する
+- **過剰なモックをしない**: テスト対象コードではなく境界のみをモックする
+- **新規プロジェクトに `Test::More` を使わない**: Test2::V0 を優先する
+- **テストの失敗を無視しない**: マージ前に全てのテストがパスしなければならない
+- **CPAN モジュールをテストしない**: ライブラリが正しく動作することを信頼する
+- **壊れやすいテストを書かない**: 過度に具体的な文字列マッチングを避ける
 
-## Quick Reference
+## クイックリファレンス
 
-| Task | Command / Pattern |
+| タスク | コマンド / パターン |
 |---|---|
-| Run all tests | `prove -lr t/` |
-| Run one test verbose | `prove -lv t/unit/user.t` |
-| Parallel test run | `prove -lr -j8 t/` |
-| Coverage report | `cover -test && cover -report html` |
-| Test equality | `is($got, $expected, 'label')` |
-| Deep comparison | `is($got, hash { field k => 'v'; etc() }, 'label')` |
-| Test exception | `like(dies { ... }, qr/msg/, 'label')` |
-| Test no exception | `ok(lives { ... }, 'label')` |
-| Mock a method | `Test::MockModule->new('Pkg')->mock(m => sub { ... })` |
-| Skip tests | `SKIP: { skip 'reason', $count unless $cond; ... }` |
-| TODO tests | `TODO: { local $TODO = 'reason'; ... }` |
+| 全テストを実行する | `prove -lr t/` |
+| 1つのテストを冗長モードで実行する | `prove -lv t/unit/user.t` |
+| 並列テスト実行 | `prove -lr -j8 t/` |
+| カバレッジレポート | `cover -test && cover -report html` |
+| 等値テスト | `is($got, $expected, 'label')` |
+| 深い比較 | `is($got, hash { field k => 'v'; etc() }, 'label')` |
+| 例外テスト | `like(dies { ... }, qr/msg/, 'label')` |
+| 例外なしテスト | `ok(lives { ... }, 'label')` |
+| メソッドをモックする | `Test::MockModule->new('Pkg')->mock(m => sub { ... })` |
+| テストをスキップする | `SKIP: { skip 'reason', $count unless $cond; ... }` |
+| TODO テスト | `TODO: { local $TODO = 'reason'; ... }` |
 
-## Common Pitfalls
+## よくある落とし穴
 
-### Forgetting `done_testing`
+### `done_testing` を忘れる
 
 ```perl
 # Bad: Test file runs but doesn't verify all tests executed
@@ -453,7 +453,7 @@ is(1, 1, 'works');
 done_testing;
 ```
 
-### Missing `-l` Flag
+### `-l` フラグの欠如
 
 ```bash
 # Bad: Modules in lib/ not found
@@ -464,12 +464,12 @@ prove t/unit/user.t
 prove -l t/unit/user.t
 ```
 
-### Over-Mocking
+### 過剰なモック
 
-Mock the *dependency*, not the code under test. If your test only verifies that a mock returns what you told it to, it tests nothing.
+テスト対象コードではなく*依存関係*をモックする。テストがモックに指示した内容を返すことだけを検証するなら、何もテストしていない。
 
-### Test Pollution
+### テストの汚染
 
-Use `my` variables inside subtests — never `our` — to prevent state leaking between tests.
+サブテスト内では `our` ではなく `my` 変数を使用する — テスト間で状態が漏れるのを防ぐ。
 
-**Remember**: Tests are your safety net. Keep them fast, focused, and independent. Use Test2::V0 for new projects, prove for running, and Devel::Cover for accountability.
+**覚えておくこと**: テストはセーフティネット。速く、集中的で、独立したものに保つ。新規プロジェクトには Test2::V0 を、実行には prove を、説明責任には Devel::Cover を使用する。

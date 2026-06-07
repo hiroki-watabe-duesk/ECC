@@ -1,36 +1,36 @@
 ---
 name: ui-demo
-description: Record polished UI demo videos using Playwright. Use when the user asks to create a demo, walkthrough, screen recording, or tutorial video of a web application. Produces WebM videos with visible cursor, natural pacing, and professional feel.
+description: Playwrightを使用して洗練されたUIデモ動画を録画します。ユーザーがWebアプリケーションのデモ、ウォークスルー、画面録画、チュートリアル動画の作成を依頼したときに使用します。可視カーソル、自然なペーシング、プロフェッショナルな仕上がりのWebM動画を生成します。
 origin: ECC
 ---
 
-# UI Demo Video Recorder
+# UIデモ動画レコーダー
 
-Record polished demo videos of web applications using Playwright's video recording with an injected cursor overlay, natural pacing, and storytelling flow.
+Playwrightの動画録画機能と、注入されたカーソルオーバーレイ、自然なペーシング、ストーリーテリングフローを使用して、Webアプリケーションの洗練されたデモ動画を録画します。
 
-## When to Use
+## 使用するタイミング
 
-- User asks for a "demo video", "screen recording", "walkthrough", or "tutorial"
-- User wants to showcase a feature or workflow visually
-- User needs a video for documentation, onboarding, or stakeholder presentation
+- ユーザーが「デモ動画」「画面録画」「ウォークスルー」「チュートリアル」を求めているとき
+- ユーザーが機能やワークフローを視覚的に紹介したいとき
+- ユーザーがドキュメント、オンボーディング、ステークホルダープレゼンテーション用の動画を必要としているとき
 
-## Three-Phase Process
+## 3フェーズプロセス
 
-Every demo goes through three phases: **Discover -> Rehearse -> Record**. Never skip straight to recording.
+すべてのデモは**発見 -> リハーサル -> 録画**の3フェーズを経ます。録画に直接進んではいけません。
 
 ---
 
-## Phase 1: Discover
+## フェーズ1: 発見
 
-Before writing any script, explore the target pages to understand what is actually there.
+スクリプトを書く前に、対象ページを探索して実際に何があるかを理解します。
 
-### Why
+### なぜ必要か
 
-You cannot script what you have not seen. Fields may be `<input>` not `<textarea>`, dropdowns may be custom components not `<select>`, and comment boxes may support `@mentions` or `#tags`. Assumptions break recordings silently.
+見ていないものをスクリプト化することはできません。フィールドが `<textarea>` ではなく `<input>` であったり、ドロップダウンが `<select>` ではなくカスタムコンポーネントであったり、コメントボックスが `@メンション` や `#タグ` をサポートしていたりする場合があります。思い込みは録画を無音で壊します。
 
-### How
+### 方法
 
-Navigate to each page in the flow and dump its interactive elements:
+フロー内の各ページに移動し、インタラクティブ要素をダンプします:
 
 ```javascript
 // Run this for each page in the flow BEFORE writing the demo script
@@ -54,19 +54,19 @@ const fields = await page.evaluate(() => {
 console.log(JSON.stringify(fields, null, 2));
 ```
 
-### What to look for
+### 確認すべき点
 
-- **Form fields**: Are they `<select>`, `<input>`, custom dropdowns, or comboboxes?
-- **Select options**: Dump option values AND text. Placeholders often have `value="0"` or `value=""` which looks non-empty. Use `Array.from(el.options).map(o => ({ value: o.value, text: o.text }))`. Skip options where text includes "Select" or value is `"0"`.
-- **Rich text**: Does the comment box support `@mentions`, `#tags`, markdown, or emoji? Check placeholder text.
-- **Required fields**: Which fields block form submission? Check `required`, `*` in labels, and try submitting empty to see validation errors.
-- **Dynamic content**: Do fields appear after other fields are filled?
-- **Button labels**: Exact text such as `"Submit"`, `"Submit Request"`, or `"Send"`.
-- **Table column headers**: For table-driven modals, map each `input[type="number"]` to its column header instead of assuming all numeric inputs mean the same thing.
+- **フォームフィールド**: `<select>`、`<input>`、カスタムドロップダウン、コンボボックスのどれか？
+- **選択オプション**: オプションの値とテキストの両方をダンプします。プレースホルダーは `value="0"` や `value=""` を持つことがあり、空でないように見えます。`Array.from(el.options).map(o => ({ value: o.value, text: o.text }))` を使用します。テキストに「Select」が含まれるか値が `"0"` のオプションはスキップします。
+- **リッチテキスト**: コメントボックスは `@メンション`、`#タグ`、マークダウン、絵文字をサポートしているか？プレースホルダーテキストを確認します。
+- **必須フィールド**: どのフィールドがフォーム送信をブロックするか？ `required`、ラベルの `*`、空で送信してバリデーションエラーを確認します。
+- **動的コンテンツ**: 他のフィールドが入力された後にフィールドが表示されるか？
+- **ボタンラベル**: `"Submit"`、`"Submit Request"`、`"Send"` などの正確なテキスト。
+- **テーブル列ヘッダー**: テーブル駆動のモーダルでは、すべての数値入力が同じ意味だと仮定するのではなく、各 `input[type="number"]` をその列ヘッダーにマッピングします。
 
-### Output
+### 出力
 
-A field map for each page, used to write correct selectors in the script. Example:
+スクリプトで正しいセレクターを書くために使用する、各ページのフィールドマップ。例:
 
 ```text
 /purchase-requests/new:
@@ -83,17 +83,17 @@ A field map for each page, used to write correct selectors in the script. Exampl
 
 ---
 
-## Phase 2: Rehearse
+## フェーズ2: リハーサル
 
-Run through all steps without recording. Verify every selector resolves.
+録画せずにすべてのステップを通して実行します。すべてのセレクターが解決されることを確認します。
 
-### Why
+### なぜ必要か
 
-Silent selector failures are the main reason demo recordings break. Rehearsal catches them before you waste a recording.
+サイレントなセレクター失敗がデモ録画が壊れる主な理由です。リハーサルは録画を無駄にする前にそれらを捕捉します。
 
-### How
+### 方法
 
-Use `ensureVisible`, a wrapper that logs and fails loudly:
+大きな声でログを出力して失敗する `ensureVisible` ラッパーを使用します:
 
 ```javascript
 async function ensureVisible(page, locator, label) {
@@ -116,7 +116,7 @@ async function ensureVisible(page, locator, label) {
 }
 ```
 
-### Rehearsal script structure
+### リハーサルスクリプトの構造
 
 ```javascript
 const steps = [
@@ -143,44 +143,44 @@ if (!allOk) {
 console.log('REHEARSAL PASSED - all selectors verified');
 ```
 
-### When rehearsal fails
+### リハーサルが失敗した場合
 
-1. Read the visible-element dump.
-2. Find the correct selector.
-3. Update the script.
-4. Re-run rehearsal.
-5. Only proceed when every selector passes.
+1. 可視要素のダンプを読む。
+2. 正しいセレクターを見つける。
+3. スクリプトを更新する。
+4. リハーサルを再実行する。
+5. すべてのセレクターがパスした場合のみ先に進む。
 
 ---
 
-## Phase 3: Record
+## フェーズ3: 録画
 
-Only after discovery and rehearsal pass should you create the recording.
+発見とリハーサルがパスした後にのみ録画を作成します。
 
-### Recording Principles
+### 録画の原則
 
-#### 1. Storytelling Flow
+#### 1. ストーリーテリングフロー
 
-Plan the video as a story. Follow user-specified order, or use this default:
+動画をストーリーとして計画します。ユーザー指定の順序に従うか、次のデフォルトを使用します:
 
-- **Entry**: Login or navigate to the starting point
-- **Context**: Pan the surroundings so viewers orient themselves
-- **Action**: Perform the main workflow steps
-- **Variation**: Show a secondary feature such as settings, theme, or localization
-- **Result**: Show the outcome, confirmation, or new state
+- **エントリー**: ログインするか開始点に移動する
+- **コンテキスト**: 視聴者が方向を把握できるよう周囲をパンする
+- **アクション**: メインワークフローのステップを実行する
+- **バリエーション**: 設定、テーマ、ローカライゼーションなどの二次機能を示す
+- **結果**: 結果、確認、または新しい状態を表示する
 
-#### 2. Pacing
+#### 2. ペーシング
 
-- After login: `4s`
-- After navigation: `3s`
-- After clicking a button: `2s`
-- Between major steps: `1.5-2s`
-- After the final action: `3s`
-- Typing delay: `25-40ms` per character
+- ログイン後: `4秒`
+- ナビゲーション後: `3秒`
+- ボタンクリック後: `2秒`
+- 主要ステップ間: `1.5〜2秒`
+- 最終アクション後: `3秒`
+- タイピング遅延: 1文字あたり `25〜40ミリ秒`
 
-#### 3. Cursor Overlay
+#### 3. カーソルオーバーレイ
 
-Inject an SVG arrow cursor that follows mouse movements:
+マウスの動きに追従するSVGの矢印カーソルを注入します:
 
 ```javascript
 async function injectCursor(page) {
@@ -208,11 +208,11 @@ async function injectCursor(page) {
 }
 ```
 
-Call `injectCursor(page)` after every page navigation because the overlay is destroyed on navigate.
+ナビゲーションごとにオーバーレイが破棄されるため、ページナビゲーション後に `injectCursor(page)` を呼び出してください。
 
-#### 4. Mouse Movement
+#### 4. マウスの動き
 
-Never teleport the cursor. Move to the target before clicking:
+カーソルをテレポートさせないでください。クリックする前にターゲットに移動します:
 
 ```javascript
 async function moveAndClick(page, locator, label, opts = {}) {
@@ -241,11 +241,11 @@ async function moveAndClick(page, locator, label, opts = {}) {
 }
 ```
 
-Every call should include a descriptive `label` for debugging.
+すべての呼び出しにデバッグ用の説明的な `label` を含めてください。
 
-#### 5. Typing
+#### 5. タイピング
 
-Type visibly, not instant-fill:
+即時入力ではなく、視覚的に入力します:
 
 ```javascript
 async function typeSlowly(page, locator, text, label, charDelay = 35) {
@@ -263,18 +263,18 @@ async function typeSlowly(page, locator, text, label, charDelay = 35) {
 }
 ```
 
-#### 6. Scrolling
+#### 6. スクロール
 
-Use smooth scroll instead of jumps:
+ジャンプではなくスムーズスクロールを使用します:
 
 ```javascript
 await page.evaluate(() => window.scrollTo({ top: 400, behavior: 'smooth' }));
 await page.waitForTimeout(1500);
 ```
 
-#### 7. Dashboard Panning
+#### 7. ダッシュボードパンニング
 
-When showing a dashboard or overview page, move the cursor across key elements:
+ダッシュボードや概要ページを表示するとき、主要な要素の上でカーソルを動かします:
 
 ```javascript
 async function panElements(page, selector, maxCount = 6) {
@@ -293,9 +293,9 @@ async function panElements(page, selector, maxCount = 6) {
 }
 ```
 
-#### 8. Subtitles
+#### 8. 字幕
 
-Inject a subtitle bar at the bottom of the viewport:
+ビューポートの下部に字幕バーを注入します:
 
 ```javascript
 async function injectSubtitleBar(page) {
@@ -333,9 +333,9 @@ async function showSubtitle(page, text) {
 }
 ```
 
-Call `injectSubtitleBar(page)` alongside `injectCursor(page)` after every navigation.
+ナビゲーションごとに `injectCursor(page)` と一緒に `injectSubtitleBar(page)` を呼び出してください。
 
-Usage pattern:
+使用パターン:
 
 ```javascript
 await showSubtitle(page, 'Step 1 - Logging in');
@@ -343,13 +343,13 @@ await showSubtitle(page, 'Step 2 - Dashboard overview');
 await showSubtitle(page, '');
 ```
 
-Guidelines:
+ガイドライン:
 
-- Keep subtitle text short, ideally under 60 characters.
-- Use `Step N - Action` format for consistency.
-- Clear the subtitle during long pauses where the UI can speak for itself.
+- 字幕テキストは短く、理想的には60文字以内にします。
+- 一貫性のために `Step N - Action` 形式を使用します。
+- UIが自ら語る長い間には字幕を消去します。
 
-## Script Template
+## スクリプトテンプレート
 
 ```javascript
 'use strict';
@@ -423,7 +423,7 @@ const REHEARSAL = process.argv.includes('--rehearse');
 })();
 ```
 
-Usage:
+使用方法:
 
 ```bash
 # Phase 2: Rehearse
@@ -433,33 +433,33 @@ node demo-script.cjs --rehearse
 node demo-script.cjs
 ```
 
-## Checklist Before Recording
+## 録画前チェックリスト
 
-- [ ] Discovery phase completed
-- [ ] Rehearsal passes with all selectors OK
-- [ ] Headless mode enabled
-- [ ] Resolution set to `1280x720`
-- [ ] Cursor and subtitle overlays re-injected after every navigation
-- [ ] `showSubtitle(page, 'Step N - ...')` used at major transitions
-- [ ] `moveAndClick` used for all clicks with descriptive labels
-- [ ] `typeSlowly` used for visible input
-- [ ] No silent catches; helpers log warnings
-- [ ] Smooth scrolling used for content reveal
-- [ ] Key pauses are visible to a human viewer
-- [ ] Flow matches the requested story order
-- [ ] Script reflects the actual UI discovered in phase 1
+- [ ] 発見フェーズが完了している
+- [ ] すべてのセレクターがOKでリハーサルがパスしている
+- [ ] ヘッドレスモードが有効になっている
+- [ ] 解像度が `1280x720` に設定されている
+- [ ] ナビゲーションごとにカーソルと字幕オーバーレイが再注入されている
+- [ ] 主要な遷移で `showSubtitle(page, 'Step N - ...')` を使用している
+- [ ] 説明的なラベル付きですべてのクリックに `moveAndClick` を使用している
+- [ ] 可視入力に `typeSlowly` を使用している
+- [ ] サイレントなcatchなし。ヘルパーは警告をログに出力する
+- [ ] コンテンツ表示にスムーズスクロールを使用している
+- [ ] 重要な間隔が人間の視聴者に見える
+- [ ] フローがリクエストされたストーリーの順序に一致している
+- [ ] スクリプトがフェーズ1で発見した実際のUIを反映している
 
-## Common Pitfalls
+## よくある落とし穴
 
-1. Cursor disappears after navigation - re-inject it.
-2. Video is too fast - add pauses.
-3. Cursor is a dot instead of an arrow - use the SVG overlay.
-4. Cursor teleports - move before clicking.
-5. Select dropdowns look wrong - show the move, then pick the option.
-6. Modals feel abrupt - add a read pause before confirming.
-7. Video file path is random - copy it to a stable output name.
-8. Selector failures are swallowed - never use silent catch blocks.
-9. Field types were assumed - discover them first.
-10. Features were assumed - inspect the actual UI before scripting.
-11. Placeholder select values look real - watch for `"0"` and `"Select..."`.
-12. Popups create separate videos - capture popup pages explicitly and merge later if needed.
+1. ナビゲーション後にカーソルが消える - 再注入する。
+2. 動画が速すぎる - 間隔を追加する。
+3. カーソルが矢印ではなく点になっている - SVGオーバーレイを使用する。
+4. カーソルがテレポートする - クリックする前に移動する。
+5. セレクトドロップダウンが正しく見えない - 移動を表示してからオプションを選択する。
+6. モーダルが唐突に感じる - 確認する前に読む間隔を追加する。
+7. 動画ファイルパスがランダムになっている - 安定した出力名にコピーする。
+8. セレクターの失敗が飲み込まれている - サイレントcatchブロックを使わない。
+9. フィールドタイプが思い込まれた - まず発見する。
+10. 機能が思い込まれた - スクリプト化する前に実際のUIを調査する。
+11. プレースホルダーの選択値が本物に見える - `"0"` と `"Select..."` に注意する。
+12. ポップアップが別々の動画を作成する - ポップアップページを明示的にキャプチャし、必要に応じて後でマージする。

@@ -1,58 +1,58 @@
 ---
 name: motion-ui
-description: "Production-ready UI motion system for React/Next.js. Use when implementing animations, transitions, or motion patterns."
+description: "React/Next.js 向けプロダクション対応UIモーションシステム。アニメーション・トランジション・モーションパターンの実装時に使用してください。"
 origin: ECC
 ---
 
-# Motion System v4.2
+# モーションシステム v4.2
 
-Production-ready UI motion system for React / Next.js.
+React / Next.js 向けプロダクション対応 UI モーションシステム。
 
-Focused on **performance, accessibility, and usability** — not decoration.
+**パフォーマンス・アクセシビリティ・ユーザビリティ**に特化しており、装飾目的ではありません。
 
-## When to Use
+## 使用する場面
 
-Use this motion system when motion:
+以下のような場合にこのモーションシステムを使用してください:
 
-* Guides attention (e.g., onboarding, key actions)
-* Communicates state (loading, success, error, transitions)
-* Preserves spatial continuity (layout changes, navigation)
+* 注意を誘導する（例: オンボーディング、重要なアクション）
+* 状態を伝達する（ローディング、成功、エラー、トランジション）
+* 空間的な連続性を保持する（レイアウト変更、ナビゲーション）
 
-### Appropriate Scenarios
+### 適切なシナリオ
 
-* Interactive components (buttons, modals, menus)
-* State transitions (loading → loaded, open → closed)
-* Navigation and layout continuity (shared elements, crossfade)
+* インタラクティブなコンポーネント（ボタン、モーダル、メニュー）
+* 状態遷移（ローディング→完了、開く→閉じる）
+* ナビゲーションとレイアウトの連続性（共有要素、クロスフェード）
 
-### Considerations
+### 注意事項
 
-* **Accessibility**: Always support reduced motion
-* **Device adaptation**: Adjust for low-end devices
-* **Performance trade-offs**: Prefer responsiveness over visual smoothness
+* **アクセシビリティ**: 動作軽減設定を常にサポートする
+* **デバイス適応**: 低スペックデバイス向けに調整する
+* **パフォーマンスのトレードオフ**: 視覚的な滑らかさより応答性を優先する
 
-### Avoid Using Motion When
+### モーションを使わない場面
 
-* It is purely decorative
-* It reduces usability or clarity
-* It impacts performance negatively
-
----
-
-## How It Works
-
-### Core Principle
-
-Motion must:
-
-* Guide attention
-* Communicate state
-* Preserve spatial continuity
-
-If it does none → remove it.
+* 純粋に装飾目的である場合
+* ユーザビリティや明確さを損なう場合
+* パフォーマンスに悪影響を与える場合
 
 ---
 
-### Installation
+## 仕組み
+
+### 基本原則
+
+モーションは以下を実現しなければなりません:
+
+* 注意の誘導
+* 状態の伝達
+* 空間的な連続性の保持
+
+いずれも満たさない場合 → 削除する。
+
+---
+
+### インストール
 
 ```bash
 npm install motion
@@ -60,34 +60,34 @@ npm install motion
 
 ---
 
-### Version
+### バージョン
 
-* `motion/react` - default for current Motion for React projects (package: `motion`)
-* `framer-motion` - legacy import path for projects that still depend on Framer Motion
+* `motion/react` - 現在の Motion for React プロジェクトのデフォルト（パッケージ: `motion`）
+* `framer-motion` - まだ Framer Motion に依存しているプロジェクト向けのレガシーインポートパス
 
-**Do not mix.** Mixing causes conflicting internal schedulers and broken `AnimatePresence` contexts — components from one package will not coordinate exit animations with components from the other.
+**混在禁止。** 混在させると内部スケジューラーが競合し `AnimatePresence` コンテキストが壊れます — 一方のパッケージのコンポーネントは、もう一方のコンポーネントの終了アニメーションと連携しません。
 
-To check which version your project uses:
+プロジェクトが使用しているバージョンの確認方法:
 
 ```bash
 cat package.json | grep -E '"motion"|"framer-motion"'
 ```
 
-Always import from one source consistently:
+常に一つのソースから一貫してインポートしてください:
 
 ```ts
-// Correct (modern)
+// 正しい（モダン）
 import { motion, AnimatePresence } from "motion/react"
 
-// Correct (legacy)
+// 正しい（レガシー）
 import { motion, AnimatePresence } from "framer-motion"
 
-// Never mix both in the same project
+// 同一プロジェクトで両方を混在させないこと
 ```
 
 ---
 
-### Motion Tokens
+### モーショントークン
 
 ```ts
 // motionTokens.ts
@@ -111,7 +111,7 @@ export const motionTokens = {
 }
 ```
 
-Usage example:
+使用例:
 
 ```tsx
 import { motionTokens } from "@/lib/motionTokens"
@@ -128,25 +128,25 @@ import { motionTokens } from "@/lib/motionTokens"
 
 ---
 
-### Performance Rules
+### パフォーマンスルール
 
-**Safe**
+**安全**
 
 * transform
 * opacity
 
-**Avoid**
+**避ける**
 
 * width / height
 * top / left
 
-Rule: responsiveness > smoothness
+ルール: 応答性 > 滑らかさ
 
 ---
 
-### Device Adaptation
+### デバイス適応
 
-The heuristic combines CPU core count **and** available memory for a more reliable signal. `deviceMemory` is available on Chrome/Android; the fallback covers Safari and Firefox.
+このヒューリスティックは CPU コア数と利用可能なメモリの両方を組み合わせ、より信頼性の高い判定を行います。`deviceMemory` は Chrome/Android で利用可能であり、Safari や Firefox にはフォールバックが適用されます。
 
 ```ts
 const isLowEnd =
@@ -162,9 +162,9 @@ const duration = isLowEnd ? 0.2 : 0.4
 
 ---
 
-### Accessibility
+### アクセシビリティ
 
-#### JS (useReducedMotion)
+#### JS（useReducedMotion）
 
 ```tsx
 import { motion, useReducedMotion } from "motion/react"
@@ -203,37 +203,37 @@ export function FadeIn() {
 
 ---
 
-### Architecture & Patterns
+### アーキテクチャとパターン
 
-#### Core Patterns
+#### コアパターン
 
-| Scenario | Pattern |
+| シナリオ | パターン |
 |---|---|
-| Hover feedback | `whileHover` |
-| Tap / press feedback | `whileTap` |
-| Reveal on scroll | `whileInView` |
-| Scroll-linked value | `useScroll` + `useTransform` |
-| Conditional mount/unmount | `AnimatePresence` |
-| Small layout shifts (single element, < ~300px change) | `layout` prop |
-| Large layout shifts or full-page reflows | Avoid `layout`; use CSS transitions or page-level routing instead |
-| Complex, imperative sequences | `useAnimate` |
+| ホバーフィードバック | `whileHover` |
+| タップ / プレスフィードバック | `whileTap` |
+| スクロール時に表示 | `whileInView` |
+| スクロール連動値 | `useScroll` + `useTransform` |
+| 条件付きマウント / アンマウント | `AnimatePresence` |
+| 小さなレイアウト変化（単一要素、〜300px未満の変化） | `layout` プロパティ |
+| 大きなレイアウト変化またはページ全体のリフロー | `layout` を避ける。CSSトランジションまたはページレベルのルーティングを使用する |
+| 複雑な命令型シーケンス | `useAnimate` |
 
-> **Why avoid `layout` on large containers?** Framer's layout animation uses `transform` to reconcile positions, but on elements that span the full viewport or trigger deep reflow, the measurement cost causes visible jank and CLS. Prefer CSS Grid/Flexbox transitions or coordinate with `layoutId` on specific child elements only.
+> **大きなコンテナで `layout` を避ける理由:** Framer のレイアウトアニメーションは `transform` を使用して位置を調整しますが、ビューポート全体に広がる要素や深いリフローをトリガーする要素では、測定コストが顕著なジャンクや CLS を引き起こします。CSS Grid/Flexbox のトランジションを優先するか、特定の子要素にのみ `layoutId` を使用して連携してください。
 
-#### Layout & Transitions
+#### レイアウトとトランジション
 
-* Shared element transitions → `layoutId` (must be unique per mounted instance)
-* Enter / exit transitions → `AnimatePresence` (see `mode` guidance below)
+* 共有要素のトランジション → `layoutId`（マウントされたインスタンスごとに一意である必要がある）
+* 入場 / 退場トランジション → `AnimatePresence`（以下の `mode` ガイダンスを参照）
 
-#### AnimatePresence `mode`
+#### AnimatePresence の `mode`
 
-Always specify `mode` explicitly — the default (`"sync"`) runs enter and exit simultaneously, which causes visual overlap in most UI patterns.
+`mode` を常に明示的に指定してください — デフォルト（`"sync"`）は入場と退場を同時に実行するため、ほとんどの UI パターンで視覚的な重なりが生じます。
 
-| `mode` | When to use |
+| `mode` | 使用する場面 |
 |---|---|
-| `"wait"` | Exit completes before enter starts. Use for **modals, toasts, page transitions**. |
-| `"sync"` (default) | Enter and exit overlap. Use only when overlap is intentional (e.g., crossfade carousels). |
-| `"popLayout"` | Exiting element is popped out of flow immediately; remaining items animate to fill. Use for **lists, tabs, dismissible cards**. |
+| `"wait"` | 退場が完了してから入場が開始する。**モーダル、トースト、ページトランジション**に使用。 |
+| `"sync"`（デフォルト） | 入場と退場が重なる。重なりが意図的な場合にのみ使用（例: クロスフェードカルーセル）。 |
+| `"popLayout"` | 退場する要素がすぐにフローから除外され、残りのアイテムがアニメーションで埋まる。**リスト、タブ、削除可能なカード**に使用。 |
 
 ```tsx
 // Modal — always use "wait"
@@ -249,28 +249,28 @@ Always specify `mode` explicitly — the default (`"sync"`) runs enter and exit 
 
 ---
 
-### Advanced Patterns (Concepts)
+### 高度なパターン（概念）
 
-* Parallax (scroll-linked transforms)
-* Scroll storytelling (sticky sections)
-* 3D tilt (pointer-based transforms)
-* Crossfade (shared `layoutId`)
-* Progressive reveal (clip-path)
-* Skeleton loading (looped opacity)
-* Micro-interactions (hover/tap feedback)
-* Spring system (physics-based motion)
+* パララックス（スクロール連動トランスフォーム）
+* スクロールストーリーテリング（スティッキーセクション）
+* 3D チルト（ポインターベースのトランスフォーム）
+* クロスフェード（共有 `layoutId`）
+* プログレッシブリビール（クリップパス）
+* スケルトンローディング（ループするオパシティ）
+* マイクロインタラクション（ホバー / タップフィードバック）
+* スプリングシステム（物理ベースのモーション）
 
 ---
 
-### Modal Essentials
+### モーダルの基本要件
 
-* Focus trap
-* Escape close
-* Scroll lock
-* ARIA roles
-* Use `AnimatePresence mode="wait"` so exit animation completes before the next modal enters
+* フォーカストラップ
+* Escape キーで閉じる
+* スクロールロック
+* ARIA ロール
+* 次のモーダルが入場する前に退場アニメーションが完了するよう `AnimatePresence mode="wait"` を使用する
 
-#### Full Example
+#### 完全なサンプル
 
 ```tsx
 import React, { useEffect, useRef, useState } from "react"
@@ -371,67 +371,67 @@ export function Example() {
 
 ---
 
-### SSR Safety
+### SSR の安全性
 
-* Match initial states between server and client renders
-* Avoid implicit animation origins (always set `initial` explicitly)
-* Wrap motion components in `"use client"` in Next.js App Router
+* サーバーとクライアントのレンダー間で初期状態を一致させる
+* 暗黙的なアニメーション起点を避ける（常に `initial` を明示的に設定する）
+* Next.js App Router では `"use client"` 内に motion コンポーネントをラップする
 
 ---
 
-### Debugging
+### デバッグ
 
-Check:
+以下を確認してください:
 
-* Wrong import (mixing `motion/react` and `framer-motion`)
-* Missing `"use client"` directive in Next.js App Router
-* Missing `key` prop on `AnimatePresence` children
-* Hydration mismatch (initial state differs between SSR and client)
-* `layout` prop misuse on large containers causing reflow jank
-* State-driven animation not triggering (check dependency arrays)
+* 誤ったインポート（`motion/react` と `framer-motion` の混在）
+* Next.js App Router で `"use client"` ディレクティブが欠けている
+* `AnimatePresence` の子に `key` プロパティがない
+* ハイドレーションの不一致（SSR とクライアントで初期状態が異なる）
+* 大きなコンテナでの `layout` プロパティの誤用によるリフロージャンク
+* 状態駆動のアニメーションが発火しない（依存配列を確認する）
 
 ---
 
 ### QA
 
-* No CLS
-* Keyboard works
-* Focus trapped in modals
-* ARIA roles correct (`role="dialog"`, `aria-modal="true"`)
-* Reduced motion respected (`useReducedMotion` + CSS media query)
-* No hydration warnings in Next.js
-* Animations stop cleanly on unmount (no memory leaks)
-* `AnimatePresence mode` set explicitly on all usage sites
+* CLS がない
+* キーボード操作が可能
+* モーダル内でフォーカスがトラップされている
+* ARIA ロールが正しい（`role="dialog"`、`aria-modal="true"`）
+* 動作軽減設定が尊重されている（`useReducedMotion` + CSS メディアクエリ）
+* Next.js でハイドレーションの警告がない
+* アンマウント時にアニメーションがクリーンに停止する（メモリリークなし）
+* すべての使用箇所で `AnimatePresence mode` が明示的に設定されている
 
 ---
 
-### Anti-Patterns
+### アンチパターン
 
-* Animating layout properties (`width`, `height`, `top`, `left`)
-* Infinite animations without purpose (always ask: what state does this communicate?)
-* Over-staggering lists (keep `staggerChildren` ≤ 0.1s; beyond that it feels slow)
-* Ignoring reduced motion preferences
-* Using `layout` on large or full-viewport containers
-* Omitting `mode` on `AnimatePresence` (default `"sync"` causes visual overlap)
-* Using motion purely for decoration
-
----
-
-### Philosophy
-
-Motion is interaction design.
+* レイアウトプロパティのアニメーション（`width`、`height`、`top`、`left`）
+* 目的のない無限アニメーション（常に問う: どの状態を伝えているのか？）
+* リストの過剰なスタガー（`staggerChildren` を 0.1s 以下に保つ; それ以上は遅く感じる）
+* 動作軽減設定の無視
+* 大きなまたはビューポート全体のコンテナに `layout` を使用する
+* `AnimatePresence` で `mode` を省略する（デフォルトの `"sync"` は視覚的な重なりを引き起こす）
+* 純粋に装飾目的でモーションを使用する
 
 ---
 
-### Final Rule
+### フィロソフィー
 
-> If motion does not improve UX → remove it.
+モーションはインタラクションデザインです。
 
 ---
 
-## Examples
+### 最終ルール
 
-### Button Interaction
+> モーションが UX を改善しないなら → 削除する。
+
+---
+
+## サンプル
+
+### ボタンインタラクション
 
 ```tsx
 import { motion } from "motion/react"
@@ -451,7 +451,7 @@ export function Button() {
 
 ---
 
-### Reduced Motion Example
+### 動作軽減のサンプル
 
 ```tsx
 import { motion, useReducedMotion } from "motion/react"
@@ -471,7 +471,7 @@ export function FadeIn() {
 
 ---
 
-### Stagger List
+### スタガーリスト
 
 ```tsx
 import { motion } from "motion/react"
@@ -501,7 +501,7 @@ export function List() {
 
 ---
 
-### Modal with AnimatePresence
+### AnimatePresence を使用したモーダル
 
 ```tsx
 import { motion, AnimatePresence } from "motion/react"
@@ -524,7 +524,7 @@ export function Modal({ open }: { open: boolean }) {
 
 ---
 
-### Scroll Parallax
+### スクロールパララックス
 
 ```tsx
 import { useScroll, useTransform, motion } from "motion/react"
@@ -539,7 +539,7 @@ export function Parallax() {
 
 ---
 
-### Skeleton Loading
+### スケルトンローディング
 
 ```tsx
 import { motion } from "motion/react"
@@ -561,7 +561,7 @@ export function Skeleton() {
 
 ---
 
-### Shared Layout (Crossfade)
+### 共有レイアウト（クロスフェード）
 
 ```tsx
 import { motion } from "motion/react"

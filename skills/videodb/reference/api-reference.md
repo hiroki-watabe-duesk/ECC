@@ -1,8 +1,8 @@
-# Complete API Reference
+# 完全 API リファレンス
 
-Reference material for the VideoDB skill. For usage guidance and workflow selection, start with [../SKILL.md](../SKILL.md).
+VideoDB スキルのリファレンス資料です。使用方法やワークフローの選択については、まず [../SKILL.md](../SKILL.md) をご覧ください。
 
-## Connection
+## 接続
 
 ```python
 import videodb
@@ -13,28 +13,28 @@ conn = videodb.connect(
 )
 ```
 
-**Returns:** `Connection` object
+**戻り値:** `Connection` オブジェクト
 
-### Connection Methods
+### 接続メソッド
 
-| Method | Returns | Description |
+| メソッド | 戻り値 | 説明 |
 |--------|---------|-------------|
-| `conn.get_collection(collection_id="default")` | `Collection` | Get collection (default if no ID) |
-| `conn.get_collections()` | `list[Collection]` | List all collections |
-| `conn.create_collection(name, description, is_public=False)` | `Collection` | Create new collection |
-| `conn.update_collection(id, name, description)` | `Collection` | Update a collection |
-| `conn.check_usage()` | `dict` | Get account usage stats |
-| `conn.upload(source, media_type, name, ...)` | `Video\|Audio\|Image` | Upload to default collection |
-| `conn.record_meeting(meeting_url, bot_name, ...)` | `Meeting` | Record a meeting |
-| `conn.create_capture_session(...)` | `CaptureSession` | Create a capture session (see [capture-reference.md](capture-reference.md)) |
-| `conn.youtube_search(query, result_threshold, duration)` | `list[dict]` | Search YouTube |
-| `conn.transcode(source, callback_url, mode, ...)` | `str` | Transcode video (returns job ID) |
-| `conn.get_transcode_details(job_id)` | `dict` | Get transcode job status and details |
-| `conn.connect_websocket(collection_id)` | `WebSocketConnection` | Connect to WebSocket (see [capture-reference.md](capture-reference.md)) |
+| `conn.get_collection(collection_id="default")` | `Collection` | コレクションを取得する（ID 未指定の場合はデフォルト） |
+| `conn.get_collections()` | `list[Collection]` | すべてのコレクションを一覧表示する |
+| `conn.create_collection(name, description, is_public=False)` | `Collection` | 新しいコレクションを作成する |
+| `conn.update_collection(id, name, description)` | `Collection` | コレクションを更新する |
+| `conn.check_usage()` | `dict` | アカウントの使用状況を取得する |
+| `conn.upload(source, media_type, name, ...)` | `Video\|Audio\|Image` | デフォルトコレクションにアップロードする |
+| `conn.record_meeting(meeting_url, bot_name, ...)` | `Meeting` | ミーティングを録画する |
+| `conn.create_capture_session(...)` | `CaptureSession` | キャプチャセッションを作成する（[capture-reference.md](capture-reference.md) を参照） |
+| `conn.youtube_search(query, result_threshold, duration)` | `list[dict]` | YouTube を検索する |
+| `conn.transcode(source, callback_url, mode, ...)` | `str` | 動画をトランスコードする（ジョブ ID を返す） |
+| `conn.get_transcode_details(job_id)` | `dict` | トランスコードジョブのステータスと詳細を取得する |
+| `conn.connect_websocket(collection_id)` | `WebSocketConnection` | WebSocket に接続する（[capture-reference.md](capture-reference.md) を参照） |
 
-### Transcode
+### トランスコード
 
-Transcode a video from a URL with custom resolution, quality, and audio settings. Processing happens server-side — no local ffmpeg required.
+URL から動画をカスタム解像度、品質、オーディオ設定でトランスコードします。処理はサーバー側で行われるため、ローカルの ffmpeg は不要です。
 
 ```python
 from videodb import TranscodeMode, VideoConfig, AudioConfig
@@ -48,17 +48,17 @@ job_id = conn.transcode(
 )
 ```
 
-#### transcode Parameters
+#### transcode パラメーター
 
-| Parameter | Type | Default | Description |
+| パラメーター | 型 | デフォルト | 説明 |
 |-----------|------|---------|-------------|
-| `source` | `str` | required | URL of the video to transcode (preferably a downloadable URL) |
-| `callback_url` | `str` | required | URL to receive the callback when transcoding completes |
-| `mode` | `TranscodeMode` | `TranscodeMode.economy` | Transcoding speed: `economy` or `lightning` |
-| `video_config` | `VideoConfig` | `VideoConfig()` | Video encoding settings |
-| `audio_config` | `AudioConfig` | `AudioConfig()` | Audio encoding settings |
+| `source` | `str` | 必須 | トランスコードする動画の URL（ダウンロード可能な URL が望ましい） |
+| `callback_url` | `str` | 必須 | トランスコード完了時にコールバックを受け取る URL |
+| `mode` | `TranscodeMode` | `TranscodeMode.economy` | トランスコード速度: `economy` または `lightning` |
+| `video_config` | `VideoConfig` | `VideoConfig()` | 映像エンコード設定 |
+| `audio_config` | `AudioConfig` | `AudioConfig()` | 音声エンコード設定 |
 
-Returns a job ID (`str`). Use `conn.get_transcode_details(job_id)` to check job status.
+ジョブ ID（`str`）を返します。`conn.get_transcode_details(job_id)` でジョブのステータスを確認してください。
 
 ```python
 details = conn.get_transcode_details(job_id)
@@ -78,13 +78,13 @@ config = VideoConfig(
 )
 ```
 
-| Field | Type | Default | Description |
+| フィールド | 型 | デフォルト | 説明 |
 |-------|------|---------|-------------|
-| `resolution` | `int\|None` | `None` | Target resolution height in pixels |
-| `quality` | `int` | `23` | Encoding quality (lower = higher quality) |
-| `framerate` | `int\|None` | `None` | Target framerate |
-| `aspect_ratio` | `str\|None` | `None` | Target aspect ratio (e.g. `"16:9"`, `"9:16"`) |
-| `resize_mode` | `str` | `ResizeMode.crop` | Resize strategy: `crop`, `fit`, or `pad` |
+| `resolution` | `int\|None` | `None` | 目標解像度の高さ（ピクセル） |
+| `quality` | `int` | `23` | エンコード品質（値が低いほど高品質） |
+| `framerate` | `int\|None` | `None` | 目標フレームレート |
+| `aspect_ratio` | `str\|None` | `None` | 目標アスペクト比（例: `"16:9"`、`"9:16"`） |
+| `resize_mode` | `str` | `ResizeMode.crop` | リサイズ方法: `crop`、`fit`、または `pad` |
 
 #### AudioConfig
 
@@ -94,47 +94,47 @@ from videodb import AudioConfig
 config = AudioConfig(mute=False)
 ```
 
-| Field | Type | Default | Description |
+| フィールド | 型 | デフォルト | 説明 |
 |-------|------|---------|-------------|
-| `mute` | `bool` | `False` | Mute the audio track |
+| `mute` | `bool` | `False` | 音声トラックをミュートする |
 
-## Collections
+## コレクション
 
 ```python
 coll = conn.get_collection()
 ```
 
-### Collection Methods
+### コレクションメソッド
 
-| Method | Returns | Description |
+| メソッド | 戻り値 | 説明 |
 |--------|---------|-------------|
-| `coll.get_videos()` | `list[Video]` | List all videos |
-| `coll.get_video(video_id)` | `Video` | Get specific video |
-| `coll.get_audios()` | `list[Audio]` | List all audios |
-| `coll.get_audio(audio_id)` | `Audio` | Get specific audio |
-| `coll.get_images()` | `list[Image]` | List all images |
-| `coll.get_image(image_id)` | `Image` | Get specific image |
-| `coll.upload(url=None, file_path=None, media_type=None, name=None)` | `Video\|Audio\|Image` | Upload media |
-| `coll.search(query, search_type, index_type, score_threshold, namespace, scene_index_id, ...)` | `SearchResult` | Search across collection (semantic only; keyword and scene search raise `NotImplementedError`) |
-| `coll.generate_image(prompt, aspect_ratio="1:1")` | `Image` | Generate image with AI |
-| `coll.generate_video(prompt, duration=5)` | `Video` | Generate video with AI |
-| `coll.generate_music(prompt, duration=5)` | `Audio` | Generate music with AI |
-| `coll.generate_sound_effect(prompt, duration=2)` | `Audio` | Generate sound effect |
-| `coll.generate_voice(text, voice_name="Default")` | `Audio` | Generate speech from text |
-| `coll.generate_text(prompt, model_name="basic", response_type="text")` | `dict` | LLM text generation — access result via `["output"]` |
-| `coll.dub_video(video_id, language_code)` | `Video` | Dub video into another language |
-| `coll.record_meeting(meeting_url, bot_name, ...)` | `Meeting` | Record a live meeting |
-| `coll.create_capture_session(...)` | `CaptureSession` | Create a capture session (see [capture-reference.md](capture-reference.md)) |
-| `coll.get_capture_session(...)` | `CaptureSession` | Retrieve capture session (see [capture-reference.md](capture-reference.md)) |
-| `coll.connect_rtstream(url, name, ...)` | `RTStream` | Connect to a live stream (see [rtstream-reference.md](rtstream-reference.md)) |
-| `coll.make_public()` | `None` | Make collection public |
-| `coll.make_private()` | `None` | Make collection private |
-| `coll.delete_video(video_id)` | `None` | Delete a video |
-| `coll.delete_audio(audio_id)` | `None` | Delete an audio |
-| `coll.delete_image(image_id)` | `None` | Delete an image |
-| `coll.delete()` | `None` | Delete the collection |
+| `coll.get_videos()` | `list[Video]` | すべての動画を一覧表示する |
+| `coll.get_video(video_id)` | `Video` | 特定の動画を取得する |
+| `coll.get_audios()` | `list[Audio]` | すべての音声を一覧表示する |
+| `coll.get_audio(audio_id)` | `Audio` | 特定の音声を取得する |
+| `coll.get_images()` | `list[Image]` | すべての画像を一覧表示する |
+| `coll.get_image(image_id)` | `Image` | 特定の画像を取得する |
+| `coll.upload(url=None, file_path=None, media_type=None, name=None)` | `Video\|Audio\|Image` | メディアをアップロードする |
+| `coll.search(query, search_type, index_type, score_threshold, namespace, scene_index_id, ...)` | `SearchResult` | コレクション全体を検索する（セマンティック検索のみ。キーワード検索とシーン検索は `NotImplementedError` を発生させる） |
+| `coll.generate_image(prompt, aspect_ratio="1:1")` | `Image` | AI で画像を生成する |
+| `coll.generate_video(prompt, duration=5)` | `Video` | AI で動画を生成する |
+| `coll.generate_music(prompt, duration=5)` | `Audio` | AI で音楽を生成する |
+| `coll.generate_sound_effect(prompt, duration=2)` | `Audio` | 効果音を生成する |
+| `coll.generate_voice(text, voice_name="Default")` | `Audio` | テキストから音声を生成する |
+| `coll.generate_text(prompt, model_name="basic", response_type="text")` | `dict` | LLM によるテキスト生成 — `["output"]` で結果にアクセスする |
+| `coll.dub_video(video_id, language_code)` | `Video` | 動画を別の言語に吹き替える |
+| `coll.record_meeting(meeting_url, bot_name, ...)` | `Meeting` | ライブミーティングを録画する |
+| `coll.create_capture_session(...)` | `CaptureSession` | キャプチャセッションを作成する（[capture-reference.md](capture-reference.md) を参照） |
+| `coll.get_capture_session(...)` | `CaptureSession` | キャプチャセッションを取得する（[capture-reference.md](capture-reference.md) を参照） |
+| `coll.connect_rtstream(url, name, ...)` | `RTStream` | ライブストリームに接続する（[rtstream-reference.md](rtstream-reference.md) を参照） |
+| `coll.make_public()` | `None` | コレクションを公開にする |
+| `coll.make_private()` | `None` | コレクションを非公開にする |
+| `coll.delete_video(video_id)` | `None` | 動画を削除する |
+| `coll.delete_audio(audio_id)` | `None` | 音声を削除する |
+| `coll.delete_image(image_id)` | `None` | 画像を削除する |
+| `coll.delete()` | `None` | コレクションを削除する |
 
-### Upload Parameters
+### アップロードパラメーター
 
 ```python
 video = coll.upload(
@@ -147,55 +147,55 @@ video = coll.upload(
 )
 ```
 
-## Video Object
+## Video オブジェクト
 
 ```python
 video = coll.get_video(video_id)
 ```
 
-### Video Properties
+### Video プロパティ
 
-| Property | Type | Description |
+| プロパティ | 型 | 説明 |
 |----------|------|-------------|
-| `video.id` | `str` | Unique video ID |
-| `video.collection_id` | `str` | Parent collection ID |
-| `video.name` | `str` | Video name |
-| `video.description` | `str` | Video description |
-| `video.length` | `float` | Duration in seconds |
-| `video.stream_url` | `str` | Default stream URL |
-| `video.player_url` | `str` | Player embed URL |
-| `video.thumbnail_url` | `str` | Thumbnail URL |
+| `video.id` | `str` | 動画の一意な ID |
+| `video.collection_id` | `str` | 親コレクションの ID |
+| `video.name` | `str` | 動画名 |
+| `video.description` | `str` | 動画の説明 |
+| `video.length` | `float` | 秒単位の再生時間 |
+| `video.stream_url` | `str` | デフォルトのストリーム URL |
+| `video.player_url` | `str` | プレイヤーの埋め込み URL |
+| `video.thumbnail_url` | `str` | サムネイル URL |
 
-### Video Methods
+### Video メソッド
 
-| Method | Returns | Description |
+| メソッド | 戻り値 | 説明 |
 |--------|---------|-------------|
-| `video.generate_stream(timeline=None)` | `str` | Generate stream URL (optional timeline of `[(start, end)]` tuples) |
-| `video.play()` | `str` | Open stream in browser, returns player URL |
-| `video.index_spoken_words(language_code=None, force=False)` | `None` | Index speech for search. Use `force=True` to skip if already indexed. |
-| `video.index_scenes(extraction_type, prompt, extraction_config, metadata, model_name, name, scenes, callback_url)` | `str` | Index visual scenes (returns scene_index_id) |
-| `video.index_visuals(prompt, batch_config, ...)` | `str` | Index visuals (returns scene_index_id) |
-| `video.index_audio(prompt, model_name, ...)` | `str` | Index audio with LLM (returns scene_index_id) |
-| `video.get_transcript(start=None, end=None)` | `list[dict]` | Get timestamped transcript |
-| `video.get_transcript_text(start=None, end=None)` | `str` | Get full transcript text |
-| `video.generate_transcript(force=None)` | `dict` | Generate transcript |
-| `video.translate_transcript(language, additional_notes)` | `list[dict]` | Translate transcript |
-| `video.search(query, search_type, index_type, filter, **kwargs)` | `SearchResult` | Search within video |
-| `video.add_subtitle(style=SubtitleStyle())` | `str` | Add subtitles (returns stream URL) |
-| `video.generate_thumbnail(time=None)` | `str\|Image` | Generate thumbnail |
-| `video.get_thumbnails()` | `list[Image]` | Get all thumbnails |
-| `video.extract_scenes(extraction_type, extraction_config)` | `SceneCollection` | Extract scenes |
-| `video.reframe(start, end, target, mode, callback_url)` | `Video\|None` | Reframe video aspect ratio |
-| `video.clip(prompt, content_type, model_name)` | `str` | Generate clip from prompt (returns stream URL) |
-| `video.insert_video(video, timestamp)` | `str` | Insert video at timestamp |
-| `video.download(name=None)` | `dict` | Download the video |
-| `video.delete()` | `None` | Delete the video |
+| `video.generate_stream(timeline=None)` | `str` | ストリーム URL を生成する（オプションで `[(start, end)]` タプルのタイムラインを指定可能） |
+| `video.play()` | `str` | ブラウザでストリームを開き、プレイヤー URL を返す |
+| `video.index_spoken_words(language_code=None, force=False)` | `None` | 検索用に音声をインデックス化する。既にインデックス済みの場合にスキップするには `force=True` を使用。 |
+| `video.index_scenes(extraction_type, prompt, extraction_config, metadata, model_name, name, scenes, callback_url)` | `str` | 視覚的シーンをインデックス化する（scene_index_id を返す） |
+| `video.index_visuals(prompt, batch_config, ...)` | `str` | ビジュアルをインデックス化する（scene_index_id を返す） |
+| `video.index_audio(prompt, model_name, ...)` | `str` | LLM を使って音声をインデックス化する（scene_index_id を返す） |
+| `video.get_transcript(start=None, end=None)` | `list[dict]` | タイムスタンプ付きのトランスクリプトを取得する |
+| `video.get_transcript_text(start=None, end=None)` | `str` | トランスクリプト全文を取得する |
+| `video.generate_transcript(force=None)` | `dict` | トランスクリプトを生成する |
+| `video.translate_transcript(language, additional_notes)` | `list[dict]` | トランスクリプトを翻訳する |
+| `video.search(query, search_type, index_type, filter, **kwargs)` | `SearchResult` | 動画内を検索する |
+| `video.add_subtitle(style=SubtitleStyle())` | `str` | 字幕を追加する（ストリーム URL を返す） |
+| `video.generate_thumbnail(time=None)` | `str\|Image` | サムネイルを生成する |
+| `video.get_thumbnails()` | `list[Image]` | すべてのサムネイルを取得する |
+| `video.extract_scenes(extraction_type, extraction_config)` | `SceneCollection` | シーンを抽出する |
+| `video.reframe(start, end, target, mode, callback_url)` | `Video\|None` | 動画のアスペクト比を変換する |
+| `video.clip(prompt, content_type, model_name)` | `str` | プロンプトからクリップを生成する（ストリーム URL を返す） |
+| `video.insert_video(video, timestamp)` | `str` | タイムスタンプの位置に動画を挿入する |
+| `video.download(name=None)` | `dict` | 動画をダウンロードする |
+| `video.delete()` | `None` | 動画を削除する |
 
-### Reframe
+### リフレーム
 
-Convert a video to a different aspect ratio with optional smart object tracking. Processing is server-side.
+動画をオプションのスマートオブジェクト追跡付きで別のアスペクト比に変換します。処理はサーバー側で行われます。
 
-> **Warning:** Reframe is a slow server-side operation. It can take several minutes for long videos and may time out. Always use `start`/`end` to limit the segment, or pass `callback_url` for async processing.
+> **警告:** リフレームはサーバー側の低速な処理です。長い動画では数分かかることがあり、タイムアウトすることもあります。必ず `start`/`end` でセグメントを制限するか、非同期処理のために `callback_url` を渡してください。
 
 ```python
 from videodb import ReframeMode
@@ -210,68 +210,68 @@ video.reframe(target="vertical", callback_url="https://example.com/webhook")
 reframed = video.reframe(start=0, end=60, target={"width": 1080, "height": 1080})
 ```
 
-#### reframe Parameters
+#### reframe パラメーター
 
-| Parameter | Type | Default | Description |
+| パラメーター | 型 | デフォルト | 説明 |
 |-----------|------|---------|-------------|
-| `start` | `float\|None` | `None` | Start time in seconds (None = beginning) |
-| `end` | `float\|None` | `None` | End time in seconds (None = end of video) |
-| `target` | `str\|dict` | `"vertical"` | Preset string (`"vertical"`, `"square"`, `"landscape"`) or `{"width": int, "height": int}` |
-| `mode` | `str` | `ReframeMode.smart` | `"simple"` (centre crop) or `"smart"` (object tracking) |
-| `callback_url` | `str\|None` | `None` | Webhook URL for async notification |
+| `start` | `float\|None` | `None` | 開始時間（秒）（None = 先頭から） |
+| `end` | `float\|None` | `None` | 終了時間（秒）（None = 動画末尾まで） |
+| `target` | `str\|dict` | `"vertical"` | プリセット文字列（`"vertical"`、`"square"`、`"landscape"`）または `{"width": int, "height": int}` |
+| `mode` | `str` | `ReframeMode.smart` | `"simple"`（中央クロップ）または `"smart"`（オブジェクト追跡） |
+| `callback_url` | `str\|None` | `None` | 非同期通知のための Webhook URL |
 
-Returns a `Video` object when no `callback_url` is provided, `None` otherwise.
+`callback_url` が指定されていない場合は `Video` オブジェクトを、指定されている場合は `None` を返します。
 
-## Audio Object
+## Audio オブジェクト
 
 ```python
 audio = coll.get_audio(audio_id)
 ```
 
-### Audio Properties
+### Audio プロパティ
 
-| Property | Type | Description |
+| プロパティ | 型 | 説明 |
 |----------|------|-------------|
-| `audio.id` | `str` | Unique audio ID |
-| `audio.collection_id` | `str` | Parent collection ID |
-| `audio.name` | `str` | Audio name |
-| `audio.length` | `float` | Duration in seconds |
+| `audio.id` | `str` | 音声の一意な ID |
+| `audio.collection_id` | `str` | 親コレクションの ID |
+| `audio.name` | `str` | 音声名 |
+| `audio.length` | `float` | 秒単位の再生時間 |
 
-### Audio Methods
+### Audio メソッド
 
-| Method | Returns | Description |
+| メソッド | 戻り値 | 説明 |
 |--------|---------|-------------|
-| `audio.generate_url()` | `str` | Generate signed URL for playback |
-| `audio.get_transcript(start=None, end=None)` | `list[dict]` | Get timestamped transcript |
-| `audio.get_transcript_text(start=None, end=None)` | `str` | Get full transcript text |
-| `audio.generate_transcript(force=None)` | `dict` | Generate transcript |
-| `audio.delete()` | `None` | Delete the audio |
+| `audio.generate_url()` | `str` | 再生用の署名付き URL を生成する |
+| `audio.get_transcript(start=None, end=None)` | `list[dict]` | タイムスタンプ付きのトランスクリプトを取得する |
+| `audio.get_transcript_text(start=None, end=None)` | `str` | トランスクリプト全文を取得する |
+| `audio.generate_transcript(force=None)` | `dict` | トランスクリプトを生成する |
+| `audio.delete()` | `None` | 音声を削除する |
 
-## Image Object
+## Image オブジェクト
 
 ```python
 image = coll.get_image(image_id)
 ```
 
-### Image Properties
+### Image プロパティ
 
-| Property | Type | Description |
+| プロパティ | 型 | 説明 |
 |----------|------|-------------|
-| `image.id` | `str` | Unique image ID |
-| `image.collection_id` | `str` | Parent collection ID |
-| `image.name` | `str` | Image name |
-| `image.url` | `str\|None` | Image URL (may be `None` for generated images — use `generate_url()` instead) |
+| `image.id` | `str` | 画像の一意な ID |
+| `image.collection_id` | `str` | 親コレクションの ID |
+| `image.name` | `str` | 画像名 |
+| `image.url` | `str\|None` | 画像 URL（生成画像の場合は `None` になることがある — 代わりに `generate_url()` を使用） |
 
-### Image Methods
+### Image メソッド
 
-| Method | Returns | Description |
+| メソッド | 戻り値 | 説明 |
 |--------|---------|-------------|
-| `image.generate_url()` | `str` | Generate signed URL |
-| `image.delete()` | `None` | Delete the image |
+| `image.generate_url()` | `str` | 署名付き URL を生成する |
+| `image.delete()` | `None` | 画像を削除する |
 
-## Timeline & Editor
+## タイムライン & エディター
 
-### Timeline
+### タイムライン
 
 ```python
 from videodb.timeline import Timeline
@@ -279,13 +279,13 @@ from videodb.timeline import Timeline
 timeline = Timeline(conn)
 ```
 
-| Method | Returns | Description |
+| メソッド | 戻り値 | 説明 |
 |--------|---------|-------------|
-| `timeline.add_inline(asset)` | `None` | Add `VideoAsset` sequentially on main track |
-| `timeline.add_overlay(start, asset)` | `None` | Overlay `AudioAsset`, `ImageAsset`, or `TextAsset` at timestamp |
-| `timeline.generate_stream()` | `str` | Compile and get stream URL |
+| `timeline.add_inline(asset)` | `None` | メイントラックに `VideoAsset` を順番に追加する |
+| `timeline.add_overlay(start, asset)` | `None` | タイムスタンプの位置に `AudioAsset`、`ImageAsset`、または `TextAsset` をオーバーレイする |
+| `timeline.generate_stream()` | `str` | コンパイルしてストリーム URL を取得する |
 
-### Asset Types
+### アセットタイプ
 
 #### VideoAsset
 
@@ -348,9 +348,9 @@ asset = TextAsset(
 )
 ```
 
-#### CaptionAsset (Editor API)
+#### CaptionAsset（エディター API）
 
-CaptionAsset belongs to the Editor API, which has its own Timeline, Track, and Clip system:
+CaptionAsset はエディター API に属しており、独自のタイムライン、トラック、クリップシステムを持ちます:
 
 ```python
 from videodb.editor import CaptionAsset, FontStyling
@@ -362,9 +362,9 @@ asset = CaptionAsset(
 )
 ```
 
-See [editor.md](editor.md#caption-overlays) for full CaptionAsset usage with the Editor API.
+エディター API での CaptionAsset の完全な使用方法については [editor.md](editor.md#caption-overlays) を参照してください。
 
-## Video Search Parameters
+## 動画検索パラメーター
 
 ```python
 results = video.search(
@@ -379,42 +379,42 @@ results = video.search(
 )
 ```
 
-> **Note:** `filter` is an explicit named parameter in `video.search()`. `scene_index_id` is passed through `**kwargs` to the API.
+> **注意:** `filter` は `video.search()` の明示的な名前付きパラメーターです。`scene_index_id` は `**kwargs` を通じて API に渡されます。
 >
-> **Important:** `video.search()` raises `InvalidRequestError` with message `"No results found"` when there are no matches. Always wrap search calls in try/except. For scene search, use `score_threshold=0.3` or higher to filter low-relevance noise.
+> **重要:** `video.search()` は一致する結果がない場合、`"No results found"` というメッセージで `InvalidRequestError` を発生させます。検索呼び出しは常に try/except で囲んでください。シーン検索では、低関連性のノイズをフィルタリングするために `score_threshold=0.3` 以上を使用してください。
 
-For scene search, use `search_type=SearchType.semantic` with `index_type=IndexType.scene`. Pass `scene_index_id` when targeting a specific scene index. See [search.md](search.md) for details.
+シーン検索では、`index_type=IndexType.scene` と `search_type=SearchType.semantic` を組み合わせて使用します。特定のシーンインデックスを対象とする場合は `scene_index_id` を渡してください。詳細は [search.md](search.md) を参照してください。
 
-## SearchResult Object
+## SearchResult オブジェクト
 
 ```python
 results = video.search("query", search_type=SearchType.semantic)
 ```
 
-| Method | Returns | Description |
+| メソッド | 戻り値 | 説明 |
 |--------|---------|-------------|
-| `results.get_shots()` | `list[Shot]` | Get list of matching segments |
-| `results.compile()` | `str` | Compile all shots into a stream URL |
-| `results.play()` | `str` | Open compiled stream in browser |
+| `results.get_shots()` | `list[Shot]` | 一致するセグメントのリストを取得する |
+| `results.compile()` | `str` | すべてのショットをストリーム URL にコンパイルする |
+| `results.play()` | `str` | コンパイルされたストリームをブラウザで開く |
 
-### Shot Properties
+### Shot プロパティ
 
-| Property | Type | Description |
+| プロパティ | 型 | 説明 |
 |----------|------|-------------|
-| `shot.video_id` | `str` | Source video ID |
-| `shot.video_length` | `float` | Source video duration |
-| `shot.video_title` | `str` | Source video title |
-| `shot.start` | `float` | Start time (seconds) |
-| `shot.end` | `float` | End time (seconds) |
-| `shot.text` | `str` | Matched text content |
-| `shot.search_score` | `float` | Search relevance score |
+| `shot.video_id` | `str` | ソース動画の ID |
+| `shot.video_length` | `float` | ソース動画の再生時間 |
+| `shot.video_title` | `str` | ソース動画のタイトル |
+| `shot.start` | `float` | 開始時間（秒） |
+| `shot.end` | `float` | 終了時間（秒） |
+| `shot.text` | `str` | 一致したテキストコンテンツ |
+| `shot.search_score` | `float` | 検索の関連性スコア |
 
-| Method | Returns | Description |
+| メソッド | 戻り値 | 説明 |
 |--------|---------|-------------|
-| `shot.generate_stream()` | `str` | Stream this specific shot |
-| `shot.play()` | `str` | Open shot stream in browser |
+| `shot.generate_stream()` | `str` | この特定のショットをストリーミングする |
+| `shot.play()` | `str` | ショットのストリームをブラウザで開く |
 
-## Meeting Object
+## Meeting オブジェクト
 
 ```python
 meeting = coll.record_meeting(
@@ -426,35 +426,35 @@ meeting = coll.record_meeting(
 )
 ```
 
-### Meeting Properties
+### Meeting プロパティ
 
-| Property | Type | Description |
+| プロパティ | 型 | 説明 |
 |----------|------|-------------|
-| `meeting.id` | `str` | Unique meeting ID |
-| `meeting.collection_id` | `str` | Parent collection ID |
-| `meeting.status` | `str` | Current status |
-| `meeting.video_id` | `str` | Recorded video ID (after completion) |
-| `meeting.bot_name` | `str` | Bot name |
-| `meeting.meeting_title` | `str` | Meeting title |
-| `meeting.meeting_url` | `str` | Meeting URL |
-| `meeting.speaker_timeline` | `dict` | Speaker timeline data |
-| `meeting.is_active` | `bool` | True if initializing or processing |
-| `meeting.is_completed` | `bool` | True if done |
+| `meeting.id` | `str` | ミーティングの一意な ID |
+| `meeting.collection_id` | `str` | 親コレクションの ID |
+| `meeting.status` | `str` | 現在のステータス |
+| `meeting.video_id` | `str` | 録画した動画の ID（完了後） |
+| `meeting.bot_name` | `str` | ボット名 |
+| `meeting.meeting_title` | `str` | ミーティングのタイトル |
+| `meeting.meeting_url` | `str` | ミーティングの URL |
+| `meeting.speaker_timeline` | `dict` | 話者のタイムラインデータ |
+| `meeting.is_active` | `bool` | 初期化中または処理中の場合に True |
+| `meeting.is_completed` | `bool` | 完了した場合に True |
 
-### Meeting Methods
+### Meeting メソッド
 
-| Method | Returns | Description |
+| メソッド | 戻り値 | 説明 |
 |--------|---------|-------------|
-| `meeting.refresh()` | `Meeting` | Refresh data from server |
-| `meeting.wait_for_status(target_status, timeout=14400, interval=120)` | `bool` | Poll until status reached |
+| `meeting.refresh()` | `Meeting` | サーバーからデータを更新する |
+| `meeting.wait_for_status(target_status, timeout=14400, interval=120)` | `bool` | ステータスに達するまでポーリングする |
 
-## RTStream & Capture
+## RTStream & キャプチャ
 
-For RTStream (live ingestion, indexing, transcription), see [rtstream-reference.md](rtstream-reference.md).
+RTStream（ライブ取り込み、インデックス化、文字起こし）については [rtstream-reference.md](rtstream-reference.md) を参照してください。
 
-For capture sessions (desktop recording, CaptureClient, channels), see [capture-reference.md](capture-reference.md).
+キャプチャセッション（デスクトップ録画、CaptureClient、チャンネル）については [capture-reference.md](capture-reference.md) を参照してください。
 
-## Enums & Constants
+## 列挙型 & 定数
 
 ### SearchType
 
@@ -514,7 +514,7 @@ style = TextStyle(
 )
 ```
 
-### Other Constants
+### その他の定数
 
 ```python
 from videodb import (
@@ -529,7 +529,7 @@ from videodb import (
 )
 ```
 
-## Exceptions
+## 例外
 
 ```python
 from videodb.exceptions import (
@@ -541,10 +541,10 @@ from videodb.exceptions import (
 )
 ```
 
-| Exception | Common Cause |
+| 例外 | 一般的な原因 |
 |-----------|-------------|
-| `AuthenticationError` | Missing or invalid `VIDEO_DB_API_KEY` |
-| `InvalidRequestError` | Invalid URL, unsupported format, bad parameters |
-| `RequestTimeoutError` | Server took too long to respond |
-| `SearchError` | Searching before indexing, invalid search type |
-| `VideodbError` | Server errors, network issues, generic failures |
+| `AuthenticationError` | `VIDEO_DB_API_KEY` がないまたは無効 |
+| `InvalidRequestError` | 無効な URL、サポートされていない形式、不正なパラメーター |
+| `RequestTimeoutError` | サーバーの応答に時間がかかりすぎた |
+| `SearchError` | インデックス化前の検索、無効な検索タイプ |
+| `VideodbError` | サーバーエラー、ネットワーク問題、一般的な障害 |

@@ -1,29 +1,29 @@
 ---
 name: data-scraper-agent
-description: Build a fully automated AI-powered data collection agent for any public source — job boards, prices, news, GitHub, sports, anything. Scrapes on a schedule, enriches data with a free LLM (Gemini Flash), stores results in Notion/Sheets/Supabase, and learns from user feedback. Runs 100% free on GitHub Actions. Use when the user wants to monitor, collect, or track any public data automatically.
+description: あらゆる公開ソース（求人ボード、価格、ニュース、GitHub、スポーツ等）向けの完全自動化AIデータ収集エージェントを構築します。スケジュール実行でデータを収集し、無料LLM（Gemini Flash）でデータを強化し、結果をNotion/Sheets/Supabaseに保存して、ユーザーのフィードバックから学習します。GitHub Actions上で完全無料で動作します。ユーザーが何らかの公開データを自動的に監視・収集・追跡したい場合に使用してください。
 origin: community
 ---
 
-# Data Scraper Agent
+# データスクレイパーエージェント
 
-Build a production-ready, AI-powered data collection agent for any public data source.
-Runs on a schedule, enriches results with a free LLM, stores to a database, and improves over time.
+あらゆる公開データソース向けの本番品質AIデータ収集エージェントを構築します。
+スケジュール実行でデータを収集し、無料LLMで結果を強化し、データベースに保存し、時間とともに改善されます。
 
-**Stack: Python · Gemini Flash (free) · GitHub Actions (free) · Notion / Sheets / Supabase**
+**スタック: Python · Gemini Flash（無料）· GitHub Actions（無料）· Notion / Sheets / Supabase**
 
-## When to Activate
+## 起動タイミング
 
-- User wants to scrape or monitor any public website or API
-- User says "build a bot that checks...", "monitor X for me", "collect data from..."
-- User wants to track jobs, prices, news, repos, sports scores, events, listings
-- User asks how to automate data collection without paying for hosting
-- User wants an agent that gets smarter over time based on their decisions
+- ユーザーが公開ウェブサイトやAPIのスクレイピング・監視を希望している
+- 「〇〇をチェックするボットを作って」「Xを監視して」「〇〇からデータを収集して」と言っている
+- 求人・価格・ニュース・リポジトリ・スポーツスコア・イベント・リストの追跡を希望している
+- ホスティング費用なしでデータ収集を自動化する方法を尋ねている
+- 判断を積み重ねるごとに賢くなるエージェントを求めている
 
-## Core Concepts
+## コアコンセプト
 
-### The Three Layers
+### 3つのレイヤー
 
-Every data scraper agent has three layers:
+データスクレイパーエージェントはすべて3つのレイヤーで構成されます：
 
 ```
 COLLECT → ENRICH → STORE
@@ -34,20 +34,20 @@ schedule   summarises Sheets /
            & classifies Supabase
 ```
 
-### Free Stack
+### 無料スタック
 
-| Layer | Tool | Why |
+| レイヤー | ツール | 理由 |
 |---|---|---|
-| **Scraping** | `requests` + `BeautifulSoup` | No cost, covers 80% of public sites |
-| **JS-rendered sites** | `playwright` (free) | When HTML scraping fails |
-| **AI enrichment** | Gemini Flash via REST API | 500 req/day, 1M tokens/day — free |
-| **Storage** | Notion API | Free tier, great UI for review |
-| **Schedule** | GitHub Actions cron | Free for public repos |
-| **Learning** | JSON feedback file in repo | Zero infra, persists in git |
+| **スクレイピング** | `requests` + `BeautifulSoup` | 無料、公開サイトの80%に対応 |
+| **JSレンダリングサイト** | `playwright`（無料） | HTMLスクレイピングが失敗する場合 |
+| **AI強化** | Gemini Flash（REST API経由） | 1日500リクエスト、100万トークン/日 — 無料 |
+| **ストレージ** | Notion API | 無料枠あり、レビューに最適なUI |
+| **スケジュール** | GitHub Actions cron | 公開リポジトリは無料 |
+| **学習** | リポジトリ内JSONフィードバックファイル | インフラ不要、gitで永続化 |
 
-### AI Model Fallback Chain
+### AIモデルフォールバックチェーン
 
-Build agents to auto-fallback across Gemini models on quota exhaustion:
+クォータ枯渇時にGeminiモデルを自動フォールバックするようにエージェントを構築します：
 
 ```
 gemini-2.0-flash-lite (30 RPM) →
@@ -56,91 +56,91 @@ gemini-2.5-flash (10 RPM) →
 gemini-flash-lite-latest (fallback)
 ```
 
-### Batch API Calls for Efficiency
+### 効率のためのAPIバッチ呼び出し
 
-Never call the LLM once per item. Always batch:
+LLMを1アイテムごとに1回呼び出してはいけません。必ずバッチ処理してください：
 
 ```python
-# BAD: 33 API calls for 33 items
+# 悪い例: 33アイテムに33回のAPIコール
 for item in items:
-    result = call_ai(item)  # 33 calls → hits rate limit
+    result = call_ai(item)  # 33コール → レート制限に達する
 
-# GOOD: 7 API calls for 33 items (batch size 5)
+# 良い例: 33アイテムに7回のAPIコール（バッチサイズ5）
 for batch in chunks(items, size=5):
-    results = call_ai(batch)  # 7 calls → stays within free tier
+    results = call_ai(batch)  # 7コール → 無料枠内に収まる
 ```
 
 ---
 
-## Workflow
+## ワークフロー
 
-### Step 1: Understand the Goal
+### ステップ1: 目標の把握
 
-Ask the user:
+ユーザーに確認する内容：
 
-1. **What to collect:** "What data source? URL / API / RSS / public endpoint?"
-2. **What to extract:** "What fields matter? Title, price, URL, date, score?"
-3. **How to store:** "Where should results go? Notion, Google Sheets, Supabase, or local file?"
-4. **How to enrich:** "Do you want AI to score, summarise, classify, or match each item?"
-5. **Frequency:** "How often should it run? Every hour, daily, weekly?"
+1. **収集対象:** 「どのデータソースですか？URL / API / RSS / 公開エンドポイント？」
+2. **抽出フィールド:** 「何のフィールドが必要ですか？タイトル、価格、URL、日付、スコア？」
+3. **保存先:** 「結果の保存先は？Notion、Google Sheets、Supabase、またはローカルファイル？」
+4. **強化方法:** 「AIに各アイテムのスコアリング、要約、分類、マッチングをさせますか？」
+5. **頻度:** 「どのくらいの頻度で実行しますか？毎時、毎日、毎週？」
 
-Common examples to prompt:
-- Job boards → score relevance to resume
-- Product prices → alert on drops
-- GitHub repos → summarise new releases
-- News feeds → classify by topic + sentiment
-- Sports results → extract stats to tracker
-- Events calendar → filter by interest
+プロンプトの参考例：
+- 求人ボード → 履歴書との関連性スコアリング
+- 商品価格 → 値下がり時にアラート
+- GitHubリポジトリ → 新しいリリースの要約
+- ニュースフィード → トピックとセンチメントで分類
+- スポーツ結果 → トラッカーにスタッツを抽出
+- イベントカレンダー → 興味でフィルタリング
 
 ---
 
-### Step 2: Design the Agent Architecture
+### ステップ2: エージェントアーキテクチャの設計
 
-Generate this directory structure for the user:
+ユーザー向けにこのディレクトリ構造を生成します：
 
 ```
 my-agent/
-├── config.yaml              # User customises this (keywords, filters, preferences)
+├── config.yaml              # ユーザーがカスタマイズ（キーワード、フィルター、設定）
 ├── profile/
-│   └── context.md           # User context the AI uses (resume, interests, criteria)
+│   └── context.md           # AIが使用するユーザーコンテキスト（履歴書、興味、基準）
 ├── scraper/
 │   ├── __init__.py
-│   ├── main.py              # Orchestrator: scrape → enrich → store
-│   ├── filters.py           # Rule-based pre-filter (fast, before AI)
+│   ├── main.py              # オーケストレーター: スクレイプ → 強化 → 保存
+│   ├── filters.py           # ルールベースの事前フィルター（高速、AI前）
 │   └── sources/
 │       ├── __init__.py
-│       └── source_name.py   # One file per data source
+│       └── source_name.py   # データソースごとに1ファイル
 ├── ai/
 │   ├── __init__.py
-│   ├── client.py            # Gemini REST client with model fallback
-│   ├── pipeline.py          # Batch AI analysis
-│   ├── jd_fetcher.py        # Fetch full content from URLs (optional)
-│   └── memory.py            # Learn from user feedback
+│   ├── client.py            # モデルフォールバック付きGemini RESTクライアント
+│   ├── pipeline.py          # バッチAI分析
+│   ├── jd_fetcher.py        # URLからコンテンツ全文を取得（オプション）
+│   └── memory.py            # ユーザーフィードバックから学習
 ├── storage/
 │   ├── __init__.py
-│   └── notion_sync.py       # Or sheets_sync.py / supabase_sync.py
+│   └── notion_sync.py       # または sheets_sync.py / supabase_sync.py
 ├── data/
-│   └── feedback.json        # User decision history (auto-updated)
+│   └── feedback.json        # ユーザーの決定履歴（自動更新）
 ├── .env.example
-├── setup.py                 # One-time DB/schema creation
-├── enrich_existing.py       # Backfill AI scores on old rows
+├── setup.py                 # 初回DB/スキーマ作成
+├── enrich_existing.py       # 古い行へのAIスコアバックフィル
 ├── requirements.txt
 └── .github/
     └── workflows/
-        └── scraper.yml      # GitHub Actions schedule
+        └── scraper.yml      # GitHub Actionsスケジュール
 ```
 
 ---
 
-### Step 3: Build the Scraper Source
+### ステップ3: スクレイパーソースの構築
 
-Template for any data source:
+任意のデータソース用テンプレート：
 
 ```python
 # scraper/sources/my_source.py
 """
-[Source Name] — scrapes [what] from [where].
-Method: [REST API / HTML scraping / RSS feed]
+[ソース名] — [どこ]から[何]をスクレイプする。
+方式: [REST API / HTMLスクレイピング / RSSフィード]
 """
 import requests
 from bs4 import BeautifulSoup
@@ -154,12 +154,12 @@ HEADERS = {
 
 def fetch() -> list[dict]:
     """
-    Returns a list of items with consistent schema.
-    Each item must have at minimum: name, url, date_found.
+    一貫したスキーマのアイテムリストを返す。
+    各アイテムには最低限: name, url, date_found が必要。
     """
     results = []
 
-    # ---- REST API source ----
+    # ---- REST APIソース ----
     resp = requests.get("https://api.example.com/items", headers=HEADERS, timeout=15)
     if resp.status_code == 200:
         for item in resp.json().get("results", []):
@@ -171,17 +171,17 @@ def fetch() -> list[dict]:
 
 
 def _normalise(raw: dict) -> dict:
-    """Convert raw API/HTML data to the standard schema."""
+    """生のAPI/HTMLデータを標準スキーマに変換する。"""
     return {
         "name": raw.get("title", ""),
         "url": raw.get("link", ""),
         "source": "MySource",
         "date_found": datetime.now(timezone.utc).date().isoformat(),
-        # add domain-specific fields here
+        # ドメイン固有フィールドをここに追加
     }
 ```
 
-**HTML scraping pattern:**
+**HTMLスクレイピングパターン:**
 ```python
 soup = BeautifulSoup(resp.text, "lxml")
 for card in soup.select("[class*='listing']"):
@@ -191,7 +191,7 @@ for card in soup.select("[class*='listing']"):
         link = f"https://example.com{link}"
 ```
 
-**RSS feed pattern:**
+**RSSフィードパターン:**
 ```python
 import xml.etree.ElementTree as ET
 root = ET.fromstring(resp.text)
@@ -202,7 +202,7 @@ for item in root.findall(".//item"):
 
 ---
 
-### Step 4: Build the Gemini AI Client
+### ステップ4: Gemini AIクライアントの構築
 
 ```python
 # ai/client.py
@@ -219,7 +219,7 @@ MODEL_FALLBACK = [
 
 
 def generate(prompt: str, model: str = "", rate_limit: float = 7.0) -> dict:
-    """Call Gemini with auto-fallback on 429. Returns parsed JSON or {}."""
+    """429時に自動フォールバックしてGeminiを呼び出す。解析済みJSONまたは{}を返す。"""
     global _last_call
 
     api_key = os.environ.get("GEMINI_API_KEY", "")
@@ -276,7 +276,7 @@ def _parse(resp) -> dict:
 
 ---
 
-### Step 5: Build the AI Pipeline (Batch)
+### ステップ5: AIパイプラインの構築（バッチ処理）
 
 ```python
 # ai/pipeline.py
@@ -286,7 +286,7 @@ from pathlib import Path
 from ai.client import generate
 
 def analyse_batch(items: list[dict], context: str = "", preference_prompt: str = "") -> list[dict]:
-    """Analyse items in batches. Returns items enriched with AI fields."""
+    """アイテムをバッチで分析する。AIフィールドで強化されたアイテムを返す。"""
     config = yaml.safe_load((Path(__file__).parent.parent / "config.yaml").read_text())
     model = config.get("ai", {}).get("model", "gemini-2.5-flash")
     rate_limit = config.get("ai", {}).get("rate_limit_seconds", 7.0)
@@ -343,11 +343,11 @@ Be concise. Score 90+=excellent match, 70-89=good, 50-69=ok, <50=weak."""
 
 ---
 
-### Step 6: Build the Feedback Learning System
+### ステップ6: フィードバック学習システムの構築
 
 ```python
 # ai/memory.py
-"""Learn from user decisions to improve future scoring."""
+"""ユーザーの判断から学習して将来のスコアリングを改善する。"""
 import json
 from pathlib import Path
 
@@ -369,7 +369,7 @@ def save_feedback(fb: dict):
 
 
 def build_preference_prompt(feedback: dict, max_examples: int = 15) -> str:
-    """Convert feedback history into a prompt bias section."""
+    """フィードバック履歴をプロンプトのバイアスセクションに変換する。"""
     lines = []
     if feedback.get("positive"):
         lines.append("# Items the user LIKED (positive signal):")
@@ -384,11 +384,11 @@ def build_preference_prompt(feedback: dict, max_examples: int = 15) -> str:
     return "\n".join(lines)
 ```
 
-**Integration with your storage layer:** after each run, query your DB for items with positive/negative status and call `save_feedback()` with the extracted patterns.
+**ストレージレイヤーとの統合:** 各実行後、ポジティブ/ネガティブステータスのアイテムをDBから取得し、抽出したパターンで `save_feedback()` を呼び出します。
 
 ---
 
-### Step 7: Build Storage (Notion example)
+### ステップ7: ストレージの構築（Notionの例）
 
 ```python
 # storage/notion_sync.py
@@ -405,7 +405,7 @@ def get_client():
     return _client
 
 def get_existing_urls(db_id: str) -> set[str]:
-    """Fetch all URLs already stored — used for deduplication."""
+    """保存済みURLをすべて取得 — 重複排除に使用。"""
     client, seen, cursor = get_client(), set(), None
     while True:
         resp = client.databases.query(database_id=db_id, page_size=100, **{"start_cursor": cursor} if cursor else {})
@@ -417,7 +417,7 @@ def get_existing_urls(db_id: str) -> set[str]:
     return seen
 
 def push_item(db_id: str, item: dict) -> bool:
-    """Push one item to Notion. Returns True on success."""
+    """1つのアイテムをNotionにプッシュする。成功した場合はTrueを返す。"""
     props = {
         "Name": {"title": [{"text": {"content": item.get("name", "")[:100]}}]},
         "URL": {"url": item.get("url")},
@@ -425,7 +425,7 @@ def push_item(db_id: str, item: dict) -> bool:
         "Date Found": {"date": {"start": item.get("date_found")}},
         "Status": {"select": {"name": "New"}},
     }
-    # AI fields
+    # AIフィールド
     if item.get("ai_score") is not None:
         props["AI Score"] = {"number": item["ai_score"]}
     if item.get("ai_summary"):
@@ -455,7 +455,7 @@ def sync(db_id: str, items: list[dict]) -> tuple[int, int]:
 
 ---
 
-### Step 8: Orchestrate in main.py
+### ステップ8: main.pyでのオーケストレーション
 
 ```python
 # scraper/main.py
@@ -465,11 +465,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from scraper.sources import my_source          # add your sources
+from scraper.sources import my_source          # ソースを追加
 
-# NOTE: This example uses Notion. If storage.provider is "sheets" or "supabase",
-# replace this import with storage.sheets_sync or storage.supabase_sync and update
-# the env var and sync() call accordingly.
+# 注意: この例ではNotionを使用しています。storage.providerが"sheets"または"supabase"の場合、
+# このimportをstorage.sheets_syncまたはstorage.supabase_syncに置き換え、
+# 環境変数とsync()の呼び出しを適宜更新してください。
 from storage.notion_sync import sync
 
 SOURCES = [
@@ -483,13 +483,13 @@ def main():
     config = yaml.safe_load((Path(__file__).parent.parent / "config.yaml").read_text())
     provider = config.get("storage", {}).get("provider", "notion")
 
-    # Resolve the storage target identifier from env based on provider
+    # プロバイダーに基づいて環境変数からストレージ識別子を解決
     if provider == "notion":
         db_id = os.environ.get("NOTION_DATABASE_ID")
         if not db_id:
             print("ERROR: NOTION_DATABASE_ID not set"); sys.exit(1)
     else:
-        # Extend here for sheets (SHEET_ID) or supabase (SUPABASE_TABLE) etc.
+        # sheets (SHEET_ID) や supabase (SUPABASE_TABLE) 等はここで拡張
         print(f"ERROR: provider '{provider}' not yet wired in main.py"); sys.exit(1)
 
     config = yaml.safe_load((Path(__file__).parent.parent / "config.yaml").read_text())
@@ -503,7 +503,7 @@ def main():
         except Exception as e:
             print(f"[{name}] FAILED: {e}")
 
-    # Deduplicate by URL
+    # URLで重複排除
     seen, deduped = set(), []
     for item in all_items:
         if (url := item.get("url", "")) and url not in seen:
@@ -515,9 +515,10 @@ def main():
         from ai.memory import load_feedback, build_preference_prompt
         from ai.pipeline import analyse_batch
 
-        # load_feedback() reads data/feedback.json written by your feedback sync script.
-        # To keep it current, implement a separate feedback_sync.py that queries your
-        # storage provider for items with positive/negative statuses and calls save_feedback().
+        # load_feedback() はフィードバック同期スクリプトが書き込む data/feedback.json を読み込む。
+        # 最新の状態を保つため、ストレージプロバイダーからポジティブ/ネガティブ
+        # ステータスのアイテムを取得してsave_feedback()を呼び出す
+        # 別のfeedback_sync.pyを実装してください。
         feedback = load_feedback()
         preference = build_preference_prompt(feedback)
         context_path = Path(__file__).parent.parent / "profile" / "context.md"
@@ -535,7 +536,7 @@ if __name__ == "__main__":
 
 ---
 
-### Step 9: GitHub Actions Workflow
+### ステップ9: GitHub Actionsワークフロー
 
 ```yaml
 # .github/workflows/scraper.yml
@@ -543,11 +544,11 @@ name: Data Scraper Agent
 
 on:
   schedule:
-    - cron: "0 */3 * * *"  # every 3 hours — adjust to your needs
-  workflow_dispatch:        # allow manual trigger
+    - cron: "0 */3 * * *"  # 3時間ごと — 必要に応じて調整
+  workflow_dispatch:        # 手動トリガーを許可
 
 permissions:
-  contents: write   # required for the feedback-history commit step
+  contents: write   # フィードバック履歴のコミットステップに必要
 
 jobs:
   scrape:
@@ -564,7 +565,7 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      # Uncomment if Playwright is enabled in requirements.txt
+      # requirements.txtでPlaywrightが有効な場合はコメントを外す
       # - name: Install Playwright browsers
       #   run: python -m playwright install chromium --with-deps
 
@@ -586,50 +587,50 @@ jobs:
 
 ---
 
-### Step 10: config.yaml Template
+### ステップ10: config.yamlテンプレート
 
 ```yaml
-# Customise this file — no code changes needed
+# このファイルをカスタマイズ — コード変更不要
 
-# What to collect (pre-filter before AI)
+# 収集対象（AI前の事前フィルター）
 filters:
-  required_keywords: []      # item must contain at least one
-  blocked_keywords: []       # item must not contain any
+  required_keywords: []      # アイテムに少なくとも1つ含まれている必要がある
+  blocked_keywords: []       # アイテムに含まれてはいけない
 
-# Your priorities — AI uses these for scoring
+# 優先事項 — AIがスコアリングに使用
 priorities:
-  - "example priority 1"
-  - "example priority 2"
+  - "優先事項の例1"
+  - "優先事項の例2"
 
-# Storage
+# ストレージ
 storage:
   provider: "notion"         # notion | sheets | supabase | sqlite
 
-# Feedback learning
+# フィードバック学習
 feedback:
   positive_statuses: ["Saved", "Applied", "Interested"]
   negative_statuses: ["Skip", "Rejected", "Not relevant"]
 
-# AI settings
+# AI設定
 ai:
   enabled: true
   model: "gemini-2.5-flash"
-  min_score: 0               # filter out items below this score
-  rate_limit_seconds: 7      # seconds between API calls
-  batch_size: 5              # items per API call
+  min_score: 0               # このスコア未満のアイテムをフィルターアウト
+  rate_limit_seconds: 7      # APIコール間の秒数
+  batch_size: 5              # APIコールごとのアイテム数
 ```
 
 ---
 
-## Common Scraping Patterns
+## よくあるスクレイピングパターン
 
-### Pattern 1: REST API (easiest)
+### パターン1: REST API（最も簡単）
 ```python
 resp = requests.get(url, params={"q": query}, headers=HEADERS, timeout=15)
 items = resp.json().get("results", [])
 ```
 
-### Pattern 2: HTML Scraping
+### パターン2: HTMLスクレイピング
 ```python
 soup = BeautifulSoup(resp.text, "lxml")
 for card in soup.select(".listing-card"):
@@ -637,7 +638,7 @@ for card in soup.select(".listing-card"):
     href = card.select_one("a")["href"]
 ```
 
-### Pattern 3: RSS Feed
+### パターン3: RSSフィード
 ```python
 import xml.etree.ElementTree as ET
 root = ET.fromstring(resp.text)
@@ -647,7 +648,7 @@ for item in root.findall(".//item"):
     pub_date = item.findtext("pubDate", "")
 ```
 
-### Pattern 4: Paginated API
+### パターン4: ページネーション付きAPI
 ```python
 page = 1
 while True:
@@ -663,7 +664,7 @@ while True:
     page += 1
 ```
 
-### Pattern 5: JS-Rendered Pages (Playwright)
+### パターン5: JSレンダリングページ（Playwright）
 ```python
 from playwright.sync_api import sync_playwright
 
@@ -680,36 +681,36 @@ soup = BeautifulSoup(html, "lxml")
 
 ---
 
-## Anti-Patterns to Avoid
+## 避けるべきアンチパターン
 
-| Anti-pattern | Problem | Fix |
+| アンチパターン | 問題点 | 修正方法 |
 |---|---|---|
-| One LLM call per item | Hits rate limits instantly | Batch 5 items per call |
-| Hardcoded keywords in code | Not reusable | Move all config to `config.yaml` |
-| Scraping without rate limit | IP ban | Add `time.sleep(1)` between requests |
-| Storing secrets in code | Security risk | Always use `.env` + GitHub Secrets |
-| No deduplication | Duplicate rows pile up | Always check URL before pushing |
-| Ignoring `robots.txt` | Legal/ethical risk | Respect crawl rules; use public APIs when available |
-| JS-rendered sites with `requests` | Empty response | Use Playwright or look for the underlying API |
-| `maxOutputTokens` too low | Truncated JSON, parse error | Use 2048+ for batch responses |
+| アイテムごとに1回LLMを呼び出す | レート制限に即座に達する | 1回の呼び出しで5アイテムをバッチ処理 |
+| コードにキーワードをハードコード | 再利用不可 | すべての設定を `config.yaml` に移動 |
+| レート制限なしでスクレイピング | IPアドレス禁止 | リクエスト間に `time.sleep(1)` を追加 |
+| コードにシークレットを保存 | セキュリティリスク | 必ず `.env` とGitHub Secretsを使用 |
+| 重複排除なし | 重複行が蓄積される | プッシュ前に必ずURLを確認 |
+| `robots.txt` を無視 | 法的・倫理的リスク | クロールルールを尊重し、可能な限り公開APIを使用 |
+| `requests` でJSレンダリングサイトをスクレイプ | 空のレスポンス | Playwrightを使用するか基盤となるAPIを探す |
+| `maxOutputTokens` が低すぎる | JSONが途切れ、パースエラー | バッチレスポンスには2048以上を使用 |
 
 ---
 
-## Free Tier Limits Reference
+## 無料枠の制限参考値
 
-| Service | Free Limit | Typical Usage |
+| サービス | 無料枠 | 典型的な使用量 |
 |---|---|---|
-| Gemini Flash Lite | 30 RPM, 1500 RPD | ~56 req/day at 3-hr intervals |
-| Gemini 2.0 Flash | 15 RPM, 1500 RPD | Good fallback |
-| Gemini 2.5 Flash | 10 RPM, 500 RPD | Use sparingly |
-| GitHub Actions | Unlimited (public repos) | ~20 min/day |
-| Notion API | Unlimited | ~200 writes/day |
-| Supabase | 500MB DB, 2GB transfer | Fine for most agents |
-| Google Sheets API | 300 req/min | Works for small agents |
+| Gemini Flash Lite | 30 RPM、1500 RPD | 3時間ごとで約56リクエスト/日 |
+| Gemini 2.0 Flash | 15 RPM、1500 RPD | 優れたフォールバック |
+| Gemini 2.5 Flash | 10 RPM、500 RPD | 控えめに使用 |
+| GitHub Actions | 無制限（公開リポジトリ） | 約20分/日 |
+| Notion API | 無制限 | 約200書き込み/日 |
+| Supabase | 500MB DB、2GB転送 | ほとんどのエージェントで十分 |
+| Google Sheets API | 300リクエスト/分 | 小規模エージェントに対応 |
 
 ---
 
-## Requirements Template
+## requirementsテンプレート
 
 ```
 requests==2.31.0
@@ -717,48 +718,48 @@ beautifulsoup4==4.12.3
 lxml==5.1.0
 python-dotenv==1.0.1
 pyyaml==6.0.2
-notion-client==2.2.1   # if using Notion
-# playwright==1.40.0   # uncomment for JS-rendered sites
+notion-client==2.2.1   # Notionを使用する場合
+# playwright==1.40.0   # JSレンダリングサイトの場合はコメントを外す
 ```
 
 ---
 
-## Quality Checklist
+## 品質チェックリスト
 
-Before marking the agent complete:
+エージェントを完成とする前に確認：
 
-- [ ] `config.yaml` controls all user-facing settings — no hardcoded values
-- [ ] `profile/context.md` holds user-specific context for AI matching
-- [ ] Deduplication by URL before every storage push
-- [ ] Gemini client has model fallback chain (4 models)
-- [ ] Batch size ≤ 5 items per API call
-- [ ] `maxOutputTokens` ≥ 2048
-- [ ] `.env` is in `.gitignore`
-- [ ] `.env.example` provided for onboarding
-- [ ] `setup.py` creates DB schema on first run
-- [ ] `enrich_existing.py` backfills AI scores on old rows
-- [ ] GitHub Actions workflow commits `feedback.json` after each run
-- [ ] README covers: setup in < 5 minutes, required secrets, customisation
-
----
-
-## Real-World Examples
-
-```
-"Build me an agent that monitors Hacker News for AI startup funding news"
-"Scrape product prices from 3 e-commerce sites and alert when they drop"
-"Track new GitHub repos tagged with 'llm' or 'agents' — summarise each one"
-"Collect Chief of Staff job listings from LinkedIn and Cutshort into Notion"
-"Monitor a subreddit for posts mentioning my company — classify sentiment"
-"Scrape new academic papers from arXiv on a topic I care about daily"
-"Track sports fixture results and keep a running table in Google Sheets"
-"Build a real estate listing watcher — alert on new properties under ₹1 Cr"
-```
+- [ ] `config.yaml` がユーザー向け設定をすべて制御 — ハードコード値なし
+- [ ] `profile/context.md` にAIマッチング用のユーザー固有コンテキストが含まれている
+- [ ] ストレージプッシュ前にURLで重複排除している
+- [ ] GeminiクライアントにモデルフォールバックチェーンがあるP（4モデル）
+- [ ] バッチサイズが1回のAPIコールあたり5アイテム以下
+- [ ] `maxOutputTokens` が2048以上
+- [ ] `.env` が `.gitignore` に含まれている
+- [ ] オンボーディング用に `.env.example` が提供されている
+- [ ] `setup.py` が初回実行時にDBスキーマを作成する
+- [ ] `enrich_existing.py` が古い行のAIスコアをバックフィルする
+- [ ] GitHub Actionsワークフローが各実行後に `feedback.json` をコミットする
+- [ ] READMEに5分以内のセットアップ、必要なシークレット、カスタマイズ方法が記載されている
 
 ---
 
-## Reference Implementation
+## 実世界の使用例
 
-A complete working agent built with this exact architecture would scrape 4+ sources,
-batch Gemini calls, learn from Applied/Rejected decisions stored in Notion, and run
-100% free on GitHub Actions. Follow Steps 1–9 above to build your own.
+```
+「Hacker NewsのAIスタートアップ資金調達ニュースを監視するエージェントを作って」
+「3つのECサイトの商品価格をスクレイプして、下がったらアラートを出して」
+「'llm'や'agents'でタグ付けされた新しいGitHubリポジトリを追跡して、それぞれを要約して」
+「LinkedInとCutshortからChief of Staffの求人リストを収集してNotionに入れて」
+「自社についてのRedditの投稿を監視して、センチメントを分類して」
+「興味のあるトピックに関するarXivの新しい学術論文を毎日スクレイプして」
+「スポーツの試合結果を追跡して、Google Sheetsに順位表を維持して」
+「不動産リストのウォッチャーを作って — ₹1 Cr以下の新しい物件にアラートを出して」
+```
+
+---
+
+## リファレンス実装
+
+このアーキテクチャで構築された完全に動作するエージェントは、4つ以上のソースをスクレイプし、
+Geminiのコールをバッチ処理し、Notionに保存されたApplied/Rejectedの判断から学習し、
+GitHub Actions上で完全無料で動作します。ステップ1〜9に従って独自のものを構築してください。

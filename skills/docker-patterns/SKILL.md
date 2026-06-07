@@ -1,24 +1,24 @@
 ---
 name: docker-patterns
-description: Docker and Docker Compose patterns for local development, container security, networking, volume strategies, and multi-service orchestration.
+description: ローカル開発、コンテナセキュリティ、ネットワーキング、ボリューム戦略、マルチサービスオーケストレーションのための Docker および Docker Compose パターン。
 origin: ECC
 ---
 
-# Docker Patterns
+# Docker パターン
 
-Docker and Docker Compose best practices for containerized development.
+コンテナ化された開発のための Docker および Docker Compose ベストプラクティス。
 
-## When to Activate
+## 有効にするタイミング
 
-- Setting up Docker Compose for local development
-- Designing multi-container architectures
-- Troubleshooting container networking or volume issues
-- Reviewing Dockerfiles for security and size
-- Migrating from local dev to containerized workflow
+- ローカル開発用の Docker Compose をセットアップするとき
+- マルチコンテナアーキテクチャを設計するとき
+- コンテナのネットワークやボリュームの問題をトラブルシューティングするとき
+- セキュリティとサイズの観点から Dockerfile をレビューするとき
+- ローカル開発からコンテナ化ワークフローへ移行するとき
 
-## Docker Compose for Local Development
+## ローカル開発用の Docker Compose
 
-### Standard Web App Stack
+### 標準的な Web アプリスタック
 
 ```yaml
 # docker-compose.yml
@@ -26,12 +26,12 @@ services:
   app:
     build:
       context: .
-      target: dev                     # Use dev stage of multi-stage Dockerfile
+      target: dev                     # マルチステージ Dockerfile の dev ステージを使用
     ports:
       - "3000:3000"
     volumes:
-      - .:/app                        # Bind mount for hot reload
-      - /app/node_modules             # Anonymous volume -- preserves container deps
+      - .:/app                        # ホットリロード用バインドマウント
+      - /app/node_modules             # 匿名ボリューム -- コンテナの依存関係を保持
     environment:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/app_dev
       - REDIS_URL=redis://redis:6379/0
@@ -67,7 +67,7 @@ services:
     volumes:
       - redisdata:/data
 
-  mailpit:                            # Local email testing
+  mailpit:                            # ローカルメールテスト
     image: axllent/mailpit
     ports:
       - "8025:8025"                   # Web UI
@@ -78,16 +78,16 @@ volumes:
   redisdata:
 ```
 
-### Development vs Production Dockerfile
+### 開発用と本番用の Dockerfile
 
 ```dockerfile
-# Stage: dependencies
+# ステージ: 依存関係
 FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# Stage: dev (hot reload, debug tools)
+# ステージ: dev（ホットリロード、デバッグツール）
 FROM node:22-alpine AS dev
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -95,14 +95,14 @@ COPY . .
 EXPOSE 3000
 CMD ["npm", "run", "dev"]
 
-# Stage: build
+# ステージ: ビルド
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build && npm prune --production
 
-# Stage: production (minimal image)
+# ステージ: 本番（最小イメージ）
 FROM node:22-alpine AS production
 WORKDIR /app
 RUN addgroup -g 1001 -S appgroup && adduser -S appuser -u 1001
@@ -116,19 +116,19 @@ HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost:3000/heal
 CMD ["node", "dist/server.js"]
 ```
 
-### Override Files
+### オーバーライドファイル
 
 ```yaml
-# docker-compose.override.yml (auto-loaded, dev-only settings)
+# docker-compose.override.yml（自動読み込み、開発専用設定）
 services:
   app:
     environment:
       - DEBUG=app:*
       - LOG_LEVEL=debug
     ports:
-      - "9229:9229"                   # Node.js debugger
+      - "9229:9229"                   # Node.js デバッガ
 
-# docker-compose.prod.yml (explicit for production)
+# docker-compose.prod.yml（本番用に明示的に使用）
 services:
   app:
     build:
@@ -142,25 +142,25 @@ services:
 ```
 
 ```bash
-# Development (auto-loads override)
+# 開発（オーバーライドを自動読み込み）
 docker compose up
 
-# Production
+# 本番
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
-## Networking
+## ネットワーキング
 
-### Service Discovery
+### サービスディスカバリー
 
-Services in the same Compose network resolve by service name:
+同じ Compose ネットワーク内のサービスはサービス名で解決される:
 ```
-# From "app" container:
-postgres://postgres:postgres@db:5432/app_dev    # "db" resolves to the db container
-redis://redis:6379/0                             # "redis" resolves to the redis container
+# "app" コンテナからアクセス:
+postgres://postgres:postgres@db:5432/app_dev    # "db" は db コンテナに解決される
+redis://redis:6379/0                             # "redis" は redis コンテナに解決される
 ```
 
-### Custom Networks
+### カスタムネットワーク
 
 ```yaml
 services:
@@ -175,71 +175,71 @@ services:
 
   db:
     networks:
-      - backend-net              # Only reachable from api, not frontend
+      - backend-net              # api からのみ到達可能、frontend からは不可
 
 networks:
   frontend-net:
   backend-net:
 ```
 
-### Exposing Only What's Needed
+### 必要なものだけ公開する
 
 ```yaml
 services:
   db:
     ports:
-      - "127.0.0.1:5432:5432"   # Only accessible from host, not network
-    # Omit ports entirely in production -- accessible only within Docker network
+      - "127.0.0.1:5432:5432"   # ホストからのみアクセス可能、ネットワーク経由は不可
+    # 本番ではポートを省略 -- Docker ネットワーク内のみからアクセス可能
 ```
 
-## Volume Strategies
+## ボリューム戦略
 
 ```yaml
 volumes:
-  # Named volume: persists across container restarts, managed by Docker
+  # 名前付きボリューム: コンテナ再起動後も永続化、Docker が管理
   pgdata:
 
-  # Bind mount: maps host directory into container (for development)
+  # バインドマウント: ホストディレクトリをコンテナにマップ（開発用）
   # - ./src:/app/src
 
-  # Anonymous volume: preserves container-generated content from bind mount override
+  # 匿名ボリューム: バインドマウントオーバーライドからコンテナ生成コンテンツを保持
   # - /app/node_modules
 ```
 
-### Common Patterns
+### 一般的なパターン
 
 ```yaml
 services:
   app:
     volumes:
-      - .:/app                   # Source code (bind mount for hot reload)
-      - /app/node_modules        # Protect container's node_modules from host
-      - /app/.next               # Protect build cache
+      - .:/app                   # ソースコード（ホットリロード用バインドマウント）
+      - /app/node_modules        # ホストからコンテナの node_modules を保護
+      - /app/.next               # ビルドキャッシュを保護
 
   db:
     volumes:
-      - pgdata:/var/lib/postgresql/data          # Persistent data
-      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql  # Init scripts
+      - pgdata:/var/lib/postgresql/data          # 永続データ
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql  # 初期化スクリプト
 ```
 
-## Container Security
+## コンテナセキュリティ
 
-### Dockerfile Hardening
+### Dockerfile のハードニング
 
 ```dockerfile
-# 1. Use specific tags (never :latest)
+# 1. 特定タグを使用（:latest は絶対に使わない）
 FROM node:22.12-alpine3.20
 
-# 2. Run as non-root
+# 2. 非ルートで実行
 RUN addgroup -g 1001 -S app && adduser -S app -u 1001
 USER app
 
-# 3. Drop capabilities (in compose)
-# 4. Read-only root filesystem where possible
-# 5. No secrets in image layers
+# 3. ケーパビリティを削除（compose で）
+# 4. 可能な場合は読み取り専用ルートファイルシステム
+# 5. イメージレイヤーにシークレットを含めない
 ```
 
-### Compose Security
+### Compose セキュリティ
 
 ```yaml
 services:
@@ -253,21 +253,21 @@ services:
     cap_drop:
       - ALL
     cap_add:
-      - NET_BIND_SERVICE          # Only if binding to ports < 1024
+      - NET_BIND_SERVICE          # 1024 未満のポートにバインドする場合のみ
 ```
 
-### Secret Management
+### シークレット管理
 
 ```yaml
-# GOOD: Use environment variables (injected at runtime)
+# 良い例: 環境変数を使用（実行時に注入）
 services:
   app:
     env_file:
-      - .env                     # Never commit .env to git
+      - .env                     # .env を git にコミットしない
     environment:
-      - API_KEY                  # Inherits from host environment
+      - API_KEY                  # ホスト環境から継承
 
-# GOOD: Docker secrets (Swarm mode)
+# 良い例: Docker シークレット（Swarm モード）
 secrets:
   db_password:
     file: ./secrets/db_password.txt
@@ -277,8 +277,8 @@ services:
     secrets:
       - db_password
 
-# BAD: Hardcoded in image
-# ENV API_KEY=sk-proj-xxxxx      # NEVER DO THIS
+# 悪い例: イメージにハードコード
+# ENV API_KEY=sk-proj-xxxxx      # 絶対にやってはいけない
 ```
 
 ## .dockerignore
@@ -299,66 +299,66 @@ README.md
 tests/
 ```
 
-## Debugging
+## デバッグ
 
-### Common Commands
+### よく使うコマンド
 
 ```bash
-# View logs
-docker compose logs -f app           # Follow app logs
-docker compose logs --tail=50 db     # Last 50 lines from db
+# ログを見る
+docker compose logs -f app           # app のログをフォロー
+docker compose logs --tail=50 db     # db の最新 50 行
 
-# Execute commands in running container
-docker compose exec app sh           # Shell into app
-docker compose exec db psql -U postgres  # Connect to postgres
+# 実行中のコンテナでコマンドを実行
+docker compose exec app sh           # app のシェルに入る
+docker compose exec db psql -U postgres  # postgres に接続
 
-# Inspect
-docker compose ps                     # Running services
-docker compose top                    # Processes in each container
-docker stats                          # Resource usage
+# 状態確認
+docker compose ps                     # 実行中のサービス
+docker compose top                    # 各コンテナのプロセス
+docker stats                          # リソース使用状況
 
-# Rebuild
-docker compose up --build             # Rebuild images
-docker compose build --no-cache app   # Force full rebuild
+# 再ビルド
+docker compose up --build             # イメージを再ビルド
+docker compose build --no-cache app   # 強制的にフルビルド
 
-# Clean up
-docker compose down                   # Stop and remove containers
-docker compose down -v                # Also remove volumes (DESTRUCTIVE)
-docker system prune                   # Remove unused images/containers
+# クリーンアップ
+docker compose down                   # コンテナを停止・削除
+docker compose down -v                # ボリュームも削除（破壊的操作）
+docker system prune                   # 未使用イメージ/コンテナを削除
 ```
 
-### Debugging Network Issues
+### ネットワーク問題のデバッグ
 
 ```bash
-# Check DNS resolution inside container
+# コンテナ内で DNS 解決を確認
 docker compose exec app nslookup db
 
-# Check connectivity
+# 接続性を確認
 docker compose exec app wget -qO- http://api:3000/health
 
-# Inspect network
+# ネットワークを調査
 docker network ls
 docker network inspect <project>_default
 ```
 
-## Anti-Patterns
+## アンチパターン
 
 ```
-# BAD: Using docker compose in production without orchestration
-# Use Kubernetes, ECS, or Docker Swarm for production multi-container workloads
+# 悪い例: オーケストレーションなしで本番に docker compose を使う
+# 本番のマルチコンテナワークロードには Kubernetes、ECS、Docker Swarm を使う
 
-# BAD: Storing data in containers without volumes
-# Containers are ephemeral -- all data lost on restart without volumes
+# 悪い例: ボリュームなしでコンテナにデータを保存する
+# コンテナはエフェメラル -- ボリュームなしでは再起動時にすべてのデータが失われる
 
-# BAD: Running as root
-# Always create and use a non-root user
+# 悪い例: root として実行する
+# 常に非 root ユーザーを作成して使用する
 
-# BAD: Using :latest tag
-# Pin to specific versions for reproducible builds
+# 悪い例: :latest タグを使う
+# 再現性のあるビルドのために特定バージョンにピン留めする
 
-# BAD: One giant container with all services
-# Separate concerns: one process per container
+# 悪い例: すべてのサービスを 1 つの巨大なコンテナに入れる
+# 関心事を分離する: コンテナごとに 1 プロセス
 
-# BAD: Putting secrets in docker-compose.yml
-# Use .env files (gitignored) or Docker secrets
+# 悪い例: docker-compose.yml にシークレットを書く
+# .env ファイル（gitignore 済み）または Docker シークレットを使う
 ```

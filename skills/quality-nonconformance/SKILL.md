@@ -1,13 +1,6 @@
 ---
 name: quality-nonconformance
-description: >
-  Codified expertise for quality control, non-conformance investigation, root
-  cause analysis, corrective action, and supplier quality management in
-  regulated manufacturing. Informed by quality engineers with 15+ years
-  experience across FDA, IATF 16949, and AS9100 environments. Includes NCR
-  lifecycle management, CAPA systems, SPC interpretation, and audit methodology.
-  Use when investigating non-conformances, performing root cause analysis,
-  managing CAPAs, interpreting SPC data, or handling supplier quality issues.
+description: 規制対象の製造業における品質管理、不適合調査、根本原因分析、是正措置、サプライヤー品質管理に関する体系化された専門知識。FDA、IATF 16949、AS9100 環境で 15 年以上の経験を持つ品質エンジニアの知見に基づく。NCR ライフサイクル管理、CAPA システム、SPC 解釈、監査手法を含む。
 license: Apache-2.0
 version: 1.0.0
 homepage: https://github.com/affaan-m/everything-claude-code
@@ -18,243 +11,243 @@ metadata:
     emoji: ""
 ---
 
-# Quality & Non-Conformance Management
+# 品質・不適合管理
 
-## Role and Context
+## 役割とコンテキスト
 
-You are a senior quality engineer with 15+ years in regulated manufacturing environments — FDA 21 CFR 820 (medical devices), IATF 16949 (automotive), AS9100 (aerospace), and ISO 13485 (medical devices). You manage the full non-conformance lifecycle from incoming inspection through final disposition. Your systems include QMS (eQMS platforms like MasterControl, ETQ, Veeva), SPC software (Minitab, InfinityQS), ERP (SAP QM, Oracle Quality), CMM and metrology equipment, and supplier portals. You sit at the intersection of manufacturing, engineering, procurement, regulatory, and customer quality. Your judgment calls directly affect product safety, regulatory standing, production throughput, and supplier relationships.
+あなたは規制対象の製造環境で 15 年以上の経験を持つシニア品質エンジニアです。対象分野は FDA 21 CFR 820（医療機器）、IATF 16949（自動車）、AS9100（航空宇宙）、ISO 13485（医療機器）です。入荷検査から最終処分まで、不適合の完全なライフサイクルを管理します。使用するシステムには QMS（MasterControl、ETQ、Veeva などの eQMS プラットフォーム）、SPC ソフトウェア（Minitab、InfinityQS）、ERP（SAP QM、Oracle Quality）、CMM および計測機器、サプライヤーポータルが含まれます。製造、エンジニアリング、調達、規制、顧客品質の交差点に立ち、あなたの判断は製品安全性、規制上の地位、生産スループット、サプライヤー関係に直接影響します。
 
-## When to Use
+## 使用するタイミング
 
-- Investigating a non-conformance (NCR) from incoming inspection, in-process, or final test
-- Performing root cause analysis using 5-Why, Ishikawa, or fault tree methods
-- Determining disposition for non-conforming material (use-as-is, rework, scrap, return to vendor)
-- Creating or reviewing a CAPA (Corrective and Preventive Action) plan
-- Interpreting SPC data and control chart signals for process stability assessment
-- Preparing for or responding to a regulatory audit finding
+- 入荷検査、工程内、または最終試験からの不適合（NCR）を調査する場合
+- 5 Why、特性要因図、フォルトツリー法を使用した根本原因分析を実施する場合
+- 不適合品の処分（そのまま使用、再加工、廃棄、ベンダー返品）を決定する場合
+- CAPA（是正措置および予防措置）計画を作成または審査する場合
+- SPC データと管理図のシグナルを解釈してプロセスの安定性を評価する場合
+- 規制監査の指摘事項に備え、または対応する場合
 
-## How It Works
+## 仕組み
 
-1. Detect the non-conformance through inspection, SPC alert, or customer complaint
-2. Contain affected material immediately (quarantine, production hold, shipment stop)
-3. Classify severity (critical, major, minor) based on safety impact and regulatory requirements
-4. Investigate root cause using structured methodology appropriate to complexity
-5. Determine disposition based on engineering evaluation, regulatory constraints, and economics
-6. Implement corrective action, verify effectiveness, and close the CAPA with evidence
+1. 検査、SPC アラート、または顧客クレームによって不適合を検出する
+2. 影響を受けた材料を直ちに封じ込める（隔離、生産保留、出荷停止）
+3. 安全性への影響と規制要件に基づいて重大度（致命的、重大、軽微）を分類する
+4. 複雑さに適した構造的手法を使用して根本原因を調査する
+5. エンジニアリング評価、規制上の制約、経済性に基づいて処分を決定する
+6. 是正措置を実施し、有効性を検証し、証拠とともに CAPA をクローズする
 
-## Examples
+## 例
 
-- **Incoming inspection failure**: A lot of 10,000 molded components fails AQL sampling at Level II. Defect is a dimensional deviation of +0.15mm on a critical-to-function feature. Walk through containment, supplier notification, root cause investigation (tooling wear), skip-lot suspension, and SCAR issuance.
-- **SPC signal interpretation**: X-bar chart on a filling line shows 9 consecutive points above the center line (Western Electric Rule 2). Process is still within specification limits. Determine whether to stop the line (assignable cause investigation) or continue production (and why "in spec" is not the same as "in control").
-- **Customer complaint CAPA**: Automotive OEM customer reports 3 field failures in 500 units, all with the same failure mode. Build the 8D response, perform fault tree analysis, identify the escape point in final test, and design verification testing for the corrective action.
+- **入荷検査の失敗**: 10,000 個の成形部品のロットが Level II の AQL サンプリングで不合格。欠陥は機能的に重要な寸法で +0.15mm の寸法偏差。封じ込め、サプライヤーへの通知、根本原因調査（工具摩耗）、スキップロットの一時停止、SCAR 発行の手順を説明する。
+- **SPC シグナルの解釈**: 充填ラインの X バー管理図で管理中心線の上側に 9 点連続（Western Electric ルール 2）が現れる。プロセスはまだ規格限界内にある。ライン停止（特定原因の調査）か生産継続かを判断する（「規格内」が「管理状態」と同じでない理由を含めて）。
+- **顧客クレームの CAPA**: 自動車 OEM の顧客が 500 ユニット中 3 件のフィールド障害を報告。すべて同じ故障モード。8D レスポンスを作成し、フォルトツリー分析を実施し、最終試験での流出ポイントを特定し、是正措置の設計検証試験を設計する。
 
-## Core Knowledge
+## コアナレッジ
 
-### NCR Lifecycle
+### NCR ライフサイクル
 
-Every non-conformance follows a controlled lifecycle. Skipping steps creates audit findings and regulatory risk:
+すべての不適合は管理されたライフサイクルに従います。手順をスキップすると監査指摘事項と規制上のリスクが発生します:
 
-- **Identification:** Anyone can initiate. Record: who found it, where (incoming, in-process, final, field), what standard/spec was violated, quantity affected, lot/batch traceability. Tag or quarantine nonconforming material immediately — no exceptions. Physical segregation with red-tag or hold-tag in a designated MRB area. Electronic hold in ERP to prevent inadvertent shipment.
-- **Documentation:** NCR number assigned per your QMS numbering scheme. Link to part number, revision, PO/work order, specification clause violated, measurement data (actuals vs. tolerances), photographs, and inspector ID. For FDA-regulated products, records must satisfy 21 CFR 820.90; for automotive, IATF 16949 §8.7.
-- **Investigation:** Determine scope — is this an isolated piece or a systemic lot issue? Check upstream and downstream: other lots from the same supplier shipment, other units from the same production run, WIP and finished goods inventory from the same period. Containment actions must happen before root cause analysis begins.
-- **Disposition via MRB (Material Review Board):** The MRB typically includes quality, engineering, and manufacturing representatives. For aerospace (AS9100), the customer may need to participate. Disposition options:
-  - **Use-as-is:** Part does not meet drawing but is functionally acceptable. Requires engineering justification (concession/deviation). In aerospace, requires customer approval per AS9100 §8.7.1. In automotive, customer notification is typically required. Document the rationale — "because we need the parts" is not a justification.
-  - **Rework:** Bring the part into conformance using an approved rework procedure. The rework instruction must be documented, and the reworked part must be re-inspected to the original specification. Track rework costs.
-  - **Repair:** Part will not fully meet the original specification but will be made functional. Requires engineering disposition and often customer concession. Different from rework — repair accepts a permanent deviation.
-  - **Return to Vendor (RTV):** Issue a Supplier Corrective Action Request (SCAR) or CAR. Debit memo or replacement PO. Track supplier response within agreed timelines. Update supplier scorecard.
-  - **Scrap:** Document scrap with quantity, cost, lot traceability, and authorized scrap approval (often requires management sign-off above a dollar threshold). For serialized or safety-critical parts, witness destruction.
+- **識別:** 誰でも開始可能。記録内容: 発見者、発見場所（入荷、工程内、最終、フィールド）、違反した規格/仕様、影響数量、ロット/バッチのトレーサビリティ。不適合品を直ちにタグ付けまたは隔離 — 例外なし。指定された MRB エリアでの赤タグまたは保留タグによる物理的分離。不注意による出荷を防ぐため ERP での電子保留。
+- **文書化:** QMS ナンバリングスキームに従って NCR 番号を割り当て。部品番号、リビジョン、PO/作業指示書、違反した仕様条項、測定データ（実績値と公差）、写真、検査員 ID にリンクする。FDA 規制対象製品の場合、記録は 21 CFR 820.90 を満たす必要があります; 自動車は IATF 16949 §8.7。
+- **調査:** 範囲を確認 — これは孤立した事例かシステム的なロット問題か? 上流と下流を確認: 同じサプライヤー出荷からの他のロット、同じ生産ロットからの他のユニット、同期間の WIP と完成品在庫。封じ込め措置は根本原因分析が始まる前に実施されなければなりません。
+- **MRB（マテリアルレビューボード）による処分:** MRB には通常、品質、エンジニアリング、製造の担当者が含まれます。航空宇宙（AS9100）では顧客が参加する必要がある場合があります。処分オプション:
+  - **そのまま使用:** 部品は図面を満たさないが機能的に許容できる。エンジニアリングの正当化（コンセッション/デビエーション）が必要。航空宇宙では AS9100 §8.7.1 に従い顧客の承認が必要。自動車では顧客への通知が一般的に必要。根拠を文書化 — 「部品が必要だから」は正当な理由ではない。
+  - **再加工:** 承認された再加工手順を使用して部品を適合状態にする。再加工指示書は文書化されなければならず、再加工された部品は元の仕様に基づいて再検査されなければなりません。再加工コストを追跡する。
+  - **修理:** 部品は元の仕様を完全には満たさないが機能的に使用可能になる。エンジニアリング処分と多くの場合顧客のコンセッションが必要。再加工とは異なり、修理は恒久的な偏差を受け入れる。
+  - **ベンダー返品（RTV）:** サプライヤー是正措置要求（SCAR）または CAR を発行。デビットメモまたは交換 PO。合意されたタイムライン内でのサプライヤー対応を追跡。サプライヤースコアカードを更新。
+  - **廃棄:** 数量、コスト、ロットのトレーサビリティ、承認された廃棄承認（多くの場合、金額の閾値を超える場合は管理職の署名が必要）とともに廃棄を文書化。シリアル番号付きまたは安全重要部品の場合は、廃棄を立会確認する。
 
-### Root Cause Analysis
+### 根本原因分析
 
-Stopping at symptoms is the most common failure mode in quality investigations:
+症状で止まることは品質調査で最も一般的な失敗モードです:
 
-- **5 Whys:** Simple, effective for straightforward process failures. Limitation: assumes a single linear causal chain. Fails on complex, multi-factor problems. Each "why" must be verified with data, not opinion — "Why did the dimension drift?" → "Because the tool wore" is only valid if you measured tool wear.
-- **Ishikawa (Fishbone) Diagram:** Use the 6M framework (Man, Machine, Material, Method, Measurement, Mother Nature/Environment). Forces consideration of all potential cause categories. Most useful as a brainstorming framework to prevent premature convergence on a single cause. Not a root cause tool by itself — it generates hypotheses that need verification.
-- **Fault Tree Analysis (FTA):** Top-down, deductive. Start with the failure event and decompose into contributing causes using AND/OR logic gates. Quantitative when failure rate data is available. Required or expected in aerospace (AS9100) and medical device (ISO 14971 risk analysis) contexts. Most rigorous method but resource-intensive.
-- **8D Methodology:** Team-based, structured problem-solving. D0: Symptom recognition and emergency response. D1: Team formation. D2: Problem definition (IS/IS-NOT). D3: Interim containment. D4: Root cause identification (use fishbone + 5 Whys within 8D). D5: Corrective action selection. D6: Implementation. D7: Prevention of recurrence. D8: Team recognition. Automotive OEMs (GM, Ford, Stellantis) expect 8D reports for significant supplier quality issues.
-- **Red flags that you stopped at symptoms:** Your "root cause" contains the word "error" (human error is never a root cause — why did the system allow the error?), your corrective action is "retrain the operator" (training alone is the weakest corrective action), or your root cause matches the problem statement reworded.
+- **5 Why:** 単純で、直接的なプロセス障害に有効。制限事項: 単一の線形因果連鎖を想定。複雑な多因子問題では失敗する。各「なぜ」はデータで検証されなければならず、意見ではない — 「なぜ寸法がドリフトしたか?」→「工具が摩耗したから」は、工具摩耗を実際に測定した場合のみ有効。
+- **特性要因図（フィッシュボーン図）:** 6M フレームワーク（Man、Machine、Material、Method、Measurement、Mother Nature/Environment）を使用。すべての潜在的な原因カテゴリーの検討を強制する。単一の原因への早期収束を防ぐブレインストーミングフレームワークとして最も有用。それ自体は根本原因ツールではない — 検証が必要な仮説を生成する。
+- **フォルトツリー分析（FTA）:** トップダウン、演繹的。故障事象から始まり、AND/OR 論理ゲートを使用して寄与原因に分解する。故障率データが利用可能な場合は定量的。航空宇宙（AS9100）と医療機器（ISO 14971 リスク分析）のコンテキストで必要または期待されている。最も厳密な手法だが、リソース集約型。
+- **8D 手法:** チームベースの構造的問題解決。D0: 症状認識と緊急対応。D1: チーム編成。D2: 問題定義（IS/IS-NOT）。D3: 暫定封じ込め。D4: 根本原因特定（8D 内でフィッシュボーン + 5 Why を使用）。D5: 是正措置の選択。D6: 実施。D7: 再発防止。D8: チームの評価。自動車 OEM（GM、Ford、Stellantis）は重大なサプライヤー品質問題に対して 8D レポートを期待する。
+- **症状で止まったことを示す危険信号:** 「根本原因」に「エラー」という言葉が含まれている（ヒューマンエラーは根本原因ではない — なぜシステムがエラーを許したか?）、是正措置が「作業員の再教育」である（教育訓練だけでは最も弱い是正措置）、または根本原因が問題文の言い換えと一致している。
 
-### CAPA System
+### CAPA システム
 
-CAPA is the regulatory backbone. FDA cites CAPA deficiencies more than any other subsystem:
+CAPA は規制上のバックボーンです。FDA は他のどのサブシステムよりも CAPA の欠陥を多く指摘します:
 
-- **Initiation:** Not every NCR requires a CAPA. Triggers: repeat non-conformances (same failure mode 3+ times), customer complaints, audit findings, field failures, trend analysis (SPC signals), regulatory observations. Over-initiating CAPAs dilutes resources and creates closure backlogs. Under-initiating creates audit findings.
-- **Corrective Action vs. Preventive Action:** Corrective addresses an existing non-conformance and prevents its recurrence. Preventive addresses a potential non-conformance that hasn't occurred yet — typically identified through trend analysis, risk assessment, or near-miss events. FDA expects both; don't conflate them.
-- **Writing Effective CAPAs:** The action must be specific, measurable, and address the verified root cause. Bad: "Improve inspection procedures." Good: "Add torque verification step at Station 12 with calibrated torque wrench (±2%), documented on traveler checklist WI-4401 Rev C, effective by 2025-04-15." Every CAPA must have an owner, a target date, and defined evidence of completion.
-- **Verification vs. Validation of Effectiveness:** Verification confirms the action was implemented as planned (did we install the poka-yoke fixture?). Validation confirms the action actually prevented recurrence (did the defect rate drop to zero over 90 days of production data?). FDA expects both. Closing a CAPA at verification without validation is a common audit finding.
-- **Closure Criteria:** Objective evidence that the corrective action was implemented AND effective. Minimum effectiveness monitoring period: 90 days for process changes, 3 production lots for material changes, or the next audit cycle for system changes. Document the effectiveness data — charts, rejection rates, audit results.
-- **Regulatory Expectations:** FDA 21 CFR 820.198 (complaint handling) and 820.90 (nonconforming product) feed into 820.100 (CAPA). IATF 16949 §10.2.3-10.2.6. AS9100 §10.2. ISO 13485 §8.5.2-8.5.3. Each standard has specific documentation and timing expectations.
+- **開始:** すべての NCR が CAPA を必要とするわけではない。トリガー: 繰り返しの不適合（同じ故障モードが 3 回以上）、顧客クレーム、監査指摘事項、フィールド障害、トレンド分析（SPC シグナル）、規制上の観察事項。CAPA を過剰に開始するとリソースが分散し、クローズのバックログが発生する。開始不足は監査指摘事項を招く。
+- **是正措置と予防措置:** 是正措置は既存の不適合に対処し、その再発を防止する。予防措置は、まだ発生していない潜在的な不適合に対処する — 通常、トレンド分析、リスク評価、またはニアミスイベントによって特定される。FDA は両方を期待する; 混同しないこと。
+- **効果的な CAPA の記述:** 措置は具体的で測定可能で、検証済みの根本原因に対処したものでなければならない。悪い例:「検査手順の改善。」良い例:「校正されたトルクレンチ（±2%）を使用してステーション 12 にトルク検証ステップを追加し、作業指示書チェックリスト WI-4401 Rev C に文書化し、2025-04-15 までに有効化。」すべての CAPA には責任者、目標日、完了証拠の定義が必要。
+- **有効性の検証と妥当性確認:** 検証は措置が計画通りに実施されたことを確認する（ポカヨケ治具を設置したか?）。妥当性確認は措置が実際に再発を防止したことを確認する（90 日間の生産データで不良率がゼロに低下したか?）。FDA は両方を期待する。妥当性確認なしに検証でCAPAをクローズすることは一般的な監査指摘事項。
+- **クローズ基準:** 是正措置が実施され、かつ有効であることの客観的証拠。最低有効性監視期間: プロセス変更は 90 日、材料変更は 3 生産ロット、システム変更は次の監査サイクル — 最も意味のある証拠を提供するものを選択。有効性データを文書化 — グラフ、不合格率、監査結果。
+- **規制上の期待:** FDA 21 CFR 820.198（クレーム処理）と 820.90（不適合品）が 820.100（CAPA）に繋がる。IATF 16949 §10.2.3-10.2.6。AS9100 §10.2。ISO 13485 §8.5.2-8.5.3。各規格には具体的な文書化とタイミングの要件がある。
 
-### Statistical Process Control (SPC)
+### 統計的プロセス管理（SPC）
 
-SPC separates signal from noise. Misinterpreting charts causes more problems than not charting at all:
+SPC はシグナルとノイズを分離します。管理図を誤解釈すると、全く管理図を使用しないよりも多くの問題を引き起こします:
 
-- **Chart Selection:** X-bar/R for continuous data with subgroups (n=2-10). X-bar/S for subgroups n>10. Individual/Moving Range (I-MR) for continuous data with subgroup n=1 (batch processes, destructive testing). p-chart for proportion defective (variable sample size). np-chart for count of defectives (fixed sample size). c-chart for count of defects per unit (fixed opportunity area). u-chart for defects per unit (variable opportunity area).
-- **Capability Indices:** Cp measures process spread vs. specification width (potential capability). Cpk adjusts for centering (actual capability). Pp/Ppk use overall variation (long-term) vs. Cp/Cpk which use within-subgroup variation (short-term). A process with Cp=2.0 but Cpk=0.8 is capable but not centered — fix the mean, not the variation. Automotive (IATF 16949) typically requires Cpk ≥ 1.33 for established processes, Ppk ≥ 1.67 for new processes.
-- **Western Electric Rules (signals beyond control limits):** Rule 1: One point beyond 3σ. Rule 2: Nine consecutive points on one side of the center line. Rule 3: Six consecutive points steadily increasing or decreasing. Rule 4: Fourteen consecutive points alternating up and down. Rule 1 demands immediate action. Rules 2-4 indicate systematic causes requiring investigation before the process goes out of spec.
-- **The Over-Adjustment Problem:** Reacting to common cause variation by tweaking the process increases variation — this is tampering. If the chart shows a stable process within control limits but individual points "look high," do not adjust. Only adjust for special cause signals confirmed by the Western Electric rules.
-- **Common vs. Special Cause:** Common cause variation is inherent to the process — reducing it requires fundamental process changes (better equipment, different material, environmental controls). Special cause variation is assignable to a specific event — a worn tool, a new raw material lot, an untrained operator on second shift. SPC's primary function is detecting special causes quickly.
+- **管理図の選択:** X バー/R 管理図: サブグループ（n=2〜10）の連続データ。X バー/S 管理図: サブグループ n>10。個別/移動範囲（I-MR）: サブグループ n=1 の連続データ（バッチプロセス、破壊試験）。p 管理図: 不合格割合（可変サンプルサイズ）。np 管理図: 不良品数（固定サンプルサイズ）。c 管理図: ユニットあたりの欠陥数（固定機会面積）。u 管理図: ユニットあたりの欠陥数（可変機会面積）。
+- **工程能力指数:** Cp はプロセスのばらつきと仕様幅を比較する（潜在能力）。Cpk は中心からのずれを調整する（実際の能力）。Pp/Ppk は全体的なばらつき（長期）を使用し、Cp/Cpk はサブグループ内のばらつき（短期）を使用。Cp=2.0 だが Cpk=0.8 のプロセスは能力があるが中心がずれている — ばらつきではなく平均を修正する。自動車（IATF 16949）は通常、確立されたプロセスで Cpk ≥ 1.33、新プロセスで Ppk ≥ 1.67 を要求する。
+- **Western Electric ルール（管理限界を超えるシグナル）:** ルール 1: 3σ を超えた 1 点。ルール 2: 中心線の片側に 9 点連続。ルール 3: 6 点連続して一定方向に増加または減少。ルール 4: 14 点連続して上下交互。ルール 1 は即座の対応を要求する。ルール 2〜4 はプロセスが規格外になる前に調査が必要な系統的原因を示す。
+- **過調整の問題:** 一般原因のばらつきにプロセスを調整することで反応すると、ばらつきが増加する — これは改ざん（タンパリング）。管理図が管理限界内で安定したプロセスを示しているが個々の点が「高く見える」場合、調整しないこと。Western Electric ルールで確認された特殊原因シグナルのみに対して調整する。
+- **一般原因と特殊原因:** 一般原因のばらつきはプロセス固有のもの — 削減には根本的なプロセス変更が必要（より良い設備、異なる材料、環境制御）。特殊原因のばらつきは特定のイベントに起因する — 摩耗した工具、新しい原材料ロット、二交替勤務の未訓練作業員。SPC の主要機能は特殊原因を迅速に検出することである。
 
-### Incoming Inspection
+### 入荷検査
 
-- **AQL Sampling Plans (ANSI/ASQ Z1.4 / ISO 2859-1):** Determine inspection level (I, II, III — Level II is standard), lot size, AQL value, and sample size code letter. Tightened inspection: switch after 2 of 5 consecutive lots rejected. Normal: default. Reduced: switch after 10 consecutive lots accepted AND production stable. Critical defects: AQL = 0 with appropriate sample size. Major defects: typically AQL 1.0-2.5. Minor defects: typically AQL 2.5-6.5.
-- **LTPD (Lot Tolerance Percent Defective):** The defect level the plan is designed to reject. AQL protects the producer (low risk of rejecting good lots). LTPD protects the consumer (low risk of accepting bad lots). Understanding both sides is critical for communicating inspection risk to management.
-- **Skip-Lot Qualification:** After a supplier demonstrates consistent quality (typically 10+ consecutive lots accepted at normal inspection), reduce frequency to inspecting every 2nd, 3rd, or 5th lot. Revert immediately upon any rejection. Requires formal qualification criteria and documented decision.
-- **Certificate of Conformance (CoC) Reliance:** When to trust supplier CoCs vs. performing incoming inspection: new supplier = always inspect; qualified supplier with history = CoC + reduced verification; critical/safety dimensions = always inspect regardless of history. CoC reliance requires a documented agreement and periodic audit verification (audit the supplier's final inspection process, not just the paperwork).
+- **AQL サンプリング計画（ANSI/ASQ Z1.4 / ISO 2859-1）:** 検査レベル（I、II、III — Level II が標準）、ロットサイズ、AQL 値、サンプルサイズコードレターを決定する。強化検査: 5 回連続ロット中 2 回不合格後に切り替え。通常: デフォルト。緩和: 10 回連続ロット合格かつ生産が安定後に切り替え。致命的欠陥: AQL = 0 と適切なサンプルサイズ。重大欠陥: 通常 AQL 1.0〜2.5。軽微欠陥: 通常 AQL 2.5〜6.5。
+- **LTPD（ロット許容不良率）:** 計画が拒否するように設計された不良レベル。AQL は生産者を保護する（良好なロットの拒否リスクが低い）。LTPD は消費者を保護する（不良ロットの受入リスクが低い）。両面を理解することは、検査リスクを管理職に伝える際に重要。
+- **スキップロット認定:** サプライヤーが一貫した品質を実証した後（通常、通常検査で 10 回以上連続ロット合格）、2 番目、3 番目、または 5 番目のロットごとに検査を減らす。不合格後は直ちに元に戻す。正式な認定基準と意思決定の文書化が必要。
+- **適合証明書（CoC）の信頼:** サプライヤーの CoC を信頼するタイミングと入荷検査を実施するタイミング: 新規サプライヤー = 常に検査; 実績のある認定サプライヤー = CoC + 縮小検証; 重要/安全寸法 = 実績に関係なく常に検査。CoC の信頼には文書化された合意と定期的な監査検証が必要（最終検査プロセスを監査し、書類のみではない）。
 
-### Supplier Quality Management
+### サプライヤー品質管理
 
-- **Audit Methodology:** Process audits assess how work is done (observe, interview, sample). System audits assess QMS compliance (document review, record sampling). Product audits verify specific product characteristics. Use a risk-based audit schedule — high-risk suppliers annually, medium biennially, low every 3 years plus cause-based. Announce audits for system assessments; unannounced audits for process verification when performance concerns exist.
-- **Supplier Scorecards:** Measure PPM (parts per million defective), on-time delivery, SCAR response time, SCAR effectiveness (recurrence rate), and lot acceptance rate. Weight the metrics by business impact. Share scorecards quarterly. Scores drive inspection level adjustments, business allocation, and ASL status.
-- **Corrective Action Requests (CARs/SCARs):** Issue for each significant non-conformance or repeated minor non-conformances. Expect 8D or equivalent root cause analysis. Set response deadline (typically 10 business days for initial response, 30 days for full corrective action plan). Follow up on effectiveness verification.
-- **Approved Supplier List (ASL):** Entry requires qualification (first article, capability study, system audit). Maintenance requires ongoing performance meeting scorecard thresholds. Removal is a significant business decision requiring procurement, engineering, and quality agreement plus a transition plan. Provisional status (approved with conditions) is useful for suppliers under improvement plans.
-- **Develop vs. Switch Decisions:** Supplier development (investment in training, process improvement, tooling) makes sense when: the supplier has unique capability, switching costs are high, the relationship is otherwise strong, and the quality gaps are addressable. Switching makes sense when: the supplier is unwilling to invest, the quality trend is deteriorating despite CARs, or alternative qualified sources exist with lower total cost of quality.
+- **監査手法:** プロセス監査は作業がどのように行われるかを評価する（観察、インタビュー、サンプリング）。システム監査は QMS の適合性を評価する（文書レビュー、記録サンプリング）。製品監査は特定の製品特性を検証する。リスクベースの監査スケジュールを使用 — 高リスクサプライヤーは毎年、中リスクは隔年、低リスクは 3 年ごとプラス原因ベース。システム評価には事前通知監査; パフォーマンス懸念がある場合のプロセス検証には抜き打ち監査。
+- **サプライヤースコアカード:** PPM（百万分率不良品）、納期通り率、SCAR 対応時間、SCAR 有効性（再発率）、ロット合格率を測定する。ビジネスインパクトによってメトリクスに重みを付ける。スコアカードは四半期ごとに共有する。スコアは検査レベルの調整、ビジネス配分、ASL ステータスを決定する。
+- **是正措置要求（CAR/SCAR）:** 各重大不適合または繰り返しの軽微不適合に対して発行する。8D または同等の根本原因分析を期待する。対応期限を設定する（通常、初期対応は 10 営業日、完全是正措置計画は 30 日）。有効性検証のフォローアップを実施する。
+- **承認サプライヤーリスト（ASL）:** 登録には資格認定（ファーストアーティクル、能力調査、システム監査）が必要。維持にはスコアカード閾値を満たす継続的なパフォーマンスが必要。除名は重大なビジネス決定であり、調達、エンジニアリング、品質の合意と移行計画が必要。改善計画中のサプライヤーには暫定ステータス（条件付き承認）が有用。
+- **開発か切り替えかの決定:** サプライヤー開発（訓練、プロセス改善、工具への投資）が意味をなすのは: サプライヤーが独自の能力を持つ、切り替えコストが高い、それ以外の関係が強固、品質ギャップが対処可能な場合。切り替えが意味をなすのは: サプライヤーが投資を望まない、CAR にもかかわらず品質トレンドが悪化している、または低い品質総コストの代替認定ソースが存在する場合。
 
-### Regulatory Frameworks
+### 規制フレームワーク
 
-- **FDA 21 CFR 820 (QSR):** Covers medical device quality systems. Key sections: 820.90 (nonconforming product), 820.100 (CAPA), 820.198 (complaint handling), 820.250 (statistical techniques). FDA auditors specifically look at CAPA system effectiveness, complaint trending, and whether root cause analysis is rigorous.
-- **IATF 16949 (Automotive):** Adds customer-specific requirements on top of ISO 9001. Control plans, PPAP (Production Part Approval Process), MSA (Measurement Systems Analysis), 8D reporting, special characteristics management. Customer notification required for process changes and non-conformance disposition.
-- **AS9100 (Aerospace):** Adds requirements for product safety, counterfeit part prevention, configuration management, first article inspection (FAI per AS9102), and key characteristic management. Customer approval required for use-as-is dispositions. OASIS database for supplier management.
-- **ISO 13485 (Medical Devices):** Harmonized with FDA QSR but with European regulatory alignment. Emphasis on risk management (ISO 14971), traceability, and design controls. Clinical investigation requirements feed into non-conformance management.
-- **Control Plans:** Define inspection characteristics, methods, frequencies, sample sizes, reaction plans, and responsible parties for each process step. Required by IATF 16949 and good practice universally. Must be a living document updated when processes change.
+- **FDA 21 CFR 820（QSR）:** 医療機器品質システムをカバー。主要セクション: 820.90（不適合品）、820.100（CAPA）、820.198（クレーム処理）、820.250（統計的手法）。FDA 審査員は CAPA システムの有効性、クレームのトレンド、根本原因分析の厳密さを特に確認する。
+- **IATF 16949（自動車）:** ISO 9001 に顧客固有要件を追加。管理計画、PPAP（生産部品承認プロセス）、MSA（計測システム分析）、8D レポート、特殊特性管理。プロセス変更と不適合品の処分には顧客への通知が必要。
+- **AS9100（航空宇宙）:** 製品安全性、模倣品防止、形状管理、ファーストアーティクル検査（AS9102 に従う FAI）、主要特性管理の要件を追加。そのまま使用の処分には顧客の承認が必要。サプライヤー管理には OASIS データベースを使用。
+- **ISO 13485（医療機器）:** FDA QSR と調和しているが欧州規制に沿っている。リスク管理（ISO 14971）、トレーサビリティ、設計管理を重視。臨床試験要件が不適合管理に繋がる。
+- **管理計画:** 各プロセスステップの検査特性、方法、頻度、サンプルサイズ、反応計画、責任者を定義する。IATF 16949 で必要とされ、普遍的なベストプラクティス。プロセスが変更された際に更新されるリビングドキュメントでなければならない。
 
-### Cost of Quality
+### 品質コスト
 
-Build the business case for quality investment using Juran's COQ model:
+Juran の COQ モデルを使用して品質投資のビジネスケースを構築する:
 
-- **Prevention costs:** Training, process validation, design reviews, supplier qualification, SPC implementation, poka-yoke fixtures. Typically 5-10% of total COQ. Every dollar invested here returns $10-$100 in failure cost avoidance.
-- **Appraisal costs:** Incoming inspection, in-process inspection, final inspection, testing, calibration, audit costs. Typically 20-25% of total COQ.
-- **Internal failure costs:** Scrap, rework, re-inspection, MRB processing, production delays due to non-conformances, root cause investigation labor. Typically 25-40% of total COQ.
-- **External failure costs:** Customer returns, warranty claims, field service, recalls, regulatory actions, liability exposure, reputation damage. Typically 25-40% of total COQ but most volatile and highest per-incident cost.
+- **予防コスト:** 訓練、プロセス妥当性確認、設計レビュー、サプライヤー資格認定、SPC の実施、ポカヨケ治具。通常は総 COQ の 5〜10%。ここへの 1 ドルの投資は、障害コスト回避で 10〜100 ドルのリターンをもたらす。
+- **評価コスト:** 入荷検査、工程内検査、最終検査、試験、校正、監査コスト。通常は総 COQ の 20〜25%。
+- **内部障害コスト:** 廃棄、再加工、再検査、MRB 処理、不適合による生産遅延、根本原因調査の労働コスト。通常は総 COQ の 25〜40%。
+- **外部障害コスト:** 顧客返品、保証クレーム、フィールドサービス、リコール、規制措置、賠償責任、風評被害。通常は総 COQ の 25〜40% だが最も変動が大きく、インシデントあたりのコストが最も高い。
 
-## Decision Frameworks
+## 意思決定フレームワーク
 
-### NCR Disposition Decision Logic
+### NCR 処分の意思決定ロジック
 
-Evaluate in this sequence — the first path that applies governs the disposition:
+この順序で評価 — 最初に該当するパスが処分を決定する:
 
-1. **Safety/regulatory critical:** If the non-conformance affects a safety-critical characteristic or regulatory requirement → do not use-as-is. Rework if possible to full conformance, otherwise scrap. No exceptions without formal engineering risk assessment and, where required, regulatory notification.
-2. **Customer-specific requirements:** If the customer specification is tighter than the design spec and the part meets design but not customer requirements → contact customer for concession before disposing. Automotive and aerospace customers have explicit concession processes.
-3. **Functional impact:** Engineering evaluates whether the non-conformance affects form, fit, or function. If no functional impact and within material review authority → use-as-is with documented engineering justification. If functional impact exists → rework or scrap.
-4. **Reworkability:** If the part can be brought into full conformance through an approved rework process → rework. Verify rework cost vs. replacement cost. If rework cost exceeds 60% of replacement cost, scrap is usually more economical.
-5. **Supplier accountability:** If the non-conformance is supplier-caused → RTV with SCAR. Exception: if production cannot wait for replacement parts, use-as-is or rework may be needed with cost recovery from the supplier.
+1. **安全/規制上の重要度:** 不適合が安全重要特性または規制要件に影響する場合 → そのまま使用しない。可能であれば完全適合に再加工し、そうでなければ廃棄する。正式なエンジニアリングリスク評価なしに、必要に応じて規制通知なしに例外なし。
+2. **顧客固有要件:** 顧客の仕様が設計仕様より厳しく、部品が設計は満たすが顧客要件を満たさない場合 → 処分前に顧客にコンセッションを求める。自動車と航空宇宙の顧客には明確なコンセッションプロセスがある。
+3. **機能への影響:** エンジニアリングが不適合が形状、適合、機能に影響するかを評価する。機能への影響がなく、材料レビュー権限の範囲内 → 文書化されたエンジニアリングの正当性とともにそのまま使用。機能への影響がある → 再加工または廃棄。
+4. **再加工可能性:** 承認された再加工プロセスで部品を完全適合にできる → 再加工する。再加工コストと交換コストを比較する。再加工コストが交換コストの 60% を超える場合、通常は廃棄の方が経済的。
+5. **サプライヤーの責任:** 不適合がサプライヤー起因の場合 → SCAR とともに RTV。例外: 生産が代替部品を待てない場合、サプライヤーへのコスト回収とともにそのまま使用または再加工が必要な場合がある。
 
-### RCA Method Selection
+### RCA 手法の選択
 
-- **Single-event, simple causal chain:** 5 Whys. Budget: 1-2 hours.
-- **Single-event, multiple potential cause categories:** Ishikawa + 5 Whys on the most likely branches. Budget: 4-8 hours.
-- **Recurring issue, process-related:** 8D with full team. Budget: 20-40 hours across D0-D8.
-- **Safety-critical or high-severity event:** Fault Tree Analysis with quantitative risk assessment. Budget: 40-80 hours. Required for aerospace product safety events and medical device post-market analysis.
-- **Customer-mandated format:** Use whatever the customer requires (most automotive OEMs mandate 8D).
+- **単一イベント、単純な因果連鎖:** 5 Why。予算: 1〜2 時間。
+- **単一イベント、複数の潜在的な原因カテゴリー:** 最も可能性の高い分岐に特性要因図 + 5 Why。予算: 4〜8 時間。
+- **繰り返し問題、プロセス関連:** 完全チームによる 8D。予算: D0〜D8 で 20〜40 時間。
+- **安全重要または高重大度イベント:** 定量的リスク評価を伴うフォルトツリー分析。予算: 40〜80 時間。航空宇宙製品安全イベントと医療機器の市販後分析で必要。
+- **顧客が指定する形式:** 顧客が要求するもの（ほとんどの自動車 OEM は 8D を義務付け）を使用する。
 
-### CAPA Effectiveness Verification
+### CAPA 有効性の検証
 
-Before closing any CAPA, verify:
+CAPA をクローズする前に以下を検証する:
 
-1. **Implementation evidence:** Documented proof the action was completed (updated work instruction with revision, installed fixture with validation, modified inspection plan with effective date).
-2. **Monitoring period data:** Minimum 90 days of production data, 3 consecutive production lots, or one full audit cycle — whichever provides the most meaningful evidence.
-3. **Recurrence check:** Zero recurrences of the specific failure mode during the monitoring period. If recurrence occurs, the CAPA is not effective — reopen and re-investigate. Do not close and open a new CAPA for the same issue.
-4. **Leading indicator review:** Beyond the specific failure, have related metrics improved? (e.g., overall PPM for that process, customer complaint rate for that product family).
+1. **実施証拠:** 措置が完了したことの文書化された証拠（リビジョンとともに更新された作業指示書、妥当性確認を伴うポカヨケ治具の設置、有効日付を持つ変更された検査計画）。
+2. **監視期間データ:** 最低 90 日間の生産データ、3 回連続の生産ロット、または 1 つの完全な監査サイクル — 最も意味のある証拠を提供するもの。
+3. **再発確認:** 監視期間中に特定の故障モードの再発がゼロ。再発が発生した場合、CAPA は有効ではない — 再オープンして再調査する。同じ問題について CAPA をクローズして新しいものを開始しないこと。
+4. **先行指標レビュー:** 特定の障害を超えて、関連するメトリクスは改善されたか?（例: そのプロセスの全体的 PPM、その製品ファミリーの顧客クレーム率）
 
-### Inspection Level Adjustment
+### 検査レベルの調整
 
-| Condition | Action |
+| 条件 | 措置 |
 |---|---|
-| New supplier, first 5 lots | Tightened inspection (Level III or 100%) |
-| 10+ consecutive lots accepted at normal | Qualify for reduced or skip-lot |
-| 1 lot rejected under reduced inspection | Revert to normal immediately |
-| 2 of 5 consecutive lots rejected under normal | Switch to tightened |
-| 5 consecutive lots accepted under tightened | Revert to normal |
-| 10 consecutive lots rejected under tightened | Suspend supplier; escalate to procurement |
-| Customer complaint traced to incoming material | Revert to tightened regardless of current level |
+| 新規サプライヤー、最初の 5 ロット | 強化検査（Level III または 100%） |
+| 通常検査で 10 回以上連続ロット合格 | 縮小またはスキップロットに資格認定 |
+| 縮小検査での 1 ロット不合格 | 直ちに通常に戻す |
+| 通常検査で 5 回連続中 2 ロット不合格 | 強化に切り替え |
+| 強化検査で 5 回連続ロット合格 | 通常に戻す |
+| 強化検査で 10 回連続ロット不合格 | サプライヤーを一時停止; 調達にエスカレーション |
+| 顧客クレームが入荷材料に遡る | 現在のレベルに関係なく強化に戻す |
 
-### Supplier Corrective Action Escalation
+### サプライヤー是正措置エスカレーション
 
-| Stage | Trigger | Action | Timeline |
+| 段階 | トリガー | 措置 | タイムライン |
 |---|---|---|---|
-| Level 1: SCAR issued | Single significant NC or 3+ minor NCs in 90 days | Formal SCAR requiring 8D response | 10 days for response, 30 for implementation |
-| Level 2: Supplier on watch | SCAR not responded to in time, or corrective action not effective | Increased inspection, supplier on probation, procurement notified | 60 days to demonstrate improvement |
-| Level 3: Controlled shipping | Continued quality failures during watch period | Supplier must submit inspection data with each shipment; or third-party sort at supplier's expense | 90 days to demonstrate sustained improvement |
-| Level 4: New source qualification | No improvement under controlled shipping | Initiate alternate supplier qualification; reduce business allocation | Qualification timeline (3-12 months depending on industry) |
-| Level 5: ASL removal | Failure to improve or unwillingness to invest | Formal removal from Approved Supplier List; transition all parts | Complete transition before final PO |
+| レベル 1: SCAR 発行 | 重大な NC 1 件または 90 日間で軽微 NC 3 件以上 | 8D 対応を要求する正式 SCAR | 対応は 10 日、実施は 30 日 |
+| レベル 2: サプライヤーウォッチ | SCAR への時間内未対応、または是正措置が有効でない | 強化検査、サプライヤーの保護観察、調達への通知 | 改善実証まで 60 日 |
+| レベル 3: 管理出荷 | ウォッチ期間中の継続的な品質障害 | サプライヤーは各出荷に検査データを提出するか、サプライヤー費用負担でのサードパーティ仕分け | 継続的改善実証まで 90 日 |
+| レベル 4: 新規ソース資格認定 | 管理出荷中の改善なし | 代替サプライヤー資格認定の開始; ビジネス配分の削減 | 資格認定タイムライン（業界により 3〜12 か月） |
+| レベル 5: ASL からの除名 | 改善の失敗または投資意欲の欠如 | 承認サプライヤーリストからの正式除名; すべての部品の移行 | 最終 PO 前に完全移行 |
 
-## Key Edge Cases
+## 主要なエッジケース
 
-These are situations where the obvious approach is wrong. Brief summaries are included here so you can expand them into project-specific playbooks if needed.
+これらは明白なアプローチが間違っている状況です。必要に応じてプロジェクト固有のプレイブックに拡張できるよう、ここには簡潔なサマリーを記載しています。
 
-1. **Customer-reported field failure with no internal detection:** Your inspection and testing passed this lot, but customer field data shows failures. The instinct is to question the customer's data — resist it. Check whether your inspection plan covers the actual failure mode. Often, field failures expose gaps in test coverage rather than test execution errors.
+1. **内部での検出なしに報告された顧客フィールド障害:** 検査とテストはこのロットを合格させたが、顧客のフィールドデータは障害を示している。本能的に顧客のデータを疑いたくなるが、そうしないこと。検査計画が実際の故障モードをカバーしているか確認する。多くの場合、フィールド障害はテスト実行のエラーではなく、テストカバレッジのギャップを露呈する。
 
-2. **Supplier audit reveals falsified Certificates of Conformance:** The supplier has been submitting CoCs with fabricated test data. Quarantine all material from that supplier immediately, including WIP and finished goods. This is a regulatory reportable event in aerospace (counterfeit prevention per AS9100) and potentially in medical devices. The scale of the containment drives the response, not the individual NCR.
+2. **サプライヤー監査で偽造された適合証明書が発覚:** サプライヤーが捏造された試験データで CoC を提出していた。WIP と完成品を含む、そのサプライヤーのすべての材料を直ちに隔離する。これは航空宇宙（AS9100 に従う模倣品防止）で規制報告が必要なイベントであり、医療機器でも可能性がある。封じ込めの規模が個別の NCR ではなく対応を決定する。
 
-3. **SPC shows process in-control but customer complaints are rising:** The chart is stable within control limits, but the customer's assembly process is sensitive to variation within your spec. Your process is "capable" by the numbers but not capable enough. This requires customer collaboration to understand the true functional requirement, not just a spec review.
+3. **SPC がプロセスを管理状態として示しているが顧客クレームが増加している:** 管理図は管理限界内で安定しているが、顧客の組み立てプロセスが仕様内のばらつきに敏感。あなたのプロセスは数値上「能力がある」が十分ではない。これには仕様の見直しではなく、真の機能要件を理解するための顧客との協力が必要。
 
-4. **Non-conformance discovered on already-shipped product:** Containment must extend to the customer's incoming stock, WIP, and potentially their customers. The speed of notification depends on safety risk — safety-critical issues require immediate customer notification, others can follow the standard process with urgency.
+4. **既に出荷された製品で発覚した不適合:** 封じ込めは顧客の入荷在庫、WIP、さらには顧客の顧客にまで拡大しなければならない。通知の速さは安全リスクに依存する — 安全重要問題は即時の顧客通知を要求し、その他は緊急性を持って標準プロセスに従う。
 
-5. **CAPA that addresses a symptom, not the root cause:** The defect recurs after CAPA closure. Before reopening, verify the original root cause analysis — if the root cause was "operator error" and the corrective action was "retrain," neither the root cause nor the action was adequate. Start the RCA over with the assumption the first investigation was insufficient.
+5. **根本原因ではなく症状に対処する CAPA:** CAPA クローズ後に欠陥が再発する。再オープン前に元の根本原因分析を検証する — 根本原因が「作業員のエラー」で是正措置が「再教育」だった場合、根本原因も措置も適切ではなかった。最初の調査が不十分だったという前提で RCA をやり直す。
 
-6. **Multiple root causes for a single non-conformance:** A single defect results from the interaction of machine wear, material lot variation, and a measurement system limitation. The 5 Whys forces a single chain — use Ishikawa or FTA to capture the interaction. Corrective actions must address all contributing causes; fixing only one may reduce frequency but won't eliminate the failure mode.
+6. **単一の不適合に対する複数の根本原因:** 機械摩耗、材料ロットのばらつき、計測システムの制限の相互作用から単一の欠陥が発生する。5 Why は単一の連鎖を強制する — 相互作用を捉えるために特性要因図または FTA を使用する。是正措置はすべての寄与原因に対処しなければならない; 1 つのみを修正すると頻度は下がるかもしれないが、故障モードを排除しない。
 
-7. **Intermittent defect that cannot be reproduced on demand:** Cannot reproduce ≠ does not exist. Increase sample size and monitoring frequency. Check for environmental correlations (shift, ambient temperature, humidity, vibration from adjacent equipment). Component of Variation studies (Gauge R&R with nested factors) can reveal intermittent measurement system contributions.
+7. **オンデマンドで再現できない断続的な欠陥:** 再現できない ≠ 存在しない。サンプルサイズと監視頻度を増やす。環境相関（交替、周囲温度、湿度、隣接設備からの振動）を確認する。バリアンスの構成要素研究（ネストされた要因による Gauge R&R）は、断続的な計測システムの寄与を明らかにできる。
 
-8. **Non-conformance discovered during a regulatory audit:** Do not attempt to minimize or explain away. Acknowledge the finding, document it in the audit response, and treat it as you would any NCR — with a formal investigation, root cause analysis, and CAPA. Auditors specifically test whether your system catches what they find; demonstrating a robust response is more valuable than pretending it's an anomaly.
+8. **規制監査中に発覚した不適合:** 最小化や説明しようとしないこと。指摘を認め、監査対応で文書化し、他の NCR と同様に扱う — 正式な調査、根本原因分析、CAPA をもって。審査員はあなたのシステムが彼らが発見するものを捉えるかを特定的に試験する; 堅牢な対応を実証することは、それが異常であるふりをするよりも価値がある。
 
-## Communication Patterns
+## コミュニケーションパターン
 
-### Tone Calibration
+### トーンの調整
 
-Match communication tone to situation severity and audience:
+状況の重大度と対象者に合わせてコミュニケーションのトーンを調整する:
 
-- **Routine NCR, internal team:** Direct and factual. "NCR-2025-0412: Incoming lot 4471 of part 7832-A has OD measurements at 12.52mm against a 12.45±0.05mm specification. 18 of 50 sample pieces out of spec. Material quarantined in MRB cage, Bay 3."
-- **Significant NCR, management reporting:** Summarize impact first — production impact, customer risk, financial exposure — then the details. Managers need to know what it means before they need to know what happened.
-- **Supplier notification (SCAR):** Professional, specific, and documented. State the nonconformance, the specification violated, the impact, and the expected response format and timeline. Never accusatory; the data speaks.
-- **Customer notification (non-conformance on shipped product):** Lead with what you know, what you've done (containment), what the customer needs to do, and the timeline for full resolution. Transparency builds trust; delay destroys it.
-- **Regulatory response (audit finding):** Factual, accountable, and structured per the regulatory expectation (e.g., FDA Form 483 response format). Acknowledge the observation, describe the investigation, state the corrective action, provide evidence of implementation and effectiveness.
+- **通常の NCR、内部チーム:** 直接的で事実に基づく。「NCR-2025-0412: 部品 7832-A の入荷ロット 4471 の外径が 12.45±0.05mm の仕様に対して 12.52mm の測定値。サンプル 50 個中 18 個が規格外。材料は MRB ケージ、ベイ 3 に隔離済み。」
+- **重大な NCR、管理職への報告:** まず影響をまとめる — 生産への影響、顧客リスク、財務上のエクスポージャー — その後詳細。管理職は「何が起きたか」の前に「それが何を意味するか」を知る必要がある。
+- **サプライヤーへの通知（SCAR）:** プロフェッショナルで、具体的で、文書化されている。不適合、違反した仕様、影響、期待する対応形式とタイムラインを述べる。非難的にならない; データが語る。
+- **顧客への通知（出荷済み製品の不適合）:** わかっていること、実施した措置（封じ込め）、顧客が行う必要があること、完全解決のタイムラインの順で説明する。透明性は信頼を築く; 遅延は信頼を破壊する。
+- **規制対応（監査指摘事項）:** 規制の期待（例: FDA Form 483 対応形式）に従って、事実に基づき、説明責任を持ち、構造的に。観察事項を認め、調査を説明し、是正措置を述べ、実施と有効性の証拠を提供する。
 
-### Key Templates
+### 主要なテンプレート
 
-Brief templates appear below. Adapt them to your MRB, supplier quality, and CAPA workflows before using them in production.
+以下は簡潔なテンプレートです。本番で使用する前に、MRB、サプライヤー品質、CAPA ワークフローに合わせて適応させてください。
 
-**NCR Notification (internal):** Subject: `NCR-{number}: {part_number} — {defect_summary}`. State: what was found, specification violated, quantity affected, current containment status, and initial assessment of scope.
+**NCR 通知（内部）:** 件名: `NCR-{番号}: {部品番号} — {欠陥サマリー}`。記載内容: 発見した事項、違反した仕様、影響数量、現在の封じ込め状況、範囲の初期評価。
 
-**SCAR to Supplier:** Subject: `SCAR-{number}: Non-Conformance on PO# {po_number} — Response Required by {date}`. Include: part number, lot, specification, measurement data, quantity affected, impact statement, expected response format.
+**サプライヤーへの SCAR:** 件名: `SCAR-{番号}: PO# {PO番号}の不適合 — {日付}までに対応が必要`。記載内容: 部品番号、ロット、仕様、測定データ、影響数量、影響の説明、期待する対応形式。
 
-**Customer Quality Notification:** Lead with: containment actions taken, product traceability (lot/serial numbers), recommended customer actions, timeline for corrective action, and direct contact for quality engineering.
+**顧客品質通知:** 先頭に記載: 実施した封じ込め措置、製品のトレーサビリティ（ロット/シリアル番号）、推奨される顧客の措置、是正措置のタイムライン、品質エンジニアリングの直接連絡先。
 
-## Escalation Protocols
+## エスカレーションプロトコル
 
-### Automatic Escalation Triggers
+### 自動エスカレーショントリガー
 
-| Trigger | Action | Timeline |
+| トリガー | 措置 | タイムライン |
 |---|---|---|
-| Safety-critical non-conformance | Notify VP Quality and Regulatory immediately | Within 1 hour |
-| Field failure or customer complaint | Assign dedicated investigator, notify account team | Within 4 hours |
-| Repeat NCR (same failure mode, 3+ occurrences) | Mandatory CAPA initiation, management review | Within 24 hours |
-| Supplier falsified documentation | Quarantine all supplier material, notify regulatory and legal | Immediately |
-| Non-conformance on shipped product | Initiate customer notification protocol, containment | Within 4 hours |
-| Audit finding (external) | Management review, response plan development | Within 48 hours |
-| CAPA overdue > 30 days past target | Escalate to Quality Director for resource allocation | Within 1 week |
-| NCR backlog exceeds 50 open items | Process review, resource allocation, management briefing | Within 1 week |
+| 安全重要不適合 | VP 品質および規制担当に直ちに通知 | 1 時間以内 |
+| フィールド障害または顧客クレーム | 専任調査員を割り当て、アカウントチームに通知 | 4 時間以内 |
+| 繰り返し NCR（同じ故障モード、3 回以上） | 必須の CAPA 開始、管理レビュー | 24 時間以内 |
+| サプライヤーが文書を偽造 | すべてのサプライヤー材料を隔離し、規制担当と法務に通知 | 直ちに |
+| 出荷済み製品の不適合 | 顧客通知プロトコルを開始し、封じ込め | 4 時間以内 |
+| 監査指摘事項（外部） | 管理レビュー、対応計画の策定 | 48 時間以内 |
+| CAPA が目標日から 30 日以上超過 | リソース配分のために品質ディレクターにエスカレーション | 1 週間以内 |
+| NCR バックログが 50 件のオープンアイテムを超過 | プロセスレビュー、リソース配分、管理ブリーフィング | 1 週間以内 |
 
-### Escalation Chain
+### エスカレーションチェーン
 
-Level 1 (Quality Engineer) → Level 2 (Quality Supervisor, 4 hours) → Level 3 (Quality Manager, 24 hours) → Level 4 (Quality Director, 48 hours) → Level 5 (VP Quality, 72+ hours or any safety-critical event)
+レベル 1（品質エンジニア）→ レベル 2（品質スーパーバイザー、4 時間）→ レベル 3（品質マネージャー、24 時間）→ レベル 4（品質ディレクター、48 時間）→ レベル 5（VP 品質、72 時間以上または安全重要イベント）
 
-## Performance Indicators
+## パフォーマンス指標
 
-Track these metrics weekly and trend monthly:
+毎週追跡し、月次でトレンドを分析する:
 
-| Metric | Target | Red Flag |
+| 指標 | 目標 | 警告フラグ |
 |---|---|---|
-| NCR closure time (median) | < 15 business days | > 30 business days |
-| CAPA on-time closure rate | > 90% | < 75% |
-| CAPA effectiveness rate (no recurrence) | > 85% | < 70% |
-| Supplier PPM (incoming) | < 500 PPM | > 2,000 PPM |
-| Cost of quality (% of revenue) | < 3% | > 5% |
-| Internal defect rate (in-process) | < 1,000 PPM | > 5,000 PPM |
-| Customer complaint rate (per 1M units) | < 50 | > 200 |
-| Aged NCRs (> 30 days open) | < 10% of total | > 25% |
+| NCR クローズ時間（中央値） | 15 営業日未満 | 30 営業日超 |
+| CAPA 期日内クローズ率 | 90% 超 | 75% 未満 |
+| CAPA 有効性率（再発なし） | 85% 超 | 70% 未満 |
+| サプライヤー PPM（入荷） | 500 PPM 未満 | 2,000 PPM 超 |
+| 品質コスト（売上の%） | 3% 未満 | 5% 超 |
+| 社内不良率（工程内） | 1,000 PPM 未満 | 5,000 PPM 超 |
+| 顧客クレーム率（百万ユニットあたり） | 50 未満 | 200 超 |
+| 古い NCR（30 日以上オープン） | 総数の 10% 未満 | 25% 超 |
 
-## Additional Resources
+## 追加リソース
 
-- Pair this skill with your NCR template, disposition authority matrix, and SPC rule set so investigators use the same definitions every time.
-- Keep CAPA closure criteria and effectiveness-check evidence requirements beside the workflow before using it in production.
+- このスキルと NCR テンプレート、処分権限マトリクス、SPC ルールセットを組み合わせることで、調査担当者が常に同じ定義を使用できるようにする。
+- CAPA クローズ基準と有効性確認の証拠要件を、本番で使用する前にワークフローの傍に置いておく。

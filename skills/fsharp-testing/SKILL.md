@@ -1,35 +1,35 @@
 ---
 name: fsharp-testing
-description: F# testing patterns with xUnit, FsUnit, Unquote, FsCheck property-based testing, integration tests, and test organization best practices.
+description: xUnit、FsUnit、Unquote、FsCheckプロパティベーステスト、インテグレーションテスト、テスト組織のベストプラクティスを用いたF#テストパターン。
 origin: ECC
 ---
 
-# F# Testing Patterns
+# F# テストパターン
 
-Comprehensive testing patterns for F# applications using xUnit, FsUnit, Unquote, FsCheck, and modern .NET testing practices.
+xUnit、FsUnit、Unquote、FsCheck、および最新の.NETテストプラクティスを使用したF#アプリケーションの包括的なテストパターン。
 
-## When to Activate
+## 有効化する時
 
-- Writing new tests for F# code
-- Reviewing test quality and coverage
-- Setting up test infrastructure for F# projects
-- Debugging flaky or slow tests
+- F#コードの新しいテストを書くとき
+- テスト品質とカバレッジをレビューするとき
+- F#プロジェクトのテストインフラをセットアップするとき
+- 不安定なテストや遅いテストをデバッグするとき
 
-## Test Framework Stack
+## テストフレームワークスタック
 
-| Tool | Purpose |
+| ツール | 目的 |
 |---|---|
-| **xUnit** | Test framework (standard .NET ecosystem choice) |
-| **FsUnit.xUnit** | F#-friendly assertion syntax for xUnit |
-| **Unquote** | Assertion library using F# quotations for clear failure messages |
-| **FsCheck.xUnit** | Property-based testing integrated with xUnit |
-| **NSubstitute** | Mocking .NET dependencies |
-| **Testcontainers** | Real infrastructure in integration tests |
-| **WebApplicationFactory** | ASP.NET Core integration tests |
+| **xUnit** | テストフレームワーク（標準的な.NETエコシステムの選択） |
+| **FsUnit.xUnit** | xUnit用のF#フレンドリーなアサーション構文 |
+| **Unquote** | 明確な失敗メッセージのためにF#クォーテーションを使用するアサーションライブラリ |
+| **FsCheck.xUnit** | xUnitと統合されたプロパティベーステスト |
+| **NSubstitute** | .NET依存関係のモッキング |
+| **Testcontainers** | インテグレーションテストでの実際のインフラ |
+| **WebApplicationFactory** | ASP.NET Coreインテグレーションテスト |
 
-## Unit Tests with xUnit + FsUnit
+## xUnit + FsUnit を使ったユニットテスト
 
-### Basic Test Structure
+### 基本的なテスト構造
 
 ```fsharp
 module OrderServiceTests
@@ -49,9 +49,9 @@ let ``confirm changes status to Confirmed`` () =
     confirmed.Status |> should be (ofCase <@ Confirmed @>)
 ```
 
-### Assertions with Unquote
+### Unquote を使ったアサーション
 
-Unquote uses F# quotations so failure messages show the full expression that failed, not just "expected X got Y".
+UnquoteはF#クォーテーションを使用するため、失敗メッセージは「expected X got Y」だけでなく、失敗した完全な式を表示します。
 
 ```fsharp
 module OrderValidationTests
@@ -78,7 +78,7 @@ let ``validated email rejects empty input`` () =
     test <@ Result.isError result @>
 ```
 
-### Async Tests
+### 非同期テスト
 
 ```fsharp
 [<Fact>]
@@ -102,7 +102,7 @@ let ``PlaceOrder returns error when items are empty`` () = task {
 }
 ```
 
-### Parameterized Tests with Theory
+### Theory を使ったパラメーター化テスト
 
 ```fsharp
 [<Theory>]
@@ -122,9 +122,9 @@ let ``IsValidEmail returns expected result`` (email: string, expected: bool) =
     test <@ EmailValidator.isValid email = expected @>
 ```
 
-## Property-Based Testing with FsCheck
+## FsCheck を使ったプロパティベーステスト
 
-### Using FsCheck.xUnit
+### FsCheck.xUnit を使用する
 
 ```fsharp
 open FsCheck
@@ -146,7 +146,7 @@ let ``serialization roundtrips`` (order: Order) =
     deserialized = order
 ```
 
-### Custom Generators
+### カスタムジェネレーター
 
 ```fsharp
 type OrderGenerators =
@@ -163,9 +163,9 @@ let ``valid emails pass validation`` (email: string) =
     EmailValidator.isValid email
 ```
 
-## Mocking Dependencies
+## 依存関係のモッキング
 
-### Function Stubs (Preferred)
+### 関数スタブ（推奨）
 
 ```fsharp
 let createTestDeps () =
@@ -187,7 +187,7 @@ let ``PlaceOrder saves the confirmed order`` () = task {
 }
 ```
 
-### NSubstitute for .NET Interfaces
+### .NETインターフェース用 NSubstitute
 
 ```fsharp
 open NSubstitute
@@ -205,7 +205,7 @@ let ``calls repository with correct ID`` () = task {
 }
 ```
 
-## ASP.NET Core Integration Tests
+## ASP.NET Core インテグレーションテスト
 
 ```fsharp
 type OrderApiTests (factory: WebApplicationFactory<Program>) =
@@ -226,7 +226,7 @@ type OrderApiTests (factory: WebApplicationFactory<Program>) =
     }
 ```
 
-## Test Organization
+## テスト組織
 
 ```
 tests/
@@ -244,37 +244,37 @@ tests/
       TestDeps.fs
 ```
 
-## Common Anti-Patterns
+## よくあるアンチパターン
 
-| Anti-Pattern | Fix |
+| アンチパターン | 修正 |
 |---|---|
-| Testing implementation details | Test behavior and outcomes |
-| Mutable shared test state | Fresh state per test |
-| `Thread.Sleep` in async tests | Use `Task.Delay` with timeout, or polling helpers |
-| Asserting on `sprintf` output | Assert on typed values and pattern matches |
-| Ignoring `CancellationToken` | Always pass and verify cancellation |
-| Skipping property-based tests | Use FsCheck for any function with clear invariants |
+| 実装の詳細をテストする | 動作と結果をテストする |
+| 可変の共有テスト状態 | テストごとに新鮮な状態を用意する |
+| 非同期テストでの `Thread.Sleep` | タイムアウト付きの `Task.Delay` またはポーリングヘルパーを使用する |
+| `sprintf` の出力をアサートする | 型付きの値とパターンマッチでアサートする |
+| `CancellationToken` を無視する | 常に渡してキャンセルを検証する |
+| プロパティベーステストをスキップする | 明確な不変条件を持つ関数にはFsCheckを使用する |
 
-## Related Skills
+## 関連スキル
 
-- `dotnet-patterns` - Idiomatic .NET patterns, dependency injection, and architecture
-- `csharp-testing` - C# testing patterns (shared infrastructure like WebApplicationFactory and Testcontainers applies to F# too)
+- `dotnet-patterns` - イディオマティックな.NETパターン、依存性注入、アーキテクチャ
+- `csharp-testing` - C#テストパターン（WebApplicationFactoryやTestcontainersなどの共有インフラはF#にも適用できる）
 
-## Running Tests
+## テストの実行
 
 ```bash
-# Run all tests
+# すべてのテストを実行
 dotnet test
 
-# Run with coverage
+# カバレッジ付きで実行
 dotnet test --collect:"XPlat Code Coverage"
 
-# Run specific project
+# 特定のプロジェクトを実行
 dotnet test tests/MyApp.Tests/
 
-# Filter by test name
+# テスト名でフィルタリング
 dotnet test --filter "FullyQualifiedName~OrderService"
 
-# Watch mode during development
+# 開発中のウォッチモード
 dotnet watch test --project tests/MyApp.Tests/
 ```

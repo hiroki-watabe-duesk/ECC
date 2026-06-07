@@ -1,32 +1,32 @@
 ---
-description: Manage Claude Code session history, aliases, and session metadata.
+description: Claude Codeのセッション履歴、エイリアス、セッションメタデータを管理する。
 ---
 
-# Sessions Command
+# Sessions コマンド
 
-Manage Claude Code session history - list, load, alias, and edit sessions stored in `~/.claude/session-data/` with legacy reads from `~/.claude/sessions/`.
+Claude Code のセッション履歴を管理します。`~/.claude/session-data/` に保存されたセッションの一覧表示、ロード、エイリアス設定、編集、および `~/.claude/sessions/` からのレガシー読み取りに対応します。
 
-## Usage
+## 使い方
 
 `/sessions [list|load|alias|info|help] [options]`
 
-## Actions
+## アクション
 
-### List Sessions
+### セッションの一覧表示
 
-Display all sessions with metadata, filtering, and pagination.
+メタデータ、フィルタリング、ページネーションを含むすべてのセッションを表示します。
 
-Use `/sessions info` when you need operator-surface context for a swarm: branch, worktree path, and session recency.
+スウォーム向けのオペレーターサーフェスコンテキスト（ブランチ、ワークツリーパス、セッションの新しさ）が必要な場合は `/sessions info` を使用してください。
 
 ```bash
-/sessions                              # List all sessions (default)
-/sessions list                         # Same as above
-/sessions list --limit 10              # Show 10 sessions
-/sessions list --date 2026-02-01       # Filter by date
-/sessions list --search abc            # Search by session ID
+/sessions                              # すべてのセッションを一覧表示（デフォルト）
+/sessions list                         # 上と同じ
+/sessions list --limit 10              # 10件のセッションを表示
+/sessions list --date 2026-02-01       # 日付でフィルタリング
+/sessions list --search abc            # セッションIDで検索
 ```
 
-**Script:**
+**スクリプト:**
 ```bash
 node -e "
 const _r = (()=>{var e=process.env.CLAUDE_PLUGIN_ROOT;if(e&&e.trim())return e.trim();var p=require('path'),f=require('fs'),h=require('os').homedir(),d=p.join(h,'.claude'),q=p.join('scripts','lib','utils.js');if(f.existsSync(p.join(d,q)))return d;for(var s of [['ecc'],['ecc@ecc'],['marketplaces','ecc'],['everything-claude-code'],['everything-claude-code@everything-claude-code'],['marketplaces','everything-claude-code']]){var l=p.join(d,'plugins',...s);if(f.existsSync(p.join(l,q)))return l}try{for(var g of ['ecc','everything-claude-code']){var b=p.join(d,'plugins','cache',g);for(var o of f.readdirSync(b,{withFileTypes:true})){if(!o.isDirectory())continue;for(var v of f.readdirSync(p.join(b,o.name),{withFileTypes:true})){if(!v.isDirectory())continue;var c=p.join(b,o.name,v.name);if(f.existsSync(p.join(c,q)))return c}}}}catch(x){}return d})();
@@ -57,18 +57,18 @@ for (const s of result.sessions) {
 "
 ```
 
-### Load Session
+### セッションのロード
 
-Load and display a session's content (by ID or alias).
+セッションの内容をIDまたはエイリアスで表示します。
 
 ```bash
-/sessions load <id|alias>             # Load session
-/sessions load 2026-02-01             # By date (for no-id sessions)
-/sessions load a1b2c3d4               # By short ID
-/sessions load my-alias               # By alias name
+/sessions load <id|alias>             # セッションをロード
+/sessions load 2026-02-01             # 日付でロード（IDなしセッション向け）
+/sessions load a1b2c3d4               # 短縮IDでロード
+/sessions load my-alias               # エイリアス名でロード
 ```
 
-**Script:**
+**スクリプト:**
 ```bash
 node -e "
 const _r = (()=>{var e=process.env.CLAUDE_PLUGIN_ROOT;if(e&&e.trim())return e.trim();var p=require('path'),f=require('fs'),h=require('os').homedir(),d=p.join(h,'.claude'),q=p.join('scripts','lib','utils.js');if(f.existsSync(p.join(d,q)))return d;for(var s of [['ecc'],['ecc@ecc'],['marketplaces','ecc'],['everything-claude-code'],['everything-claude-code@everything-claude-code'],['marketplaces','everything-claude-code']]){var l=p.join(d,'plugins',...s);if(f.existsSync(p.join(l,q)))return l}try{for(var g of ['ecc','everything-claude-code']){var b=p.join(d,'plugins','cache',g);for(var o of f.readdirSync(b,{withFileTypes:true})){if(!o.isDirectory())continue;for(var v of f.readdirSync(p.join(b,o.name),{withFileTypes:true})){if(!v.isDirectory())continue;var c=p.join(b,o.name,v.name);if(f.existsSync(p.join(c,q)))return c}}}}catch(x){}return d})();
@@ -76,7 +76,7 @@ const sm = require(_r + '/scripts/lib/session-manager');
 const aa = require(_r + '/scripts/lib/session-aliases');
 const id = process.argv[1];
 
-// First try to resolve as alias
+// まずエイリアスとして解決を試みる
 const resolved = aa.resolveAlias(id);
 const sessionId = resolved ? resolved.sessionPath : id;
 
@@ -133,16 +133,16 @@ if (session.metadata.worktree) {
 " "$ARGUMENTS"
 ```
 
-### Create Alias
+### エイリアスの作成
 
-Create a memorable alias for a session.
+セッションに覚えやすいエイリアスを作成します。
 
 ```bash
-/sessions alias <id> <name>           # Create alias
-/sessions alias 2026-02-01 today-work # Create alias named "today-work"
+/sessions alias <id> <name>           # エイリアスを作成
+/sessions alias 2026-02-01 today-work # "today-work" という名前のエイリアスを作成
 ```
 
-**Script:**
+**スクリプト:**
 ```bash
 node -e "
 const _r = (()=>{var e=process.env.CLAUDE_PLUGIN_ROOT;if(e&&e.trim())return e.trim();var p=require('path'),f=require('fs'),h=require('os').homedir(),d=p.join(h,'.claude'),q=p.join('scripts','lib','utils.js');if(f.existsSync(p.join(d,q)))return d;for(var s of [['ecc'],['ecc@ecc'],['marketplaces','ecc'],['everything-claude-code'],['everything-claude-code@everything-claude-code'],['marketplaces','everything-claude-code']]){var l=p.join(d,'plugins',...s);if(f.existsSync(p.join(l,q)))return l}try{for(var g of ['ecc','everything-claude-code']){var b=p.join(d,'plugins','cache',g);for(var o of f.readdirSync(b,{withFileTypes:true})){if(!o.isDirectory())continue;for(var v of f.readdirSync(p.join(b,o.name),{withFileTypes:true})){if(!v.isDirectory())continue;var c=p.join(b,o.name,v.name);if(f.existsSync(p.join(c,q)))return c}}}}catch(x){}return d})();
@@ -157,7 +157,7 @@ if (!sessionId || !aliasName) {
   process.exit(1);
 }
 
-// Get session filename
+// セッションファイル名を取得
 const session = sm.getSessionById(sessionId);
 if (!session) {
   console.log('Session not found: ' + sessionId);
@@ -174,16 +174,16 @@ if (result.success) {
 " "$ARGUMENTS"
 ```
 
-### Remove Alias
+### エイリアスの削除
 
-Delete an existing alias.
+既存のエイリアスを削除します。
 
 ```bash
-/sessions alias --remove <name>        # Remove alias
-/sessions unalias <name>               # Same as above
+/sessions alias --remove <name>        # エイリアスを削除
+/sessions unalias <name>               # 上と同じ
 ```
 
-**Script:**
+**スクリプト:**
 ```bash
 node -e "
 const _r = (()=>{var e=process.env.CLAUDE_PLUGIN_ROOT;if(e&&e.trim())return e.trim();var p=require('path'),f=require('fs'),h=require('os').homedir(),d=p.join(h,'.claude'),q=p.join('scripts','lib','utils.js');if(f.existsSync(p.join(d,q)))return d;for(var s of [['ecc'],['ecc@ecc'],['marketplaces','ecc'],['everything-claude-code'],['everything-claude-code@everything-claude-code'],['marketplaces','everything-claude-code']]){var l=p.join(d,'plugins',...s);if(f.existsSync(p.join(l,q)))return l}try{for(var g of ['ecc','everything-claude-code']){var b=p.join(d,'plugins','cache',g);for(var o of f.readdirSync(b,{withFileTypes:true})){if(!o.isDirectory())continue;for(var v of f.readdirSync(p.join(b,o.name),{withFileTypes:true})){if(!v.isDirectory())continue;var c=p.join(b,o.name,v.name);if(f.existsSync(p.join(c,q)))return c}}}}catch(x){}return d})();
@@ -205,15 +205,15 @@ if (result.success) {
 " "$ARGUMENTS"
 ```
 
-### Session Info
+### セッション情報
 
-Show detailed information about a session.
+セッションの詳細情報を表示します。
 
 ```bash
-/sessions info <id|alias>              # Show session details
+/sessions info <id|alias>              # セッションの詳細を表示
 ```
 
-**Script:**
+**スクリプト:**
 ```bash
 node -e "
 const _r = (()=>{var e=process.env.CLAUDE_PLUGIN_ROOT;if(e&&e.trim())return e.trim();var p=require('path'),f=require('fs'),h=require('os').homedir(),d=p.join(h,'.claude'),q=p.join('scripts','lib','utils.js');if(f.existsSync(p.join(d,q)))return d;for(var s of [['ecc'],['ecc@ecc'],['marketplaces','ecc'],['everything-claude-code'],['everything-claude-code@everything-claude-code'],['marketplaces','everything-claude-code']]){var l=p.join(d,'plugins',...s);if(f.existsSync(p.join(l,q)))return l}try{for(var g of ['ecc','everything-claude-code']){var b=p.join(d,'plugins','cache',g);for(var o of f.readdirSync(b,{withFileTypes:true})){if(!o.isDirectory())continue;for(var v of f.readdirSync(p.join(b,o.name),{withFileTypes:true})){if(!v.isDirectory())continue;var c=p.join(b,o.name,v.name);if(f.existsSync(p.join(c,q)))return c}}}}catch(x){}return d})();
@@ -256,15 +256,15 @@ if (aliases.length > 0) {
 " "$ARGUMENTS"
 ```
 
-### List Aliases
+### エイリアス一覧
 
-Show all session aliases.
+すべてのセッションエイリアスを表示します。
 
 ```bash
-/sessions aliases                      # List all aliases
+/sessions aliases                      # すべてのエイリアスを一覧表示
 ```
 
-**Script:**
+**スクリプト:**
 ```bash
 node -e "
 const _r = (()=>{var e=process.env.CLAUDE_PLUGIN_ROOT;if(e&&e.trim())return e.trim();var p=require('path'),f=require('fs'),h=require('os').homedir(),d=p.join(h,'.claude'),q=p.join('scripts','lib','utils.js');if(f.existsSync(p.join(d,q)))return d;for(var s of [['ecc'],['ecc@ecc'],['marketplaces','ecc'],['everything-claude-code'],['everything-claude-code@everything-claude-code'],['marketplaces','everything-claude-code']]){var l=p.join(d,'plugins',...s);if(f.existsSync(p.join(l,q)))return l}try{for(var g of ['ecc','everything-claude-code']){var b=p.join(d,'plugins','cache',g);for(var o of f.readdirSync(b,{withFileTypes:true})){if(!o.isDirectory())continue;for(var v of f.readdirSync(p.join(b,o.name),{withFileTypes:true})){if(!v.isDirectory())continue;var c=p.join(b,o.name,v.name);if(f.existsSync(p.join(c,q)))return c}}}}catch(x){}return d})();
@@ -289,51 +289,51 @@ if (aliases.length === 0) {
 "
 ```
 
-## Operator Notes
+## オペレーター向けメモ
 
-- Session files persist `Project`, `Branch`, and `Worktree` in the header so `/sessions info` can disambiguate parallel tmux/worktree runs.
-- For command-center style monitoring, combine `/sessions info`, `git diff --stat`, and the cost metrics emitted by `scripts/hooks/cost-tracker.js`.
+- セッションファイルは `Project`、`Branch`、`Worktree` をヘッダーに保持するため、`/sessions info` で並行する tmux/ワークツリー実行を識別できます。
+- コマンドセンタースタイルの監視には、`/sessions info`、`git diff --stat`、および `scripts/hooks/cost-tracker.js` が出力するコストメトリクスを組み合わせてください。
 
-## Arguments
+## 引数
 
 $ARGUMENTS:
-- `list [options]` - List sessions
-  - `--limit <n>` - Max sessions to show (default: 50)
-  - `--date <YYYY-MM-DD>` - Filter by date
-  - `--search <pattern>` - Search in session ID
-- `load <id|alias>` - Load session content
-- `alias <id> <name>` - Create alias for session
-- `alias --remove <name>` - Remove alias
-- `unalias <name>` - Same as `--remove`
-- `info <id|alias>` - Show session statistics
-- `aliases` - List all aliases
-- `help` - Show this help
+- `list [options]` - セッションを一覧表示
+  - `--limit <n>` - 表示するセッション数の上限（デフォルト: 50）
+  - `--date <YYYY-MM-DD>` - 日付でフィルタリング
+  - `--search <pattern>` - セッションIDで検索
+- `load <id|alias>` - セッション内容をロード
+- `alias <id> <name>` - セッションのエイリアスを作成
+- `alias --remove <name>` - エイリアスを削除
+- `unalias <name>` - `--remove` と同じ
+- `info <id|alias>` - セッション統計を表示
+- `aliases` - すべてのエイリアスを一覧表示
+- `help` - このヘルプを表示
 
-## Examples
+## 使用例
 
 ```bash
-# List all sessions
+# すべてのセッションを一覧表示
 /sessions list
 
-# Create an alias for today's session
+# 今日のセッションにエイリアスを作成
 /sessions alias 2026-02-01 today
 
-# Load session by alias
+# エイリアスでセッションをロード
 /sessions load today
 
-# Show session info
+# セッション情報を表示
 /sessions info today
 
-# Remove alias
+# エイリアスを削除
 /sessions alias --remove today
 
-# List all aliases
+# すべてのエイリアスを一覧表示
 /sessions aliases
 ```
 
-## Notes
+## メモ
 
-- Sessions are stored as markdown files in `~/.claude/session-data/` with legacy reads from `~/.claude/sessions/`
-- Aliases are stored in `~/.claude/session-aliases.json`
-- Session IDs can be shortened (first 4-8 characters usually unique enough)
-- Use aliases for frequently referenced sessions
+- セッションは `~/.claude/session-data/` にMarkdownファイルとして保存され、`~/.claude/sessions/` からのレガシー読み取りにも対応します
+- エイリアスは `~/.claude/session-aliases.json` に保存されます
+- セッションIDは短縮可能です（最初の4〜8文字で通常は一意）
+- 頻繁に参照するセッションにはエイリアスを使用してください

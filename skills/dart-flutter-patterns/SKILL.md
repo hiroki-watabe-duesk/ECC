@@ -1,44 +1,44 @@
 ---
 name: dart-flutter-patterns
-description: Production-ready Dart and Flutter patterns covering null safety, immutable state, async composition, widget architecture, popular state management frameworks (BLoC, Riverpod, Provider), GoRouter navigation, Dio networking, Freezed code generation, and clean architecture.
+description: Null安全、不変ステート、非同期合成、ウィジェットアーキテクチャ、主要なステート管理フレームワーク（BLoC、Riverpod、Provider）、GoRouterナビゲーション、Dioネットワーク、Freezedコード生成、クリーンアーキテクチャを網羅した本番対応のDartおよびFlutterパターン。
 origin: ECC
 ---
 
-# Dart/Flutter Patterns
+# Dart/Flutterパターン
 
-## When to Use
+## 使用するタイミング
 
-Use this skill when:
-- Starting a new Flutter feature and need idiomatic patterns for state management, navigation, or data access
-- Reviewing or writing Dart code and need guidance on null safety, sealed types, or async composition
-- Setting up a new Flutter project and choosing between BLoC, Riverpod, or Provider
-- Implementing secure HTTP clients, WebView integration, or local storage
-- Writing tests for Flutter widgets, Cubits, or Riverpod providers
-- Wiring up GoRouter with authentication guards
+このスキルを使用する状況:
+- 新しいFlutter機能を開始する際、ステート管理・ナビゲーション・データアクセスの慣用パターンが必要な場合
+- Dartコードをレビューまたは作成する際、null安全・シールド型・非同期合成についてのガイダンスが必要な場合
+- 新しいFlutterプロジェクトをセットアップする際、BLoC・Riverpod・Providerのいずれかを選択する場合
+- セキュアなHTTPクライアント、WebView統合、またはローカルストレージを実装する場合
+- Flutterウィジェット・Cubit・RiverpodプロバイダーのテストをWriteする場合
+- 認証ガード付きのGoRouterを設定する場合
 
-## How It Works
+## 動作の仕組み
 
-This skill provides copy-paste-ready Dart/Flutter code patterns organized by concern:
-1. **Null safety** — avoid `!`, prefer `?.`/`??`/pattern matching
-2. **Immutable state** — sealed classes, `freezed`, `copyWith`
-3. **Async composition** — concurrent `Future.wait`, safe `BuildContext` after `await`
-4. **Widget architecture** — extract to classes (not methods), `const` propagation, scoped rebuilds
-5. **State management** — BLoC/Cubit events, Riverpod notifiers and derived providers
-6. **Navigation** — GoRouter with reactive auth guards via `refreshListenable`
-7. **Networking** — Dio with interceptors, token refresh with one-time retry guard
-8. **Error handling** — global capture, `ErrorWidget.builder`, crashlytics wiring
-9. **Testing** — unit (BLoC test), widget (ProviderScope overrides), fakes over mocks
+このスキルは懸念別に整理されたコピー＆ペースト可能なDart/Flutterコードパターンを提供する:
+1. **Null安全** — `!` を避け、`?.`/`??`/パターンマッチングを優先
+2. **不変ステート** — シールドクラス、`freezed`、`copyWith`
+3. **非同期合成** — 並行 `Future.wait`、`await` 後の安全な `BuildContext`
+4. **ウィジェットアーキテクチャ** — メソッドではなくクラスに抽出、`const` 伝播、スコープ付き再ビルド
+5. **ステート管理** — BLoC/Cubitイベント、Riverpodノティファイアと派生プロバイダー
+6. **ナビゲーション** — `refreshListenable` を介したリアクティブな認証ガード付きGoRouter
+7. **ネットワーキング** — インターセプター付きDio、ワンタイムリトライガード付きトークンリフレッシュ
+8. **エラーハンドリング** — グローバルキャプチャ、`ErrorWidget.builder`、Crashlyticsの配線
+9. **テスト** — ユニット（BLocテスト）、ウィジェット（ProviderScopeオーバーライド）、モックよりフェイク
 
-## Examples
+## 例
 
 ```dart
-// Sealed state — prevents impossible states
+// シールドステート — 不可能な状態を防ぐ
 sealed class AsyncState<T> {}
 final class Loading<T> extends AsyncState<T> {}
 final class Success<T> extends AsyncState<T> { final T data; const Success(this.data); }
 final class Failure<T> extends AsyncState<T> { final Object error; const Failure(this.error); }
 
-// GoRouter with reactive auth redirect
+// リアクティブな認証リダイレクト付きGoRouter
 final router = GoRouter(
   refreshListenable: GoRouterRefreshStream(authCubit.stream),
   redirect: (context, state) {
@@ -49,7 +49,7 @@ final router = GoRouter(
   routes: [...],
 );
 
-// Riverpod derived provider with safe firstWhereOrNull
+// 安全なfirstWhereOrNull付きRiverpod派生プロバイダー
 @riverpod
 double cartTotal(Ref ref) {
   final cart = ref.watch(cartNotifierProvider);
@@ -63,45 +63,45 @@ double cartTotal(Ref ref) {
 
 ---
 
-Practical, production-ready patterns for Dart and Flutter applications. Library-agnostic where possible, with explicit coverage of the most common ecosystem packages.
+DartおよびFlutterアプリケーションのための実践的で本番対応のパターン。可能な限りライブラリに依存しない設計で、最も一般的なエコシステムパッケージを明示的にカバーする。
 
 ---
 
-## 1. Null Safety Fundamentals
+## 1. Null安全の基礎
 
-### Prefer Patterns Over Bang Operator
+### バン演算子よりパターンマッチングを優先
 
 ```dart
-// BAD — crashes at runtime if null
+// BAD — nullの場合実行時クラッシュ
 final name = user!.name;
 
-// GOOD — provide fallback
+// GOOD — フォールバックを提供
 final name = user?.name ?? 'Unknown';
 
-// GOOD — Dart 3 pattern matching (preferred for complex cases)
+// GOOD — Dart 3パターンマッチング（複雑なケースに推奨）
 final display = switch (user) {
   User(:final name, :final email) => '$name <$email>',
   null => 'Guest',
 };
 
-// GOOD — guard early return
+// GOOD — 早期リターンのガード
 String getUserName(User? user) {
   if (user == null) return 'Unknown';
-  return user.name; // promoted to non-null after check
+  return user.name; // チェック後non-nullに昇格
 }
 ```
 
-### Avoid `late` Overuse
+### `late` の過剰使用を避ける
 
 ```dart
-// BAD — defers null error to runtime
+// BAD — nullエラーを実行時まで先送り
 late String userId;
 
-// GOOD — nullable with explicit initialization
+// GOOD — 明示的な初期化付きのnullable
 String? userId;
 
-// OK — use late only when initialization is guaranteed before first access
-// (e.g., in initState() before any widget interaction)
+// OK — 最初のアクセス前に初期化が保証されている場合のみlateを使用
+// （例: 任意のウィジェットインタラクションの前の initState() 内）
 late final AnimationController _controller;
 
 @override
@@ -113,9 +113,9 @@ void initState() {
 
 ---
 
-## 2. Immutable State
+## 2. 不変ステート
 
-### Sealed Classes for State Hierarchies
+### ステート階層のシールドクラス
 
 ```dart
 sealed class UserState {}
@@ -134,7 +134,7 @@ final class UserError extends UserState {
   final String message;
 }
 
-// Exhaustive switch — compiler enforces all branches
+// 網羅的なswitch — コンパイラがすべての分岐を強制
 Widget buildFrom(UserState state) => switch (state) {
   UserInitial() => const SizedBox.shrink(),
   UserLoading() => const CircularProgressIndicator(),
@@ -143,7 +143,7 @@ Widget buildFrom(UserState state) => switch (state) {
 };
 ```
 
-### Freezed for Boilerplate-Free Immutability
+### ボイラープレートフリーな不変性のためのFreezed
 
 ```dart
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -163,40 +163,40 @@ class User with _$User {
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 }
 
-// Usage
+// 使用例
 final user = User(id: '1', name: 'Alice', email: 'alice@example.com');
-final updated = user.copyWith(name: 'Alice Smith'); // immutable update
+final updated = user.copyWith(name: 'Alice Smith'); // 不変更新
 final json = user.toJson();
 final fromJson = User.fromJson(json);
 ```
 
 ---
 
-## 3. Async Composition
+## 3. 非同期合成
 
-### Structured Concurrency with Future.wait
+### Future.waitを使った構造化並行処理
 
 ```dart
 Future<DashboardData> loadDashboard(UserRepository users, OrderRepository orders) async {
-  // Run concurrently — don't await sequentially
+  // 並行実行 — 順番にawaitしない
   final (userList, orderList) = await (
     users.getAll(),
     orders.getRecent(),
-  ).wait; // Dart 3 record destructuring + Future.wait extension
+  ).wait; // Dart 3レコードの分割代入 + Future.wait拡張
 
   return DashboardData(users: userList, orders: orderList);
 }
 ```
 
-### Stream Patterns
+### ストリームパターン
 
 ```dart
-// Repository exposes reactive streams for live data
+// リポジトリはライブデータのためのリアクティブストリームを公開する
 Stream<List<Item>> watchCartItems() => _db
     .watchTable('cart_items')
     .map((rows) => rows.map(Item.fromRow).toList());
 
-// In widget layer — declarative, no manual subscription
+// ウィジェットレイヤー — 宣言的、手動サブスクリプション不要
 StreamBuilder<List<Item>>(
   stream: cartRepository.watchCartItems(),
   builder: (context, snapshot) => switch (snapshot) {
@@ -209,15 +209,15 @@ StreamBuilder<List<Item>>(
 )
 ```
 
-### BuildContext After Await
+### await後のBuildContext
 
 ```dart
-// CRITICAL — always check mounted after any await in StatefulWidget
+// 重要 — StatefulWidgetでは任意のawaitの後にmountedを確認すること
 Future<void> _handleSubmit() async {
   setState(() => _isLoading = true);
   try {
     await authService.login(_email, _password);
-    if (!mounted) return; // ← guard before using context
+    if (!mounted) return; // ← contextを使用する前のガード
     context.go('/home');
   } on AuthException catch (e) {
     if (!mounted) return;
@@ -230,12 +230,12 @@ Future<void> _handleSubmit() async {
 
 ---
 
-## 4. Widget Architecture
+## 4. ウィジェットアーキテクチャ
 
-### Extract to Classes, Not Methods
+### メソッドではなくクラスに抽出
 
 ```dart
-// BAD — private method returning widget, prevents optimization
+// BAD — ウィジェットを返すプライベートメソッド、最適化を妨げる
 Widget _buildHeader() {
   return Container(
     padding: const EdgeInsets.all(16),
@@ -243,7 +243,7 @@ Widget _buildHeader() {
   );
 }
 
-// GOOD — separate widget class, enables const, element reuse
+// GOOD — 独立したウィジェットクラス、constとエレメント再利用が可能
 class _PageHeader extends StatelessWidget {
   const _PageHeader(this.title);
   final String title;
@@ -258,41 +258,41 @@ class _PageHeader extends StatelessWidget {
 }
 ```
 
-### const Propagation
+### const伝播
 
 ```dart
-// BAD — new instances every rebuild
+// BAD — 再ビルドのたびに新しいインスタンス
 child: Padding(
-  padding: EdgeInsets.all(16.0),       // not const
-  child: Icon(Icons.home, size: 24.0), // not const
+  padding: EdgeInsets.all(16.0),       // constでない
+  child: Icon(Icons.home, size: 24.0), // constでない
 )
 
-// GOOD — const stops rebuild propagation
+// GOOD — constが再ビルドの伝播を停止
 child: const Padding(
   padding: EdgeInsets.all(16.0),
   child: Icon(Icons.home, size: 24.0),
 )
 ```
 
-### Scoped Rebuilds
+### スコープ付き再ビルド
 
 ```dart
-// BAD — entire page rebuilds on every counter change
+// BAD — カウンターが変わるたびにページ全体が再ビルドされる
 class CounterPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final count = ref.watch(counterProvider); // rebuilds everything
+    final count = ref.watch(counterProvider); // すべてを再ビルド
     return Scaffold(
       body: Column(children: [
-        const ExpensiveHeader(), // unnecessarily rebuilt
+        const ExpensiveHeader(), // 不必要に再ビルドされる
         Text('$count'),
-        const ExpensiveFooter(), // unnecessarily rebuilt
+        const ExpensiveFooter(), // 不必要に再ビルドされる
       ]),
     );
   }
 }
 
-// GOOD — isolate the rebuilding part
+// GOOD — 再ビルドする部分を分離
 class CounterPage extends StatelessWidget {
   const CounterPage({super.key});
 
@@ -300,9 +300,9 @@ class CounterPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: Column(children: [
-        ExpensiveHeader(),        // never rebuilt (const)
-        _CounterDisplay(),        // only this rebuilds
-        ExpensiveFooter(),        // never rebuilt (const)
+        ExpensiveHeader(),        // 再ビルドされない（const）
+        _CounterDisplay(),        // これだけ再ビルドされる
+        ExpensiveFooter(),        // 再ビルドされない（const）
       ]),
     );
   }
@@ -321,10 +321,10 @@ class _CounterDisplay extends ConsumerWidget {
 
 ---
 
-## 5. State Management: BLoC/Cubit
+## 5. ステート管理: BLoC/Cubit
 
 ```dart
-// Cubit — synchronous or simple async state
+// Cubit — 同期または単純な非同期ステート
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit(this._authService) : super(const AuthState.initial());
   final AuthService _authService;
@@ -345,7 +345,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 }
 
-// In widget
+// ウィジェット内
 BlocBuilder<AuthCubit, AuthState>(
   builder: (context, state) => switch (state) {
     AuthInitial() => const LoginForm(),
@@ -358,17 +358,17 @@ BlocBuilder<AuthCubit, AuthState>(
 
 ---
 
-## 6. State Management: Riverpod
+## 6. ステート管理: Riverpod
 
 ```dart
-// Auto-dispose async provider
+// 自動破棄非同期プロバイダー
 @riverpod
 Future<List<Product>> products(Ref ref) async {
   final repo = ref.watch(productRepositoryProvider);
   return repo.getAll();
 }
 
-// Notifier with complex mutations
+// 複雑なミューテーションを持つノティファイアー
 @riverpod
 class CartNotifier extends _$CartNotifier {
   @override
@@ -393,7 +393,7 @@ class CartNotifier extends _$CartNotifier {
   void clear() => state = [];
 }
 
-// Derived provider (selector pattern)
+// 派生プロバイダー（セレクターパターン）
 @riverpod
 int cartCount(Ref ref) => ref.watch(cartNotifierProvider).length;
 
@@ -402,7 +402,7 @@ double cartTotal(Ref ref) {
   final cart = ref.watch(cartNotifierProvider);
   final products = ref.watch(productsProvider).valueOrNull ?? [];
   return cart.fold(0.0, (total, item) {
-    // firstWhereOrNull (from collection package) avoids StateError when product is missing
+    // firstWhereOrNull（collectionパッケージ）はproductが見つからない場合のStateErrorを防ぐ
     final product = products.firstWhereOrNull((p) => p.id == item.productId);
     return total + (product?.price ?? 0) * item.quantity;
   });
@@ -411,12 +411,12 @@ double cartTotal(Ref ref) {
 
 ---
 
-## 7. Navigation with GoRouter
+## 7. GoRouterを使ったナビゲーション
 
 ```dart
 final router = GoRouter(
   initialLocation: '/',
-  // refreshListenable re-evaluates redirect whenever auth state changes
+  // refreshListenableは認証ステートが変わるたびにリダイレクトを再評価する
   refreshListenable: GoRouterRefreshStream(authCubit.stream),
   redirect: (context, state) {
     final isLoggedIn = context.read<AuthCubit>().state is AuthAuthenticated;
@@ -444,7 +444,7 @@ final router = GoRouter(
 
 ---
 
-## 8. HTTP with Dio
+## 8. DioによるHTTP
 
 ```dart
 final dio = Dio(BaseOptions(
@@ -454,7 +454,7 @@ final dio = Dio(BaseOptions(
   headers: {'Content-Type': 'application/json'},
 ));
 
-// Add auth interceptor
+// 認証インターセプターを追加
 dio.interceptors.add(InterceptorsWrapper(
   onRequest: (options, handler) async {
     final token = await secureStorage.read(key: 'auth_token');
@@ -462,7 +462,7 @@ dio.interceptors.add(InterceptorsWrapper(
     handler.next(options);
   },
   onError: (error, handler) async {
-    // Guard against infinite retry loops: only attempt refresh once per request
+    // 無限リトライループを防ぐ: リクエストごとに1回のみリフレッシュを試みる
     final isRetry = error.requestOptions.extra['_isRetry'] == true;
     if (!isRetry && error.response?.statusCode == 401) {
       final refreshed = await attemptTokenRefresh();
@@ -475,7 +475,7 @@ dio.interceptors.add(InterceptorsWrapper(
   },
 ));
 
-// Repository using Dio
+// Dioを使うリポジトリ
 class UserApiDataSource {
   const UserApiDataSource(this._dio);
   final Dio _dio;
@@ -489,10 +489,10 @@ class UserApiDataSource {
 
 ---
 
-## 9. Error Handling Architecture
+## 9. エラーハンドリングアーキテクチャ
 
 ```dart
-// Global error capture — set up in main()
+// グローバルエラーキャプチャ — main()で設定する
 void main() {
   FlutterError.onError = (details) {
     FlutterError.presentError(details);
@@ -507,7 +507,7 @@ void main() {
   runApp(const App());
 }
 
-// Custom ErrorWidget for production
+// 本番向けカスタムErrorWidget
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -519,17 +519,17 @@ class App extends StatelessWidget {
 
 ---
 
-## 10. Testing Quick Reference
+## 10. テストクイックリファレンス
 
 ```dart
-// Unit test — use case
+// ユニットテスト — ユースケース
 test('GetUserUseCase returns null for missing user', () async {
   final repo = FakeUserRepository();
   final useCase = GetUserUseCase(repo);
   expect(await useCase('missing-id'), isNull);
 });
 
-// BLoC test
+// BLocテスト
 blocTest<AuthCubit, AuthState>(
   'emits loading then error on failed login',
   build: () => AuthCubit(FakeAuthService(throwsOn: 'login')),
@@ -537,7 +537,7 @@ blocTest<AuthCubit, AuthState>(
   expect: () => [const AuthState.loading(), isA<AuthError>()],
 );
 
-// Widget test
+// ウィジェットテスト
 testWidgets('CartBadge shows item count', (tester) async {
   await tester.pumpWidget(
     ProviderScope(
@@ -551,7 +551,7 @@ testWidgets('CartBadge shows item count', (tester) async {
 
 ---
 
-## References
+## 参考資料
 
 - [Effective Dart: Design](https://dart.dev/effective-dart/design)
 - [Flutter Performance Best Practices](https://docs.flutter.dev/perf/best-practices)
@@ -559,5 +559,5 @@ testWidgets('CartBadge shows item count', (tester) async {
 - [BLoC Library](https://bloclibrary.dev/)
 - [GoRouter](https://pub.dev/packages/go_router)
 - [Freezed](https://pub.dev/packages/freezed)
-- Skill: `flutter-dart-code-review` — comprehensive review checklist
-- Rules: `rules/dart/` — coding style, patterns, security, testing, hooks
+- スキル: `flutter-dart-code-review` — 包括的なレビューチェックリスト
+- ルール: `rules/dart/` — コーディングスタイル、パターン、セキュリティ、テスト、フック

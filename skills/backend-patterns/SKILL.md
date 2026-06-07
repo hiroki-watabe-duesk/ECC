@@ -1,26 +1,26 @@
 ---
 name: backend-patterns
-description: Backend architecture patterns, API design, database optimization, and server-side best practices for Node.js, Express, and Next.js API routes.
+description: Node.js、Express、および Next.js API ルート向けのバックエンドアーキテクチャパターン、API 設計、データベース最適化、およびサーバーサイドのベストプラクティス。
 origin: ECC
 ---
 
-# Backend Development Patterns
+# バックエンド開発パターン
 
-Backend architecture patterns and best practices for scalable server-side applications.
+スケーラブルなサーバーサイドアプリケーションのためのバックエンドアーキテクチャパターンとベストプラクティス。
 
-## When to Activate
+## アクティブにするタイミング
 
-- Designing REST or GraphQL API endpoints
-- Implementing repository, service, or controller layers
-- Optimizing database queries (N+1, indexing, connection pooling)
-- Adding caching (Redis, in-memory, HTTP cache headers)
-- Setting up background jobs or async processing
-- Structuring error handling and validation for APIs
-- Building middleware (auth, logging, rate limiting)
+- REST または GraphQL API エンドポイントの設計
+- リポジトリ、サービス、またはコントローラー層の実装
+- データベースクエリの最適化（N+1、インデックス、コネクションプーリング）
+- キャッシュの追加（Redis、インメモリ、HTTP キャッシュヘッダー）
+- バックグラウンドジョブまたは非同期処理の設定
+- API のエラーハンドリングとバリデーションの構造化
+- ミドルウェアの構築（認証、ログ、レート制限）
 
-## API Design Patterns
+## API 設計パターン
 
-### RESTful API Structure
+### RESTful API 構造
 
 ```typescript
 // PASS: Resource-based URLs
@@ -35,7 +35,7 @@ DELETE /api/markets/:id             # Delete resource
 GET /api/markets?status=active&sort=volume&limit=20&offset=0
 ```
 
-### Repository Pattern
+### リポジトリパターン
 
 ```typescript
 // Abstract data access logic
@@ -69,7 +69,7 @@ class SupabaseMarketRepository implements MarketRepository {
 }
 ```
 
-### Service Layer Pattern
+### サービス層パターン
 
 ```typescript
 // Business logic separated from data access
@@ -98,7 +98,7 @@ class MarketService {
 }
 ```
 
-### Middleware Pattern
+### ミドルウェアパターン
 
 ```typescript
 // Request/response processing pipeline
@@ -126,9 +126,9 @@ export default withAuth(async (req, res) => {
 })
 ```
 
-## Database Patterns
+## データベースパターン
 
-### Query Optimization
+### クエリ最適化
 
 ```typescript
 // PASS: GOOD: Select only needed columns
@@ -145,7 +145,7 @@ const { data } = await supabase
   .select('*')
 ```
 
-### N+1 Query Prevention
+### N+1 クエリの防止
 
 ```typescript
 // FAIL: BAD: N+1 query problem
@@ -165,7 +165,7 @@ markets.forEach(market => {
 })
 ```
 
-### Transaction Pattern
+### トランザクションパターン
 
 ```typescript
 async function createMarketWithPosition(
@@ -203,9 +203,9 @@ END;
 $$;
 ```
 
-## Caching Strategies
+## キャッシュ戦略
 
-### Redis Caching Layer
+### Redis キャッシュレイヤー
 
 ```typescript
 class CachedMarketRepository implements MarketRepository {
@@ -239,7 +239,7 @@ class CachedMarketRepository implements MarketRepository {
 }
 ```
 
-### Cache-Aside Pattern
+### キャッシュアサイドパターン
 
 ```typescript
 async function getMarketWithCache(id: string): Promise<Market> {
@@ -261,9 +261,9 @@ async function getMarketWithCache(id: string): Promise<Market> {
 }
 ```
 
-## Error Handling Patterns
+## エラーハンドリングパターン
 
-### Centralized Error Handler
+### 集中型エラーハンドラー
 
 ```typescript
 class ApiError extends Error {
@@ -313,7 +313,7 @@ export async function GET(request: Request) {
 }
 ```
 
-### Retry with Exponential Backoff
+### 指数バックオフを使ったリトライ
 
 ```typescript
 async function fetchWithRetry<T>(
@@ -343,9 +343,9 @@ async function fetchWithRetry<T>(
 const data = await fetchWithRetry(() => fetchFromAPI())
 ```
 
-## Authentication & Authorization
+## 認証と認可
 
-### JWT Token Validation
+### JWT トークン検証
 
 ```typescript
 import jwt from 'jsonwebtoken'
@@ -385,7 +385,7 @@ export async function GET(request: Request) {
 }
 ```
 
-### Role-Based Access Control
+### ロールベースアクセス制御
 
 ```typescript
 type Permission = 'read' | 'write' | 'delete' | 'admin'
@@ -428,20 +428,15 @@ export const DELETE = requirePermission('delete')(
 )
 ```
 
-## Rate Limiting
+## レート制限
 
-Rate limiting must use a shared store such as Redis, a gateway, or the
-platform's native limiter. Do not use per-process in-memory counters for
-production APIs: they reset on deploy, split across replicas, and fail open in
-serverless or multi-instance environments.
+レート制限は Redis、ゲートウェイ、またはプラットフォームのネイティブリミッターなどの共有ストアを使用する必要があります。本番 API にはプロセスごとのインメモリカウンターを使用しないでください: デプロイ時にリセットされ、レプリカ間で分割され、サーバーレスまたはマルチインスタンス環境でフェイルオープンになります。
 
-Keep the backend layer responsible for choosing the integration point and error
-shape; use `api-design` for the HTTP contract and `security-review` for abuse
-case review.
+HTTP コントラクトには `api-design`、不正利用ケースのレビューには `security-review` を使用し、統合ポイントとエラー形式の選択はバックエンド層の責任とします。
 
-## Background Jobs & Queues
+## バックグラウンドジョブとキュー
 
-### Simple Queue Pattern
+### シンプルなキューパターン
 
 ```typescript
 class JobQueue<T> {
@@ -494,9 +489,9 @@ export async function POST(request: Request) {
 }
 ```
 
-## Logging & Monitoring
+## ログとモニタリング
 
-### Structured Logging
+### 構造化ログ
 
 ```typescript
 interface LogContext {
@@ -558,4 +553,4 @@ export async function GET(request: Request) {
 }
 ```
 
-**Remember**: Backend patterns enable scalable, maintainable server-side applications. Choose patterns that fit your complexity level.
+**覚えておいてください**: バックエンドパターンはスケーラブルで保守性の高いサーバーサイドアプリケーションを可能にします。複雑さのレベルに合ったパターンを選択してください。

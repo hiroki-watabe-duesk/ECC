@@ -1,28 +1,28 @@
 ---
-description: Execute a multi-model implementation plan while preserving Claude as the only filesystem writer.
+description: Claude を唯一のファイルシステム書き込み者として保持しながら、マルチモデルの実装計画を実行します。
 ---
 
-# Execute - Multi-Model Collaborative Execution
+# 実行 - マルチモデル協調実行
 
-Multi-model collaborative execution - Get prototype from plan → Claude refactors and implements → Multi-model audit and delivery.
+マルチモデル協調実行 - 計画からプロトタイプを取得 → Claude がリファクタリングして実装 → マルチモデルによる監査と納品。
 
 $ARGUMENTS
 
 ---
 
-## Core Protocols
+## コアプロトコル
 
-- **Language Protocol**: Use **English** when interacting with tools/models, communicate with user in their language
-- **Code Sovereignty**: External models have **zero filesystem write access**, all modifications by Claude
-- **Dirty Prototype Refactoring**: Treat Codex/Gemini Unified Diff as "dirty prototype", must refactor to production-grade code
-- **Stop-Loss Mechanism**: Do not proceed to next phase until current phase output is validated
-- **Prerequisite**: Only execute after user explicitly replies "Y" to `/ccg:plan` output (if missing, must confirm first)
+- **言語プロトコル**: ツール/モデルとのやり取りには**英語**を使用し、ユーザーとはユーザーの言語でコミュニケーションする
+- **コード主権**: 外部モデルはファイルシステムへの**書き込みアクセスがゼロ**であり、全ての変更は Claude が行う
+- **ダーティプロトタイプのリファクタリング**: Codex/Gemini の Unified Diff を「ダーティプロトタイプ」として扱い、本番グレードのコードにリファクタリングする必要がある
+- **ストップロスメカニズム**: 現在のフェーズの出力が検証されるまで次のフェーズに進まない
+- **前提条件**: ユーザーが `/ccg:plan` の出力に対して明示的に「Y」と返信した後にのみ実行する（欠如している場合、最初に確認しなければならない）
 
 ---
 
-## Multi-Model Call Specification
+## マルチモデル呼び出し仕様
 
-**Call Syntax** (parallel: use `run_in_background: true`):
+**呼び出し構文**（並列: `run_in_background: true` を使用）:
 
 ```
 # Resume session call (recommended) - Implementation Prototype
@@ -56,7 +56,7 @@ EOF",
 })
 ```
 
-**Audit Call Syntax** (Code Review / Audit):
+**監査呼び出し構文**（コードレビュー / 監査）:
 
 ```
 Bash({
@@ -81,68 +81,68 @@ EOF",
 })
 ```
 
-**Model Parameter Notes**:
-- `{{GEMINI_MODEL_FLAG}}`: When using `--backend gemini`, replace with `--gemini-model gemini-3-pro-preview` (note trailing space); use empty string for codex
+**モデルパラメータに関する注意事項**:
+- `{{GEMINI_MODEL_FLAG}}`: `--backend gemini` を使用する場合、`--gemini-model gemini-3-pro-preview` に置き換える（末尾のスペースに注意）。codex の場合は空文字列を使用する
 
-**Role Prompts**:
+**ロールプロンプト**:
 
-| Phase | Codex | Gemini |
+| フェーズ | Codex | Gemini |
 |-------|-------|--------|
-| Implementation | `~/.claude/.ccg/prompts/codex/architect.md` | `~/.claude/.ccg/prompts/gemini/frontend.md` |
-| Review | `~/.claude/.ccg/prompts/codex/reviewer.md` | `~/.claude/.ccg/prompts/gemini/reviewer.md` |
+| 実装 | `~/.claude/.ccg/prompts/codex/architect.md` | `~/.claude/.ccg/prompts/gemini/frontend.md` |
+| レビュー | `~/.claude/.ccg/prompts/codex/reviewer.md` | `~/.claude/.ccg/prompts/gemini/reviewer.md` |
 
-**Session Reuse**: If `/ccg:plan` provided SESSION_ID, use `resume <SESSION_ID>` to reuse context.
+**セッション再利用**: `/ccg:plan` が SESSION_ID を提供した場合、コンテキストを再利用するために `resume <SESSION_ID>` を使用する。
 
-**Wait for Background Tasks** (max timeout 600000ms = 10 minutes):
+**バックグラウンドタスクの待機**（最大タイムアウト 600000ms = 10 分）:
 
 ```
 TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 ```
 
-**IMPORTANT**:
-- Must specify `timeout: 600000`, otherwise default 30 seconds will cause premature timeout
-- If still incomplete after 10 minutes, continue polling with `TaskOutput`, **NEVER kill the process**
-- If waiting is skipped due to timeout, **MUST call `AskUserQuestion` to ask user whether to continue waiting or kill task**
+**重要**:
+- `timeout: 600000` を指定する必要がある。そうしないとデフォルトの 30 秒で早期タイムアウトが発生する
+- 10 分後もまだ完了していない場合は、`TaskOutput` でポーリングを継続し、**プロセスを絶対に強制終了しない**
+- タイムアウトにより待機をスキップした場合、**`AskUserQuestion` を呼び出して待機を継続するかタスクを強制終了するかユーザーに確認しなければならない**
 
 ---
 
-## Execution Workflow
+## 実行ワークフロー
 
-**Execute Task**: $ARGUMENTS
+**実行タスク**: $ARGUMENTS
 
-### Phase 0: Read Plan
+### フェーズ 0: 計画の読み込み
 
-`[Mode: Prepare]`
+`[モード: 準備]`
 
-1. **Identify Input Type**:
-   - Plan file path (e.g., `.claude/plan/xxx.md`)
-   - Direct task description
+1. **入力タイプの特定**:
+   - 計画ファイルパス（例: `.claude/plan/xxx.md`）
+   - 直接のタスク説明
 
-2. **Read Plan Content**:
-   - If plan file path provided, read and parse
-   - Extract: task type, implementation steps, key files, SESSION_ID
+2. **計画内容の読み込み**:
+   - 計画ファイルパスが提供された場合、読み込んで解析する
+   - タスクタイプ、実装ステップ、キーファイル、SESSION_ID を抽出する
 
-3. **Pre-Execution Confirmation**:
-   - If input is "direct task description" or plan missing `SESSION_ID` / key files: confirm with user first
-   - If cannot confirm user replied "Y" to plan: must confirm again before proceeding
+3. **実行前の確認**:
+   - 入力が「直接のタスク説明」または計画に `SESSION_ID` / キーファイルが欠如している場合: まずユーザーに確認する
+   - ユーザーが計画に「Y」と返信したことを確認できない場合: 進める前に再確認する必要がある
 
-4. **Task Type Routing**:
+4. **タスクタイプのルーティング**:
 
-   | Task Type | Detection | Route |
+   | タスクタイプ | 検出 | ルート |
    |-----------|-----------|-------|
-   | **Frontend** | Pages, components, UI, styles, layout | Gemini |
-   | **Backend** | API, interfaces, database, logic, algorithms | Codex |
-   | **Fullstack** | Contains both frontend and backend | Codex ∥ Gemini parallel |
+   | **フロントエンド** | ページ、コンポーネント、UI、スタイル、レイアウト | Gemini |
+   | **バックエンド** | API、インターフェース、データベース、ロジック、アルゴリズム | Codex |
+   | **フルスタック** | フロントエンドとバックエンドの両方を含む | Codex ∥ Gemini 並列 |
 
 ---
 
-### Phase 1: Quick Context Retrieval
+### フェーズ 1: クイックコンテキスト取得
 
-`[Mode: Retrieval]`
+`[モード: 取得]`
 
-**If ace-tool MCP is available**, use it for quick context retrieval:
+**ace-tool MCP が利用可能な場合**、クイックコンテキスト取得に使用する:
 
-Based on "Key Files" list in plan, call `mcp__ace-tool__search_context`:
+計画の「キーファイル」リストに基づき、`mcp__ace-tool__search_context` を呼び出す:
 
 ```
 mcp__ace-tool__search_context({
@@ -151,156 +151,156 @@ mcp__ace-tool__search_context({
 })
 ```
 
-**Retrieval Strategy**:
-- Extract target paths from plan's "Key Files" table
-- Build semantic query covering: entry files, dependency modules, related type definitions
-- If results insufficient, add 1-2 recursive retrievals
+**取得戦略**:
+- 計画の「キーファイル」テーブルからターゲットパスを抽出する
+- エントリーファイル、依存モジュール、関連型定義をカバーするセマンティッククエリを構築する
+- 結果が不十分な場合、1〜2 回の再帰的取得を追加する
 
-**If ace-tool MCP is NOT available**, use Claude Code built-in tools as fallback:
-1. **Glob**: Find target files from plan's "Key Files" table (e.g., `Glob("src/components/**/*.tsx")`)
-2. **Grep**: Search for key symbols, function names, type definitions across the codebase
-3. **Read**: Read the discovered files to gather complete context
-4. **Task (Explore agent)**: For broader exploration, use `Task` with `subagent_type: "Explore"`
+**ace-tool MCP が利用できない場合**、フォールバックとして Claude Code 組み込みツールを使用する:
+1. **Glob**: 計画の「キーファイル」テーブルからターゲットファイルを見つける（例: `Glob("src/components/**/*.tsx")`）
+2. **Grep**: コードベース全体でキーシンボル、関数名、型定義を検索する
+3. **Read**: 発見されたファイルを読み込んで完全なコンテキストを収集する
+4. **Task（探索エージェント）**: より広い探索のために、`subagent_type: "Explore"` で `Task` を使用する
 
-**After Retrieval**:
-- Organize retrieved code snippets
-- Confirm complete context for implementation
-- Proceed to Phase 3
-
----
-
-### Phase 3: Prototype Acquisition
-
-`[Mode: Prototype]`
-
-**Route Based on Task Type**:
-
-#### Route A: Frontend/UI/Styles → Gemini
-
-**Limit**: Context < 32k tokens
-
-1. Call Gemini (use `~/.claude/.ccg/prompts/gemini/frontend.md`)
-2. Input: Plan content + retrieved context + target files
-3. OUTPUT: `Unified Diff Patch ONLY. Strictly prohibit any actual modifications.`
-4. **Gemini is frontend design authority, its CSS/React/Vue prototype is the final visual baseline**
-5. **WARNING**: Ignore Gemini's backend logic suggestions
-6. If plan contains `GEMINI_SESSION`: prefer `resume <GEMINI_SESSION>`
-
-#### Route B: Backend/Logic/Algorithms → Codex
-
-1. Call Codex (use `~/.claude/.ccg/prompts/codex/architect.md`)
-2. Input: Plan content + retrieved context + target files
-3. OUTPUT: `Unified Diff Patch ONLY. Strictly prohibit any actual modifications.`
-4. **Codex is backend logic authority, leverage its logical reasoning and debug capabilities**
-5. If plan contains `CODEX_SESSION`: prefer `resume <CODEX_SESSION>`
-
-#### Route C: Fullstack → Parallel Calls
-
-1. **Parallel Calls** (`run_in_background: true`):
-   - Gemini: Handle frontend part
-   - Codex: Handle backend part
-2. Wait for both models' complete results with `TaskOutput`
-3. Each uses corresponding `SESSION_ID` from plan for `resume` (create new session if missing)
-
-**Follow the `IMPORTANT` instructions in `Multi-Model Call Specification` above**
+**取得後**:
+- 取得したコードスニペットを整理する
+- 実装のための完全なコンテキストを確認する
+- フェーズ 3 に進む
 
 ---
 
-### Phase 4: Code Implementation
+### フェーズ 3: プロトタイプ取得
 
-`[Mode: Implement]`
+`[モード: プロトタイプ]`
 
-**Claude as Code Sovereign executes the following steps**:
+**タスクタイプに基づいたルーティング**:
 
-1. **Read Diff**: Parse Unified Diff Patch returned by Codex/Gemini
+#### ルート A: フロントエンド/UI/スタイル → Gemini
 
-2. **Mental Sandbox**:
-   - Simulate applying Diff to target files
-   - Check logical consistency
-   - Identify potential conflicts or side effects
+**制限**: コンテキスト < 32k トークン
 
-3. **Refactor and Clean**:
-   - Refactor "dirty prototype" to **highly readable, maintainable, enterprise-grade code**
-   - Remove redundant code
-   - Ensure compliance with project's existing code standards
-   - **Do not generate comments/docs unless necessary**, code should be self-explanatory
+1. Gemini を呼び出す（`~/.claude/.ccg/prompts/gemini/frontend.md` を使用）
+2. 入力: 計画内容 + 取得したコンテキスト + ターゲットファイル
+3. 出力: `Unified Diff Patch ONLY. Strictly prohibit any actual modifications.`
+4. **Gemini はフロントエンドデザインの権威であり、その CSS/React/Vue プロトタイプが最終的なビジュアルベースラインとなる**
+5. **警告**: Gemini のバックエンドロジックの提案は無視する
+6. 計画に `GEMINI_SESSION` が含まれている場合: `resume <GEMINI_SESSION>` を優先する
 
-4. **Minimal Scope**:
-   - Changes limited to requirement scope only
-   - **Mandatory review** for side effects
-   - Make targeted corrections
+#### ルート B: バックエンド/ロジック/アルゴリズム → Codex
 
-5. **Apply Changes**:
-   - Use Edit/Write tools to execute actual modifications
-   - **Only modify necessary code**, never affect user's other existing functionality
+1. Codex を呼び出す（`~/.claude/.ccg/prompts/codex/architect.md` を使用）
+2. 入力: 計画内容 + 取得したコンテキスト + ターゲットファイル
+3. 出力: `Unified Diff Patch ONLY. Strictly prohibit any actual modifications.`
+4. **Codex はバックエンドロジックの権威であり、その論理的推論とデバッグ能力を活用する**
+5. 計画に `CODEX_SESSION` が含まれている場合: `resume <CODEX_SESSION>` を優先する
 
-6. **Self-Verification** (strongly recommended):
-   - Run project's existing lint / typecheck / tests (prioritize minimal related scope)
-   - If failed: fix regressions first, then proceed to Phase 5
+#### ルート C: フルスタック → 並列呼び出し
+
+1. **並列呼び出し**（`run_in_background: true`）:
+   - Gemini: フロントエンド部分を処理する
+   - Codex: バックエンド部分を処理する
+2. `TaskOutput` で両モデルの完全な結果を待つ
+3. それぞれが `resume` のために計画の対応する `SESSION_ID` を使用する（欠如している場合は新しいセッションを作成する）
+
+**上記の `マルチモデル呼び出し仕様` の `重要` 指示に従うこと**
 
 ---
 
-### Phase 5: Audit and Delivery
+### フェーズ 4: コード実装
 
-`[Mode: Audit]`
+`[モード: 実装]`
 
-#### 5.1 Automatic Audit
+**コード主権者としての Claude が以下のステップを実行する**:
 
-**After changes take effect, MUST immediately parallel call** Codex and Gemini for Code Review:
+1. **Diff の読み込み**: Codex/Gemini が返した Unified Diff Patch を解析する
 
-1. **Codex Review** (`run_in_background: true`):
+2. **メンタルサンドボックス**:
+   - Diff をターゲットファイルに適用することをシミュレートする
+   - 論理的な一貫性を確認する
+   - 潜在的な競合や副作用を特定する
+
+3. **リファクタリングとクリーンアップ**:
+   - 「ダーティプロトタイプ」を**高い可読性と保守性を持つエンタープライズグレードのコード**にリファクタリングする
+   - 冗長なコードを削除する
+   - プロジェクトの既存コード標準への準拠を確認する
+   - **必要でない限りコメント/ドキュメントを生成しない**。コードは自己説明的であるべき
+
+4. **最小スコープ**:
+   - 変更は要件スコープのみに限定する
+   - 副作用の**必須レビュー**
+   - ターゲットを絞った修正を行う
+
+5. **変更の適用**:
+   - Edit/Write ツールを使用して実際の変更を実行する
+   - **必要なコードのみ変更し**、ユーザーの他の既存機能には絶対に影響を与えない
+
+6. **自己検証**（強く推奨）:
+   - プロジェクトの既存の lint / typecheck / テストを実行する（最小限の関連スコープを優先する）
+   - 失敗した場合: まずリグレッションを修正し、その後フェーズ 5 に進む
+
+---
+
+### フェーズ 5: 監査と納品
+
+`[モード: 監査]`
+
+#### 5.1 自動監査
+
+**変更が有効になった後、直ちに** Codex と Gemini に並列でコードレビューを呼び出す必要がある:
+
+1. **Codex レビュー**（`run_in_background: true`）:
    - ROLE_FILE: `~/.claude/.ccg/prompts/codex/reviewer.md`
-   - Input: Changed Diff + target files
-   - Focus: Security, performance, error handling, logic correctness
+   - 入力: 変更された Diff + ターゲットファイル
+   - 焦点: セキュリティ、パフォーマンス、エラーハンドリング、ロジックの正確性
 
-2. **Gemini Review** (`run_in_background: true`):
+2. **Gemini レビュー**（`run_in_background: true`）:
    - ROLE_FILE: `~/.claude/.ccg/prompts/gemini/reviewer.md`
-   - Input: Changed Diff + target files
-   - Focus: Accessibility, design consistency, user experience
+   - 入力: 変更された Diff + ターゲットファイル
+   - 焦点: アクセシビリティ、デザインの一貫性、ユーザー体験
 
-Wait for both models' complete review results with `TaskOutput`. Prefer reusing Phase 3 sessions (`resume <SESSION_ID>`) for context consistency.
+`TaskOutput` で両モデルの完全なレビュー結果を待つ。コンテキストの一貫性のために、フェーズ 3 のセッション（`resume <SESSION_ID>`）の再利用を優先する。
 
-#### 5.2 Integrate and Fix
+#### 5.2 統合と修正
 
-1. Synthesize Codex + Gemini review feedback
-2. Weigh by trust rules: Backend follows Codex, Frontend follows Gemini
-3. Execute necessary fixes
-4. Repeat Phase 5.1 as needed (until risk is acceptable)
+1. Codex + Gemini のレビューフィードバックを統合する
+2. 信頼ルールで重み付けする: バックエンドは Codex に従い、フロントエンドは Gemini に従う
+3. 必要な修正を実行する
+4. 必要に応じてフェーズ 5.1 を繰り返す（リスクが許容範囲になるまで）
 
-#### 5.3 Delivery Confirmation
+#### 5.3 納品確認
 
-After audit passes, report to user:
+監査が合格した後、ユーザーに報告する:
 
 ```markdown
-## Execution Complete
+## 実行完了
 
-### Change Summary
-| File | Operation | Description |
+### 変更サマリー
+| ファイル | 操作 | 説明 |
 |------|-----------|-------------|
 | path/to/file.ts | Modified | Description |
 
-### Audit Results
-- Codex: <Passed/Found N issues>
-- Gemini: <Passed/Found N issues>
+### 監査結果
+- Codex: <合格/N 件の問題を検出>
+- Gemini: <合格/N 件の問題を検出>
 
-### Recommendations
-1. [ ] <Suggested test steps>
-2. [ ] <Suggested verification steps>
+### 推奨事項
+1. [ ] <推奨テストステップ>
+2. [ ] <推奨検証ステップ>
 ```
 
 ---
 
-## Key Rules
+## キールール
 
-1. **Code Sovereignty** – All file modifications by Claude, external models have zero write access
-2. **Dirty Prototype Refactoring** – Codex/Gemini output treated as draft, must refactor
-3. **Trust Rules** – Backend follows Codex, Frontend follows Gemini
-4. **Minimal Changes** – Only modify necessary code, no side effects
-5. **Mandatory Audit** – Must perform multi-model Code Review after changes
+1. **コード主権** – 全てのファイル変更は Claude が行い、外部モデルは書き込みアクセスがゼロ
+2. **ダーティプロトタイプのリファクタリング** – Codex/Gemini の出力はドラフトとして扱い、リファクタリングが必要
+3. **信頼ルール** – バックエンドは Codex に従い、フロントエンドは Gemini に従う
+4. **最小変更** – 必要なコードのみ変更し、副作用を生まない
+5. **必須監査** – 変更後は必ずマルチモデルのコードレビューを実行する
 
 ---
 
-## Usage
+## 使用方法
 
 ```bash
 # Execute plan file
@@ -312,8 +312,8 @@ After audit passes, report to user:
 
 ---
 
-## Relationship with /ccg:plan
+## /ccg:plan との関係
 
-1. `/ccg:plan` generates plan + SESSION_ID
-2. User confirms with "Y"
-3. `/ccg:execute` reads plan, reuses SESSION_ID, executes implementation
+1. `/ccg:plan` が計画 + SESSION_ID を生成する
+2. ユーザーが「Y」で確認する
+3. `/ccg:execute` が計画を読み込み、SESSION_ID を再利用して実装を実行する

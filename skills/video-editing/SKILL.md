@@ -1,76 +1,76 @@
 ---
 name: video-editing
-description: AI-assisted video editing workflows for cutting, structuring, and augmenting real footage. Covers the full pipeline from raw capture through FFmpeg, Remotion, ElevenLabs, fal.ai, and final polish in Descript or CapCut. Use when the user wants to edit video, cut footage, create vlogs, or build video content.
+description: 実映像のカット・構成・補強を行うAI支援動画編集ワークフロー。生素材の取り込みからFFmpeg、Remotion、ElevenLabs、fal.aiを経てDescriptまたはCapCutでの最終仕上げまで、パイプライン全体をカバー。動画の編集・カット・Vlog作成・動画コンテンツ制作を行いたいときに使用。
 origin: ECC
 ---
 
-# Video Editing
+# 動画編集
 
-AI-assisted editing for real footage. Not generation from prompts. Editing existing video fast.
+実映像をAI支援で編集する。プロンプトからの生成ではない。既存動画を素早く編集するためのワークフロー。
 
-## When to Activate
+## アクティベートするタイミング
 
-- User wants to edit, cut, or structure video footage
-- Turning long recordings into short-form content
-- Building vlogs, tutorials, or demo videos from raw capture
-- Adding overlays, subtitles, music, or voiceover to existing video
-- Reframing video for different platforms (YouTube, TikTok, Instagram)
-- User says "edit video", "cut this footage", "make a vlog", or "video workflow"
+- 映像のカット・構成を行いたい
+- 長尺録画を短尺コンテンツに変換したい
+- 生素材からVlog・チュートリアル・デモ動画を作りたい
+- 既存動画にオーバーレイ・字幕・音楽・ナレーションを追加したい
+- プラットフォーム別（YouTube・TikTok・Instagram）にリフレームしたい
+- 「動画を編集して」「この映像をカットして」「Vlogを作って」「動画ワークフロー」と言われたとき
 
-## Core Thesis
+## 基本的な考え方
 
-AI video editing is useful when you stop asking it to create the whole video and start using it to compress, structure, and augment real footage. The value is not generation. The value is compression.
+AI動画編集が真価を発揮するのは、動画全体を生成させようとするのをやめ、実映像の圧縮・構成・補強に使い始めたときだ。価値は生成にあるのではない。価値は圧縮にある。
 
-## The Pipeline
+## パイプライン
 
 ```
-Screen Studio / raw footage
+Screen Studio / 生素材
   → Claude / Codex
   → FFmpeg
   → Remotion
   → ElevenLabs / fal.ai
-  → Descript or CapCut
+  → Descript または CapCut
 ```
 
-Each layer has a specific job. Do not skip layers. Do not try to make one tool do everything.
+各レイヤーには固有の役割がある。レイヤーをスキップしない。1つのツールにすべてをやらせようとしない。
 
-## Layer 1: Capture (Screen Studio / Raw Footage)
+## レイヤー1: キャプチャ（Screen Studio / 生素材）
 
-Collect the source material:
-- **Screen Studio**: polished screen recordings for app demos, coding sessions, browser workflows
-- **Raw camera footage**: vlog footage, interviews, event recordings
-- **Desktop capture via VideoDB**: session recording with real-time context (see `videodb` skill)
+ソース素材を収集する:
+- **Screen Studio**: アプリデモ・コーディングセッション・ブラウザ操作の洗練されたスクリーン録画
+- **生カメラ映像**: Vlog映像・インタビュー・イベント録画
+- **VideoDB経由のデスクトップキャプチャ**: リアルタイムコンテキスト付きのセッション録画（`videodb`スキル参照）
 
-Output: raw files ready for organization.
+出力: 整理済みの生ファイル。
 
-## Layer 2: Organization (Claude / Codex)
+## レイヤー2: 整理（Claude / Codex）
 
-Use Claude Code or Codex to:
-- **Transcribe and label**: generate transcript, identify topics and themes
-- **Plan structure**: decide what stays, what gets cut, what order works
-- **Identify dead sections**: find pauses, tangents, repeated takes
-- **Generate edit decision list**: timestamps for cuts, segments to keep
-- **Scaffold FFmpeg and Remotion code**: generate the commands and compositions
+Claude CodeまたはCodexを使って:
+- **文字起こしとラベリング**: トランスクリプト生成、トピックとテーマの特定
+- **構成のプランニング**: 残すもの・カットするもの・順序の決定
+- **無駄なセクションの特定**: 間・脱線・繰り返しテイクの発見
+- **編集決定リストの生成**: カットのタイムスタンプ・残すセグメント
+- **FFmpegとRemotionコードの雛形生成**: コマンドとコンポジションの生成
 
 ```
-Example prompt:
-"Here's the transcript of a 4-hour recording. Identify the 8 strongest segments
-for a 24-minute vlog. Give me FFmpeg cut commands for each segment."
+プロンプト例:
+「4時間録画のトランスクリプトです。24分のVlog用に最も良い8セグメントを特定し、
+各セグメントのFFmpegカットコマンドを教えてください。」
 ```
 
-This layer is about structure, not final creative taste.
+このレイヤーは構成に関するもので、最終的なクリエイティブの判断ではない。
 
-## Layer 3: Deterministic Cuts (FFmpeg)
+## レイヤー3: 確定的なカット（FFmpeg）
 
-FFmpeg handles the boring but critical work: splitting, trimming, concatenating, and preprocessing.
+FFmpegは退屈だが重要な作業を担う: 分割・トリミング・結合・前処理。
 
-### Extract segment by timestamp
+### タイムスタンプによるセグメント抽出
 
 ```bash
 ffmpeg -i raw.mp4 -ss 00:12:30 -to 00:15:45 -c copy segment_01.mp4
 ```
 
-### Batch cut from edit decision list
+### 編集決定リストからの一括カット
 
 ```bash
 #!/bin/bash
@@ -80,45 +80,45 @@ while IFS=, read -r start end label; do
 done < cuts.txt
 ```
 
-### Concatenate segments
+### セグメントの結合
 
 ```bash
-# Create file list
+# ファイルリストの作成
 for f in segments/*.mp4; do echo "file '$f'"; done > concat.txt
 ffmpeg -f concat -safe 0 -i concat.txt -c copy assembled.mp4
 ```
 
-### Create proxy for faster editing
+### 編集高速化用プロキシの作成
 
 ```bash
 ffmpeg -i raw.mp4 -vf "scale=960:-2" -c:v libx264 -preset ultrafast -crf 28 proxy.mp4
 ```
 
-### Extract audio for transcription
+### 文字起こし用音声の抽出
 
 ```bash
 ffmpeg -i raw.mp4 -vn -acodec pcm_s16le -ar 16000 audio.wav
 ```
 
-### Normalize audio levels
+### 音声レベルの正規化
 
 ```bash
 ffmpeg -i segment.mp4 -af loudnorm=I=-16:TP=-1.5:LRA=11 -c:v copy normalized.mp4
 ```
 
-## Layer 4: Programmable Composition (Remotion)
+## レイヤー4: プログラマブルなコンポジション（Remotion）
 
-Remotion turns editing problems into composable code. Use it for things that traditional editors make painful:
+Remotionは編集問題をコンポーザブルなコードに変換する。従来のエディタでは困難な作業に使う:
 
-### When to use Remotion
+### Remotionを使うタイミング
 
-- Overlays: text, images, branding, lower thirds
-- Data visualizations: charts, stats, animated numbers
-- Motion graphics: transitions, explainer animations
-- Composable scenes: reusable templates across videos
-- Product demos: annotated screenshots, UI highlights
+- オーバーレイ: テキスト・画像・ブランディング・ロワーサード
+- データビジュアライゼーション: チャート・統計・アニメーション数値
+- モーショングラフィクス: トランジション・説明アニメーション
+- コンポーザブルなシーン: 動画間で再利用できるテンプレート
+- プロデモ: アノテーション付きスクリーンショット・UIハイライト
 
-### Basic Remotion composition
+### 基本的なRemotionコンポジション
 
 ```tsx
 import { AbsoluteFill, Sequence, Video, useCurrentFrame } from "remotion";
@@ -128,12 +128,12 @@ export const VlogComposition: React.FC = () => {
 
   return (
     <AbsoluteFill>
-      {/* Main footage */}
+      {/* メイン映像 */}
       <Sequence from={0} durationInFrames={300}>
         <Video src="/segments/intro.mp4" />
       </Sequence>
 
-      {/* Title overlay */}
+      {/* タイトルオーバーレイ */}
       <Sequence from={30} durationInFrames={90}>
         <AbsoluteFill style={{
           justifyContent: "center",
@@ -149,7 +149,7 @@ export const VlogComposition: React.FC = () => {
         </AbsoluteFill>
       </Sequence>
 
-      {/* Next segment */}
+      {/* 次のセグメント */}
       <Sequence from={300} durationInFrames={450}>
         <Video src="/segments/demo.mp4" />
       </Sequence>
@@ -158,19 +158,19 @@ export const VlogComposition: React.FC = () => {
 };
 ```
 
-### Render output
+### 出力のレンダリング
 
 ```bash
 npx remotion render src/index.ts VlogComposition output.mp4
 ```
 
-See the [Remotion docs](https://www.remotion.dev/docs) for detailed patterns and API reference.
+詳細なパターンとAPIリファレンスは[Remotionのドキュメント](https://www.remotion.dev/docs)を参照。
 
-## Layer 5: Generated Assets (ElevenLabs / fal.ai)
+## レイヤー5: 生成アセット（ElevenLabs / fal.ai）
 
-Generate only what you need. Do not generate the whole video.
+必要なものだけを生成する。動画全体を生成しない。
 
-### Voiceover with ElevenLabs
+### ElevenLabsでのナレーション
 
 ```python
 import os
@@ -192,16 +192,16 @@ with open("voiceover.mp3", "wb") as f:
     f.write(resp.content)
 ```
 
-### Music and SFX with fal.ai
+### fal.aiを使った音楽とSFX
 
-Use the `fal-ai-media` skill for:
-- Background music generation
-- Sound effects (ThinkSound model for video-to-audio)
-- Transition sounds
+`fal-ai-media`スキルを使う用途:
+- バックグラウンドミュージックの生成
+- 効果音（動画対応のThinkSoundモデル）
+- トランジションサウンド
 
-### Generated visuals with fal.ai
+### fal.aiを使ったビジュアル生成
 
-Use for insert shots, thumbnails, or b-roll that doesn't exist:
+存在しない挿入カット・サムネイル・Bロール用:
 ```
 generate(app_id: "fal-ai/nano-banana-pro", input_data: {
   "prompt": "professional thumbnail for tech vlog, dark background, code on screen",
@@ -209,102 +209,102 @@ generate(app_id: "fal-ai/nano-banana-pro", input_data: {
 })
 ```
 
-### VideoDB generative audio
+### VideoDBでの生成音声
 
-If VideoDB is configured:
+VideoDBが設定済みの場合:
 ```python
 voiceover = coll.generate_voice(text="Narration here", voice="alloy")
 music = coll.generate_music(prompt="lo-fi background for coding vlog", duration=120)
 sfx = coll.generate_sound_effect(prompt="subtle whoosh transition")
 ```
 
-## Layer 6: Final Polish (Descript / CapCut)
+## レイヤー6: 最終仕上げ（Descript / CapCut）
 
-The last layer is human. Use a traditional editor for:
-- **Pacing**: adjust cuts that feel too fast or slow
-- **Captions**: auto-generated, then manually cleaned
-- **Color grading**: basic correction and mood
-- **Final audio mix**: balance voice, music, and SFX levels
-- **Export**: platform-specific formats and quality settings
+最後のレイヤーは人間の作業。従来のエディタを使う場面:
+- **ペーシング**: 速すぎる・遅すぎるカットの調整
+- **字幕**: 自動生成後に手動でクリーニング
+- **カラーグレーディング**: 基本的な補正とムード
+- **最終的な音声ミックス**: ボイス・音楽・SFXのバランス調整
+- **エクスポート**: プラットフォーム別のフォーマットと画質設定
 
-This is where taste lives. AI clears the repetitive work. You make the final calls.
+ここにセンスが宿る。AIが繰り返し作業を排除し、最終判断はあなたが下す。
 
-## Social Media Reframing
+## SNS向けリフレーム
 
-Different platforms need different aspect ratios:
+プラットフォームによってアスペクト比が異なる:
 
-| Platform | Aspect Ratio | Resolution |
+| プラットフォーム | アスペクト比 | 解像度 |
 |----------|-------------|------------|
 | YouTube | 16:9 | 1920x1080 |
 | TikTok / Reels | 9:16 | 1080x1920 |
-| Instagram Feed | 1:1 | 1080x1080 |
-| X / Twitter | 16:9 or 1:1 | 1280x720 or 720x720 |
+| Instagram フィード | 1:1 | 1080x1080 |
+| X / Twitter | 16:9 または 1:1 | 1280x720 または 720x720 |
 
-### Reframe with FFmpeg
+### FFmpegでのリフレーム
 
 ```bash
-# 16:9 to 9:16 (center crop)
+# 16:9 → 9:16（センタークロップ）
 ffmpeg -i input.mp4 -vf "crop=ih*9/16:ih,scale=1080:1920" vertical.mp4
 
-# 16:9 to 1:1 (center crop)
+# 16:9 → 1:1（センタークロップ）
 ffmpeg -i input.mp4 -vf "crop=ih:ih,scale=1080:1080" square.mp4
 ```
 
-### Reframe with VideoDB
+### VideoDBでのリフレーム
 
 ```python
 from videodb import ReframeMode
 
-# Smart reframe (AI-guided subject tracking)
+# スマートリフレーム（AI誘導による被写体トラッキング）
 reframed = video.reframe(start=0, end=60, target="vertical", mode=ReframeMode.smart)
 ```
 
-## Scene Detection and Auto-Cut
+## シーン検出と自動カット
 
-### FFmpeg scene detection
+### FFmpegによるシーン検出
 
 ```bash
-# Detect scene changes (threshold 0.3 = moderate sensitivity)
+# シーン変化の検出（閾値0.3 = 中程度の感度）
 ffmpeg -i input.mp4 -vf "select='gt(scene,0.3)',showinfo" -vsync vfr -f null - 2>&1 | grep showinfo
 ```
 
-### Silence detection for auto-cut
+### 自動カット用の無音検出
 
 ```bash
-# Find silent segments (useful for cutting dead air)
+# 無音セグメントの検出（無駄な間のカットに有効）
 ffmpeg -i input.mp4 -af silencedetect=noise=-30dB:d=2 -f null - 2>&1 | grep silence
 ```
 
-### Highlight extraction
+### ハイライト抽出
 
-Use Claude to analyze transcript + scene timestamps:
+Claudeでトランスクリプトとシーンタイムスタンプを分析する:
 ```
-"Given this transcript with timestamps and these scene change points,
-identify the 5 most engaging 30-second clips for social media."
+「タイムスタンプ付きのトランスクリプトとシーン変化ポイントを元に、
+SNS向けの最も魅力的な30秒クリップを5つ特定してください。」
 ```
 
-## What Each Tool Does Best
+## 各ツールの得意領域
 
-| Tool | Strength | Weakness |
+| ツール | 強み | 弱み |
 |------|----------|----------|
-| Claude / Codex | Organization, planning, code generation | Not the creative taste layer |
-| FFmpeg | Deterministic cuts, batch processing, format conversion | No visual editing UI |
-| Remotion | Programmable overlays, composable scenes, reusable templates | Learning curve for non-devs |
-| Screen Studio | Polished screen recordings immediately | Only screen capture |
-| ElevenLabs | Voice, narration, music, SFX | Not the center of the workflow |
-| Descript / CapCut | Final pacing, captions, polish | Manual, not automatable |
+| Claude / Codex | 整理・プランニング・コード生成 | クリエイティブな判断層ではない |
+| FFmpeg | 確定的カット・バッチ処理・フォーマット変換 | ビジュアル編集UIなし |
+| Remotion | プログラマブルなオーバーレイ・コンポーザブルなシーン・再利用テンプレート | 非開発者には学習コストがある |
+| Screen Studio | 即座に洗練されたスクリーン録画 | スクリーンキャプチャのみ |
+| ElevenLabs | ボイス・ナレーション・音楽・SFX | ワークフローの中心ではない |
+| Descript / CapCut | 最終ペーシング・字幕・仕上げ | 手動作業、自動化不可 |
 
-## Key Principles
+## 基本原則
 
-1. **Edit, don't generate.** This workflow is for cutting real footage, not creating from prompts.
-2. **Structure before style.** Get the story right in Layer 2 before touching anything visual.
-3. **FFmpeg is the backbone.** Boring but critical. Where long footage becomes manageable.
-4. **Remotion for repeatability.** If you'll do it more than once, make it a Remotion component.
-5. **Generate selectively.** Only use AI generation for assets that don't exist, not for everything.
-6. **Taste is the last layer.** AI clears repetitive work. You make the final creative calls.
+1. **生成ではなく編集。** このワークフローは実映像のカット用であり、プロンプトからの生成ではない。
+2. **スタイルより先に構成。** レイヤー2でストーリーを正しく組み立ててから、ビジュアルに手を付ける。
+3. **FFmpegが骨格。** 地味だが重要。長尺映像を扱いやすくする場所。
+4. **繰り返す作業にはRemotionを。** 複数回行うならRemotionコンポーネントにする。
+5. **生成は選択的に。** 存在しないアセットにのみAI生成を使う。すべてに使わない。
+6. **センスは最後のレイヤー。** AIが繰り返し作業を排除する。最終クリエイティブな判断はあなたが下す。
 
-## Related Skills
+## 関連スキル
 
-- `fal-ai-media` — AI image, video, and audio generation
-- `videodb` — Server-side video processing, indexing, and streaming
-- `content-engine` — Platform-native content distribution
+- `fal-ai-media` — AI画像・動画・音声の生成
+- `videodb` — サーバーサイドの動画処理・インデックス・ストリーミング
+- `content-engine` — プラットフォームネイティブのコンテンツ配信

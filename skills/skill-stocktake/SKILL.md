@@ -1,81 +1,81 @@
 ---
 name: skill-stocktake
-description: "Use when auditing Claude skills and commands for quality. Supports Quick Scan (changed skills only) and Full Stocktake modes with sequential subagent batch evaluation."
+description: "品質のためにClaudeスキルとコマンドを監査する際に使用する。変更されたスキルのみのクイックスキャンと、順次サブエージェントバッチ評価を使ったフルストックテイクモードをサポートする。"
 origin: ECC
 ---
 
 # skill-stocktake
 
-Slash command (`/skill-stocktake`) that audits all Claude skills and commands using a quality checklist + AI holistic judgment. Supports two modes: Quick Scan for recently changed skills, and Full Stocktake for a complete review.
+品質チェックリスト＋AIによる総合的な判断を使って、すべてのClaudeスキルとコマンドを監査するスラッシュコマンド（`/skill-stocktake`）。最近変更されたスキルのクイックスキャンと、完全なレビューのフルストックテイクの2つのモードをサポートします。
 
-## Scope
+## スコープ
 
-The command targets the following paths **relative to the directory where it is invoked**:
+このコマンドは**実行されたディレクトリを基準とした**以下のパスを対象とします:
 
-| Path | Description |
+| パス | 説明 |
 |------|-------------|
-| `~/.claude/skills/` | Global skills (all projects) |
-| `{cwd}/.claude/skills/` | Project-level skills (if the directory exists) |
+| `~/.claude/skills/` | グローバルスキル（全プロジェクト） |
+| `{cwd}/.claude/skills/` | プロジェクトレベルのスキル（ディレクトリが存在する場合） |
 
-**At the start of Phase 1, the command explicitly lists which paths were found and scanned.**
+**フェーズ1の開始時に、コマンドは見つかってスキャンされたパスを明示的に一覧します。**
 
-### Targeting a specific project
+### 特定のプロジェクトを対象にする
 
-To include project-level skills, run from that project's root directory:
+プロジェクトレベルのスキルを含めるには、そのプロジェクトのルートディレクトリから実行します:
 
 ```bash
 cd ~/path/to/my-project
 /skill-stocktake
 ```
 
-If the project has no `.claude/skills/` directory, only global skills and commands are evaluated.
+プロジェクトに `.claude/skills/` ディレクトリがない場合は、グローバルスキルとコマンドのみが評価されます。
 
-## Modes
+## モード
 
-| Mode | Trigger | Duration |
+| モード | トリガー | 所要時間 |
 |------|---------|---------|
-| Quick Scan | `results.json` exists (default) | 5–10 min |
-| Full Stocktake | `results.json` absent, or `/skill-stocktake full` | 20–30 min |
+| クイックスキャン | `results.json` が存在する（デフォルト） | 5〜10分 |
+| フルストックテイク | `results.json` がない、または `/skill-stocktake full` | 20〜30分 |
 
-**Results cache:** `~/.claude/skills/skill-stocktake/results.json`
+**結果キャッシュ:** `~/.claude/skills/skill-stocktake/results.json`
 
-## Quick Scan Flow
+## クイックスキャンフロー
 
-Re-evaluate only skills that have changed since the last run (5–10 min).
+前回の実行以降に変更されたスキルのみを再評価します（5〜10分）。
 
-1. Read `~/.claude/skills/skill-stocktake/results.json`
-2. Run: `bash ~/.claude/skills/skill-stocktake/scripts/quick-diff.sh \
+1. `~/.claude/skills/skill-stocktake/results.json` を読む
+2. 実行: `bash ~/.claude/skills/skill-stocktake/scripts/quick-diff.sh \
          ~/.claude/skills/skill-stocktake/results.json`
-   (Project dir is auto-detected from `$PWD/.claude/skills`; pass it explicitly only if needed)
-3. If output is `[]`: report "No changes since last run." and stop
-4. Re-evaluate only those changed files using the same Phase 2 criteria
-5. Carry forward unchanged skills from previous results
-6. Output only the diff
-7. Run: `bash ~/.claude/skills/skill-stocktake/scripts/save-results.sh \
+   （プロジェクトディレクトリは `$PWD/.claude/skills` から自動検出；必要な場合のみ明示的に渡す）
+3. 出力が `[]` の場合: 「前回の実行以降変更なし」と報告して停止する
+4. 変更されたファイルのみをフェーズ2と同じ基準で再評価する
+5. 変更されていないスキルは前回の結果から引き継ぐ
+6. 差分のみを出力する
+7. 実行: `bash ~/.claude/skills/skill-stocktake/scripts/save-results.sh \
          ~/.claude/skills/skill-stocktake/results.json <<< "$EVAL_RESULTS"`
 
-## Full Stocktake Flow
+## フルストックテイクフロー
 
-### Phase 1 — Inventory
+### フェーズ1 — インベントリ
 
-Run: `bash ~/.claude/skills/skill-stocktake/scripts/scan.sh`
+実行: `bash ~/.claude/skills/skill-stocktake/scripts/scan.sh`
 
-The script enumerates skill files, extracts frontmatter, and collects UTC mtimes.
-Project dir is auto-detected from `$PWD/.claude/skills`; pass it explicitly only if needed.
-Present the scan summary and inventory table from the script output:
+スクリプトはスキルファイルを列挙し、フロントマターを抽出し、UTCのmtimeを収集します。
+プロジェクトディレクトリは `$PWD/.claude/skills` から自動検出；必要な場合のみ明示的に渡す。
+スクリプト出力からスキャンサマリーとインベントリテーブルを提示します:
 
 ```
-Scanning:
+スキャン中:
   ✓ ~/.claude/skills/         (17 files)
   ✗ {cwd}/.claude/skills/    (not found — global skills only)
 ```
 
-| Skill | 7d use | 30d use | Description |
+| スキル | 7日使用 | 30日使用 | 説明 |
 |-------|--------|---------|-------------|
 
-### Phase 2 — Quality Evaluation
+### フェーズ2 — 品質評価
 
-Launch an Agent tool subagent (**general-purpose agent**) with the full inventory and checklist:
+完全なインベントリとチェックリストを使って、Agentツールサブエージェント（**汎用エージェント**）を起動します:
 
 ```text
 Agent(
@@ -93,79 +93,79 @@ Return JSON for each skill:
 )
 ```
 
-The subagent reads each skill, applies the checklist, and returns per-skill JSON:
+サブエージェントは各スキルを読み、チェックリストを適用し、スキルごとのJSONを返します:
 
 `{ "verdict": "Keep"|"Improve"|"Update"|"Retire"|"Merge into [X]", "reason": "..." }`
 
-**Chunk guidance:** Process ~20 skills per subagent invocation to keep context manageable. Save intermediate results to `results.json` (`status: "in_progress"`) after each chunk.
+**チャンクガイダンス:** コンテキストを管理しやすくするために、サブエージェント呼び出しごとに約20スキルを処理します。各チャンク後に中間結果を `results.json`（`status: "in_progress"`）に保存します。
 
-After all skills are evaluated: set `status: "completed"`, proceed to Phase 3.
+すべてのスキルが評価された後: `status: "completed"` を設定し、フェーズ3に進みます。
 
-**Resume detection:** If `status: "in_progress"` is found on startup, resume from the first unevaluated skill.
+**再開検出:** 起動時に `status: "in_progress"` が見つかった場合、最初の未評価スキルから再開します。
 
-Each skill is evaluated against this checklist:
+各スキルはこのチェックリストに対して評価されます:
 
 ```
-- [ ] Content overlap with other skills checked
-- [ ] Overlap with MEMORY.md / CLAUDE.md checked
-- [ ] Freshness of technical references verified (use WebSearch if tool names / CLI flags / APIs are present)
-- [ ] Usage frequency considered
+- [ ] 他のスキルとのコンテンツの重複を確認済み
+- [ ] MEMORY.md / CLAUDE.md との重複を確認済み
+- [ ] 技術リファレンスの新鮮さを検証済み（ツール名/CLIフラグ/APIが存在する場合はWebSearchを使用）
+- [ ] 使用頻度を考慮済み
 ```
 
-Verdict criteria:
+判定基準:
 
-| Verdict | Meaning |
+| 判定 | 意味 |
 |---------|---------|
-| Keep | Useful and current |
-| Improve | Worth keeping, but specific improvements needed |
-| Update | Referenced technology is outdated (verify with WebSearch) |
-| Retire | Low quality, stale, or cost-asymmetric |
-| Merge into [X] | Substantial overlap with another skill; name the merge target |
+| Keep | 有用かつ最新 |
+| Improve | 保持する価値があるが、特定の改善が必要 |
+| Update | 参照している技術が古い（WebSearchで確認する） |
+| Retire | 品質が低い、古い、またはコスト非対称 |
+| Merge into [X] | 別のスキルと大幅に重複；マージ先を指定する |
 
-Evaluation is **holistic AI judgment** — not a numeric rubric. Guiding dimensions:
-- **Actionability**: code examples, commands, or steps that let you act immediately
-- **Scope fit**: name, trigger, and content are aligned; not too broad or narrow
-- **Uniqueness**: value not replaceable by MEMORY.md / CLAUDE.md / another skill
-- **Currency**: technical references work in the current environment
+評価は**AIによる総合的な判断**であり、数値的なルーブリックではありません。指導的な次元:
+- **実用性**: すぐに行動できるコード例、コマンド、またはステップ
+- **スコープの適合**: 名前、トリガー、コンテンツが一致している；広すぎず狭すぎない
+- **独自性**: MEMORY.md / CLAUDE.md / 他のスキルでは代替できない価値
+- **最新性**: 技術リファレンスが現在の環境で動作する
 
-**Reason quality requirements** — the `reason` field must be self-contained and decision-enabling:
-- Do NOT write "unchanged" alone — always restate the core evidence
-- For **Retire**: state (1) what specific defect was found, (2) what covers the same need instead
-  - Bad: `"Superseded"`
-  - Good: `"disable-model-invocation: true already set; superseded by continuous-learning-v2 which covers all the same patterns plus confidence scoring. No unique content remains."`
-- For **Merge**: name the target and describe what content to integrate
-  - Bad: `"Overlaps with X"`
-  - Good: `"42-line thin content; Step 4 of chatlog-to-article already covers the same workflow. Integrate the 'article angle' tip as a note in that skill."`
-- For **Improve**: describe the specific change needed (what section, what action, target size if relevant)
-  - Bad: `"Too long"`
-  - Good: `"276 lines; Section 'Framework Comparison' (L80–140) duplicates ai-era-architecture-principles; delete it to reach ~150 lines."`
-- For **Keep** (mtime-only change in Quick Scan): restate the original verdict rationale, do not write "unchanged"
-  - Bad: `"Unchanged"`
-  - Good: `"mtime updated but content unchanged. Unique Python reference explicitly imported by rules/python/; no overlap found."`
+**理由の品質要件** — `reason` フィールドは自己完結していて意思決定を可能にするものでなければなりません:
+- 「unchanged」だけを書かない — 常にコアとなる根拠を再述する
+- **Retire** の場合: (1)発見された具体的な欠陥、(2)同じニーズをカバーするものを述べる
+  - 悪い例: `"Superseded"`
+  - 良い例: `"disable-model-invocation: true already set; superseded by continuous-learning-v2 which covers all the same patterns plus confidence scoring. No unique content remains."`
+- **Merge** の場合: ターゲットを指定し、統合するコンテンツを説明する
+  - 悪い例: `"Overlaps with X"`
+  - 良い例: `"42-line thin content; Step 4 of chatlog-to-article already covers the same workflow. Integrate the 'article angle' tip as a note in that skill."`
+- **Improve** の場合: 必要な具体的な変更を説明する（どのセクション、どのアクション、関連する場合はターゲットサイズ）
+  - 悪い例: `"Too long"`
+  - 良い例: `"276 lines; Section 'Framework Comparison' (L80–140) duplicates ai-era-architecture-principles; delete it to reach ~150 lines."`
+- **Keep**（クイックスキャンでmtimeのみ変更された場合）: 「unchanged」と書かずに元の判定根拠を再述する
+  - 悪い例: `"Unchanged"`
+  - 良い例: `"mtime updated but content unchanged. Unique Python reference explicitly imported by rules/python/; no overlap found."`
 
-### Phase 3 — Summary Table
+### フェーズ3 — サマリーテーブル
 
-| Skill | 7d use | Verdict | Reason |
+| スキル | 7日使用 | 判定 | 理由 |
 |-------|--------|---------|--------|
 
-### Phase 4 — Consolidation
+### フェーズ4 — 統合
 
-1. **Retire / Merge**: present detailed justification per file before confirming with user:
-   - What specific problem was found (overlap, staleness, broken references, etc.)
-   - What alternative covers the same functionality (for Retire: which existing skill/rule; for Merge: the target file and what content to integrate)
-   - Impact of removal (any dependent skills, MEMORY.md references, or workflows affected)
-2. **Improve**: present specific improvement suggestions with rationale:
-   - What to change and why (e.g., "trim 430→200 lines because sections X/Y duplicate python-patterns")
-   - User decides whether to act
-3. **Update**: present updated content with sources checked
-4. Check MEMORY.md line count; propose compression if >100 lines
+1. **Retire / Merge**: ユーザーに確認する前にファイルごとの詳細な正当性を提示する:
+   - 発見された具体的な問題（重複、陳腐化、壊れたリファレンス等）
+   - 同じ機能をカバーする代替（Retireの場合: 既存のスキル/ルール；Mergeの場合: ターゲットファイルと統合するコンテンツ）
+   - 削除の影響（依存するスキル、MEMORY.mdの参照、影響を受けるワークフロー）
+2. **Improve**: 根拠付きの具体的な改善提案を提示する:
+   - 何を変更するか、なぜか（例: 「セクションX/Yがpython-patternsと重複しているため430→200行に削減する」）
+   - ユーザーが行動するかどうかを決める
+3. **Update**: ソースを確認した上で更新されたコンテンツを提示する
+4. MEMORY.mdの行数を確認；100行を超える場合は圧縮を提案する
 
-## Results File Schema
+## 結果ファイルのスキーマ
 
 `~/.claude/skills/skill-stocktake/results.json`:
 
-**`evaluated_at`**: Must be set to the actual UTC time of evaluation completion.
-Obtain via Bash: `date -u +%Y-%m-%dT%H:%M:%SZ`. Never use a date-only approximation like `T00:00:00Z`.
+**`evaluated_at`**: 評価完了の実際のUTC時刻に設定すること。
+Bashで取得: `date -u +%Y-%m-%dT%H:%M:%SZ`。`T00:00:00Z` のような日付のみの近似を使用しないこと。
 
 ```json
 {
@@ -187,8 +187,8 @@ Obtain via Bash: `date -u +%Y-%m-%dT%H:%M:%SZ`. Never use a date-only approximat
 }
 ```
 
-## Notes
+## 注意事項
 
-- Evaluation is blind: the same checklist applies to all skills regardless of origin (ECC, self-authored, auto-extracted)
-- Archive / delete operations always require explicit user confirmation
-- No verdict branching by skill origin
+- 評価はブラインドです: 同じチェックリストがすべてのスキルに適用されます（出所がECC、自作、自動抽出かに関係なく）
+- アーカイブ/削除操作は常にユーザーの明示的な確認が必要です
+- スキルの出所によって判定を分岐させません

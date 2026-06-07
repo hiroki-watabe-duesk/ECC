@@ -1,136 +1,118 @@
 ---
 name: prompt-optimizer
-description: >-
-  Analyze raw prompts, identify intent and gaps, match ECC components
-  (skills/commands/agents/hooks), and output a ready-to-paste optimized
-  prompt. Advisory role only — never executes the task itself.
-  TRIGGER when: user says "optimize prompt", "improve my prompt",
-  "how to write a prompt for", "help me prompt", "rewrite this prompt",
-  or explicitly asks to enhance prompt quality. Also triggers on Chinese
-  equivalents: "优化prompt", "改进prompt", "怎么写prompt", "帮我优化这个指令".
-  DO NOT TRIGGER when: user wants the task executed directly, or says
-  "just do it" / "直接做". DO NOT TRIGGER when user says "优化代码",
-  "优化性能", "optimize performance", "optimize this code" — those are
-  refactoring/performance tasks, not prompt optimization.
+description: 未加工のプロンプトを分析し、意図とギャップを特定し、ECCコンポーネント（スキル／コマンド／エージェント／フック）をマッチングして、そのまま貼り付けられる最適化済みプロンプトを出力する。アドバイザリー役のみ — タスク自体は実行しない。トリガー条件: ユーザーが「optimize prompt」「improve my prompt」「how to write a prompt for」「help me prompt」「rewrite this prompt」または明示的にプロンプト品質の向上を求めた場合。中国語同等表現にも対応: 「优化prompt」「改进prompt」「怎么写prompt」「帮我优化这个指令」。非トリガー条件: ユーザーがタスクを直接実行させたい場合、または「just do it」/「直接做」と言った場合。「优化代码」「优化性能」「optimize performance」「optimize this code」ではトリガーしない — これらはリファクタリング／パフォーマンスタスクであり、プロンプト最適化ではない。
 origin: community
 metadata:
   author: YannJY02
   version: "1.0.0"
 ---
 
-# Prompt Optimizer
+# プロンプト最適化ツール
 
-Analyze a draft prompt, critique it, match it to ECC ecosystem components,
-and output a complete optimized prompt the user can paste and run.
+下書きプロンプトを分析・批評し、ECCエコシステムのコンポーネントにマッチングして、ユーザーがそのまま貼り付けて実行できる完全な最適化プロンプトを出力する。
 
-## When to Use
+## 使用するタイミング
 
-- User says "optimize this prompt", "improve my prompt", "rewrite this prompt"
-- User says "help me write a better prompt for..."
-- User says "what's the best way to ask Claude Code to..."
-- User says "优化prompt", "改进prompt", "怎么写prompt", "帮我优化这个指令"
-- User pastes a draft prompt and asks for feedback or enhancement
-- User says "I don't know how to prompt for this"
-- User says "how should I use ECC for..."
-- User explicitly invokes `/prompt-optimize`
+- ユーザーが「optimize this prompt」「improve my prompt」「rewrite this prompt」と言った場合
+- ユーザーが「help me write a better prompt for...」と言った場合
+- ユーザーが「what's the best way to ask Claude Code to...」と言った場合
+- ユーザーが「优化prompt」「改进prompt」「怎么写prompt」「帮我优化这个指令」と言った場合
+- ユーザーが下書きプロンプトを貼り付けてフィードバックや改善を求めた場合
+- ユーザーが「I don't know how to prompt for this」と言った場合
+- ユーザーが「how should I use ECC for...」と言った場合
+- ユーザーが明示的に `/prompt-optimize` を呼び出した場合
 
-### Do Not Use When
+### 使用しないタイミング
 
-- User wants the task done directly (just execute it)
-- User says "优化代码", "优化性能", "optimize this code", "optimize performance" — these are refactoring tasks, not prompt optimization
-- User is asking about ECC configuration (use `configure-ecc` instead)
-- User wants a skill inventory (use `skill-stocktake` instead)
-- User says "just do it" or "直接做"
+- ユーザーがタスクを直接実行させたい場合（そのまま実行する）
+- ユーザーが「优化代码」「优化性能」「optimize this code」「optimize performance」と言った場合 — これらはリファクタリングタスクであり、プロンプト最適化ではない
+- ユーザーがECC設定について質問している場合（代わりに `configure-ecc` を使用）
+- ユーザーがスキル一覧を求めている場合（代わりに `skill-stocktake` を使用）
+- ユーザーが「just do it」または「直接做」と言った場合
 
-## How It Works
+## 動作の仕組み
 
-**Advisory only — do not execute the user's task.**
+**アドバイザリーのみ — ユーザーのタスクは実行しない。**
 
-Do NOT write code, create files, run commands, or take any implementation
-action. Your ONLY output is an analysis plus an optimized prompt.
+コードの作成、ファイルの作成、コマンドの実行、その他いかなる実装アクションも行わない。出力するのは分析結果と最適化プロンプトのみ。
 
-If the user says "just do it", "直接做", or "don't optimize, just execute",
-do not switch into implementation mode inside this skill. Tell the user this
-skill only produces optimized prompts, and instruct them to make a normal
-task request if they want execution instead.
+ユーザーが「just do it」「直接做」「don't optimize, just execute」と言った場合、このスキル内で実装モードに切り替えない。このスキルは最適化済みプロンプトのみを生成することをユーザーに伝え、代わりに通常のタスクリクエストを行うよう指示する。
 
-Run this 6-phase pipeline sequentially. Present results using the Output Format below.
+以下の6フェーズのパイプラインを順番に実行する。結果は以下の出力フォーマットを使用して提示する。
 
-### Analysis Pipeline
+### 分析パイプライン
 
-### Phase 0: Project Detection
+### フェーズ0: プロジェクト検出
 
-Before analyzing the prompt, detect the current project context:
+プロンプトを分析する前に、現在のプロジェクトコンテキストを検出する:
 
-1. Check if a `CLAUDE.md` exists in the working directory — read it for project conventions
-2. Detect tech stack from project files:
+1. 作業ディレクトリに `CLAUDE.md` が存在するか確認 — プロジェクト規約を読む
+2. プロジェクトファイルから技術スタックを検出する:
    - `package.json` → Node.js / TypeScript / React / Next.js
    - `go.mod` → Go
    - `pyproject.toml` / `requirements.txt` → Python
    - `Cargo.toml` → Rust
-   - `build.gradle` / `pom.xml` → Java / Kotlin (then check for `quarkus` in build file → Quarkus, or `spring-boot` → Spring Boot)
+   - `build.gradle` / `pom.xml` → Java / Kotlin（ビルドファイルに `quarkus` があれば→Quarkus、`spring-boot` があれば→Spring Boot）
    - `Package.swift` → Swift
    - `Gemfile` → Ruby
    - `composer.json` → PHP
    - `*.csproj` / `*.sln` → .NET
    - `Makefile` / `CMakeLists.txt` → C / C++
    - `cpanfile` / `Makefile.PL` → Perl
-3. Note detected tech stack for use in Phase 3 and Phase 4
+3. 検出した技術スタックをフェーズ3とフェーズ4で使用するためにメモする
 
-If no project files are found (e.g., the prompt is abstract or for a new project),
-skip detection and flag "tech stack unknown" in Phase 4.
+プロジェクトファイルが見つからない場合（例: プロンプトが抽象的または新規プロジェクト向けの場合）、検出をスキップしてフェーズ4で「技術スタック不明」とフラグを立てる。
 
-### Phase 1: Intent Detection
+### フェーズ1: 意図検出
 
-Classify the user's task into one or more categories:
+ユーザーのタスクを1つ以上のカテゴリに分類する:
 
-| Category | Signal Words | Example |
+| カテゴリ | シグナルワード | 例 |
 |----------|-------------|---------|
-| New Feature | build, create, add, implement, 创建, 实现, 添加 | "Build a login page" |
-| Bug Fix | fix, broken, not working, error, 修复, 报错 | "Fix the auth flow" |
-| Refactor | refactor, clean up, restructure, 重构, 整理 | "Refactor the API layer" |
-| Research | how to, what is, explore, investigate, 怎么, 如何 | "How to add SSO" |
-| Testing | test, coverage, verify, 测试, 覆盖率 | "Add tests for the cart" |
-| Review | review, audit, check, 审查, 检查 | "Review my PR" |
-| Documentation | document, update docs, 文档 | "Update the API docs" |
-| Infrastructure | deploy, CI, docker, database, 部署, 数据库 | "Set up CI/CD pipeline" |
-| Design | design, architecture, plan, 设计, 架构 | "Design the data model" |
+| 新機能 | build, create, add, implement, 创建, 实现, 添加 | 「Build a login page」 |
+| バグ修正 | fix, broken, not working, error, 修复, 报错 | 「Fix the auth flow」 |
+| リファクタリング | refactor, clean up, restructure, 重构, 整理 | 「Refactor the API layer」 |
+| 調査 | how to, what is, explore, investigate, 怎么, 如何 | 「How to add SSO」 |
+| テスト | test, coverage, verify, 测试, 覆盖率 | 「Add tests for the cart」 |
+| レビュー | review, audit, check, 审查, 检查 | 「Review my PR」 |
+| ドキュメント | document, update docs, 文档 | 「Update the API docs」 |
+| インフラ | deploy, CI, docker, database, 部署, 数据库 | 「Set up CI/CD pipeline」 |
+| 設計 | design, architecture, plan, 设计, 架构 | 「Design the data model」 |
 
-### Phase 2: Scope Assessment
+### フェーズ2: スコープ評価
 
-If Phase 0 detected a project, use codebase size as a signal. Otherwise, estimate
-from the prompt description alone and mark the estimate as uncertain.
+フェーズ0でプロジェクトが検出された場合はコードベースのサイズをシグナルとして使用する。検出されなかった場合はプロンプトの記述のみから推定し、不確かな推定であることを記す。
 
-| Scope | Heuristic | Orchestration |
+| スコープ | ヒューリスティック | オーケストレーション |
 |-------|-----------|---------------|
-| TRIVIAL | Single file, < 50 lines | Direct execution |
-| LOW | Single component or module | Single command or skill |
-| MEDIUM | Multiple components, same domain | Command chain + /verify |
-| HIGH | Cross-domain, 5+ files | /plan first, then phased execution |
-| EPIC | Multi-session, multi-PR, architectural shift | Use blueprint skill for multi-session plan |
+| 極小 | 単一ファイル、50行未満 | 直接実行 |
+| 小 | 単一コンポーネントまたはモジュール | 単一コマンドまたはスキル |
+| 中 | 複数コンポーネント、同一ドメイン | コマンドチェーン + /verify |
+| 大 | クロスドメイン、5ファイル以上 | /plan を先に実行、その後フェーズ実行 |
+| 超大 | マルチセッション、マルチPR、アーキテクチャ変更 | blueprintスキルでマルチセッション計画を作成 |
 
-### Phase 3: ECC Component Matching
+### フェーズ3: ECCコンポーネントのマッチング
 
-Map intent + scope + tech stack (from Phase 0) to specific ECC components.
+意図 + スコープ + 技術スタック（フェーズ0）を特定のECCコンポーネントにマッピングする。
 
-#### By Intent Type
+#### 意図タイプ別
 
-| Intent | Commands | Skills | Agents |
+| 意図 | コマンド | スキル | エージェント |
 |--------|----------|--------|--------|
-| New Feature | /plan, /tdd, /code-review, /verify | tdd-workflow, verification-loop | planner, tdd-guide, code-reviewer |
-| Bug Fix | /tdd, /build-fix, /verify | tdd-workflow | tdd-guide, build-error-resolver |
-| Refactor | /refactor-clean, /code-review, /verify | verification-loop | refactor-cleaner, code-reviewer |
-| Research | /plan | search-first, iterative-retrieval | — |
-| Testing | /tdd, /e2e, /test-coverage | tdd-workflow, e2e-testing | tdd-guide, e2e-runner |
-| Review | /code-review | security-review | code-reviewer, security-reviewer |
-| Documentation | /update-docs, /update-codemaps | — | doc-updater |
-| Infrastructure | /plan, /verify | docker-patterns, deployment-patterns, database-migrations | architect |
-| Design (MEDIUM-HIGH) | /plan | — | planner, architect |
-| Design (EPIC) | — | blueprint (invoke as skill) | planner, architect |
+| 新機能 | /plan, /tdd, /code-review, /verify | tdd-workflow, verification-loop | planner, tdd-guide, code-reviewer |
+| バグ修正 | /tdd, /build-fix, /verify | tdd-workflow | tdd-guide, build-error-resolver |
+| リファクタリング | /refactor-clean, /code-review, /verify | verification-loop | refactor-cleaner, code-reviewer |
+| 調査 | /plan | search-first, iterative-retrieval | — |
+| テスト | /tdd, /e2e, /test-coverage | tdd-workflow, e2e-testing | tdd-guide, e2e-runner |
+| レビュー | /code-review | security-review | code-reviewer, security-reviewer |
+| ドキュメント | /update-docs, /update-codemaps | — | doc-updater |
+| インフラ | /plan, /verify | docker-patterns, deployment-patterns, database-migrations | architect |
+| 設計（中〜大） | /plan | — | planner, architect |
+| 設計（超大） | — | blueprint（スキルとして呼び出す） | planner, architect |
 
-#### By Tech Stack
+#### 技術スタック別
 
-| Tech Stack | Skills to Add | Agent |
+| 技術スタック | 追加するスキル | エージェント |
 |------------|--------------|-------|
 | Python / Django | django-patterns, django-tdd, django-security, django-verification, python-patterns, python-testing | python-reviewer |
 | Go | golang-patterns, golang-testing | go-reviewer, go-build-resolver |
@@ -142,146 +124,141 @@ Map intent + scope + tech stack (from Phase 0) to specific ECC components.
 | PostgreSQL | postgres-patterns, database-migrations | database-reviewer |
 | Perl | perl-patterns, perl-testing, perl-security | code-reviewer |
 | C++ | cpp-coding-standards, cpp-testing | code-reviewer |
-| Other / Unlisted | coding-standards (universal) | code-reviewer |
+| その他／未リスト | coding-standards（汎用） | code-reviewer |
 
-### Phase 4: Missing Context Detection
+### フェーズ4: 欠落コンテキストの検出
 
-Scan the prompt for missing critical information. Check each item and mark
-whether Phase 0 auto-detected it or the user must supply it:
+プロンプトに欠けている重要情報をスキャンする。各項目についてフェーズ0で自動検出されたか、ユーザーが供給する必要があるかを確認する:
 
-- [ ] **Tech stack** — Detected in Phase 0, or must user specify?
-- [ ] **Target scope** — Files, directories, or modules mentioned?
-- [ ] **Acceptance criteria** — How to know the task is done?
-- [ ] **Error handling** — Edge cases and failure modes addressed?
-- [ ] **Security requirements** — Auth, input validation, secrets?
-- [ ] **Testing expectations** — Unit, integration, E2E?
-- [ ] **Performance constraints** — Load, latency, resource limits?
-- [ ] **UI/UX requirements** — Design specs, responsive, a11y? (if frontend)
-- [ ] **Database changes** — Schema, migrations, indexes? (if data layer)
-- [ ] **Existing patterns** — Reference files or conventions to follow?
-- [ ] **Scope boundaries** — What NOT to do?
+- [ ] **技術スタック** — フェーズ0で検出されたか、ユーザーが指定する必要があるか？
+- [ ] **対象スコープ** — ファイル、ディレクトリ、またはモジュールが明記されているか？
+- [ ] **受け入れ基準** — タスクの完了をどのように判断するか？
+- [ ] **エラーハンドリング** — エッジケースと障害モードが対処されているか？
+- [ ] **セキュリティ要件** — 認証、入力バリデーション、シークレット？
+- [ ] **テスト要件** — ユニット、統合、E2E？
+- [ ] **パフォーマンス制約** — 負荷、レイテンシ、リソース制限？
+- [ ] **UI/UX要件** — デザイン仕様、レスポンシブ、アクセシビリティ？（フロントエンドの場合）
+- [ ] **データベース変更** — スキーマ、マイグレーション、インデックス？（データレイヤーの場合）
+- [ ] **既存パターン** — 参照すべきファイルや従うべき規約？
+- [ ] **スコープの境界** — 行わないこと？
 
-**If 3+ critical items are missing**, ask the user up to 3 clarification
-questions before generating the optimized prompt. Then incorporate the
-answers into the optimized prompt.
+**3つ以上の重要項目が欠落している場合**、最適化プロンプトを生成する前にユーザーへ最大3つの確認質問を行う。その後、回答を最適化プロンプトに組み込む。
 
-### Phase 5: Workflow & Model Recommendation
+### フェーズ5: ワークフローとモデルの推奨
 
-Determine where this prompt sits in the development lifecycle:
+このプロンプトが開発ライフサイクルのどこに位置するかを判断する:
 
 ```
-Research → Plan → Implement (TDD) → Review → Verify → Commit
+調査 → 計画 → 実装（TDD） → レビュー → 検証 → コミット
 ```
 
-For MEDIUM+ tasks, always start with /plan. For EPIC tasks, use blueprint skill.
+中規模以上のタスクは常に /plan から開始する。超大規模タスクにはblueprintスキルを使用する。
 
-**Model recommendation** (include in output):
+**モデル推奨**（出力に含める）:
 
-| Scope | Recommended Model | Rationale |
+| スコープ | 推奨モデル | 理由 |
 |-------|------------------|-----------|
-| TRIVIAL-LOW | Sonnet 4.6 | Fast, cost-efficient for simple tasks |
-| MEDIUM | Sonnet 4.6 | Best coding model for standard work |
-| HIGH | Sonnet 4.6 (main) + Opus 4.6 (planning) | Opus for architecture, Sonnet for implementation |
-| EPIC | Opus 4.6 (blueprint) + Sonnet 4.6 (execution) | Deep reasoning for multi-session planning |
+| 極小〜小 | Sonnet 4.6 | 単純なタスクに対して高速かつコスト効率が良い |
+| 中 | Sonnet 4.6 | 標準的な作業に最適なコーディングモデル |
+| 大 | Sonnet 4.6（メイン）+ Opus 4.6（計画） | アーキテクチャにOpus、実装にSonnet |
+| 超大 | Opus 4.6（blueprint）+ Sonnet 4.6（実行） | マルチセッション計画に深い推論 |
 
-**Multi-prompt splitting** (for HIGH/EPIC scope):
+**マルチプロンプト分割**（大規模／超大規模スコープ向け）:
 
-For tasks that exceed a single session, split into sequential prompts:
-- Prompt 1: Research + Plan (use search-first skill, then /plan)
-- Prompt 2-N: Implement one phase per prompt (each ends with /verify)
-- Final Prompt: Integration test + /code-review across all phases
-- Use /save-session and /resume-session to preserve context between sessions
+単一セッションを超えるタスクは、順番に実行するプロンプトに分割する:
+- プロンプト1: 調査 + 計画（search-firstスキルを使用、その後 /plan）
+- プロンプト2〜N: 1フェーズずつ実装（各フェーズは /verify で終了）
+- 最終プロンプト: 統合テスト + 全フェーズにわたる /code-review
+- セッション間でコンテキストを保持するために /save-session と /resume-session を使用
 
 ---
 
-## Output Format
+## 出力フォーマット
 
-Present your analysis in this exact structure. Respond in the same language
-as the user's input.
+以下の正確な構造で分析を提示する。ユーザーの入力と同じ言語で回答する。
 
-### Section 1: Prompt Diagnosis
+### セクション1: プロンプト診断
 
-**Strengths:** List what the original prompt does well.
+**強み:** 元のプロンプトが優れている点をリストアップする。
 
-**Issues:**
+**問題点:**
 
-| Issue | Impact | Suggested Fix |
+| 問題 | 影響 | 修正案 |
 |-------|--------|---------------|
-| (problem) | (consequence) | (how to fix) |
+| （問題） | （結果） | （修正方法） |
 
-**Needs Clarification:** Numbered list of questions the user should answer.
-If Phase 0 auto-detected the answer, state it instead of asking.
+**要確認事項:** ユーザーが回答すべき質問の番号付きリスト。
+フェーズ0で自動検出された場合は、質問する代わりにその情報を記載する。
 
-### Section 2: Recommended ECC Components
+### セクション2: 推奨ECCコンポーネント
 
-| Type | Component | Purpose |
+| タイプ | コンポーネント | 目的 |
 |------|-----------|---------|
-| Command | /plan | Plan architecture before coding |
-| Skill | tdd-workflow | TDD methodology guidance |
-| Agent | code-reviewer | Post-implementation review |
-| Model | Sonnet 4.6 | Recommended for this scope |
+| コマンド | /plan | コーディング前にアーキテクチャを計画する |
+| スキル | tdd-workflow | TDD方法論のガイダンス |
+| エージェント | code-reviewer | 実装後のレビュー |
+| モデル | Sonnet 4.6 | このスコープに推奨 |
 
-### Section 3: Optimized Prompt — Full Version
+### セクション3: 最適化プロンプト — 完全版
 
-Present the complete optimized prompt inside a single fenced code block.
-The prompt must be self-contained and ready to copy-paste. Include:
-- Clear task description with context
-- Tech stack (detected or specified)
-- /command invocations at the right workflow stages
-- Acceptance criteria
-- Verification steps
-- Scope boundaries (what NOT to do)
+完全な最適化プロンプトを単一のフェンス付きコードブロック内に提示する。
+プロンプトは自己完結型で、コピー&ペーストですぐに使えるものでなければならない。以下を含む:
+- コンテキスト付きの明確なタスク説明
+- 技術スタック（検出済みまたは指定済み）
+- 適切なワークフロー段階での /command 呼び出し
+- 受け入れ基準
+- 検証ステップ
+- スコープの境界（行わないこと）
 
-For items that reference blueprint, write: "Use the blueprint skill to..."
-(not `/blueprint`, since blueprint is a skill, not a command).
+blueprintを参照する項目の場合: 「blueprintスキルを使用して...」と記述する
+（`/blueprint` ではなく、blueprintはスキルであってコマンドではない）。
 
-### Section 4: Optimized Prompt — Quick Version
+### セクション4: 最適化プロンプト — 簡略版
 
-A compact version for experienced ECC users. Vary by intent type:
+ECC経験者向けのコンパクトバージョン。意図タイプ別に変化させる:
 
-| Intent | Quick Pattern |
+| 意図 | 簡略パターン |
 |--------|--------------|
-| New Feature | `/plan [feature]. /tdd to implement. /code-review. /verify.` |
-| Bug Fix | `/tdd — write failing test for [bug]. Fix to green. /verify.` |
-| Refactor | `/refactor-clean [scope]. /code-review. /verify.` |
-| Research | `Use search-first skill for [topic]. /plan based on findings.` |
-| Testing | `/tdd [module]. /e2e for critical flows. /test-coverage.` |
-| Review | `/code-review. Then use security-reviewer agent.` |
-| Docs | `/update-docs. /update-codemaps.` |
-| EPIC | `Use blueprint skill for "[objective]". Execute phases with /verify gates.` |
+| 新機能 | `/plan [機能]. /tdd で実装。/code-review。/verify。` |
+| バグ修正 | `/tdd — [バグ]の失敗テストを作成。グリーンになるまで修正。/verify。` |
+| リファクタリング | `/refactor-clean [スコープ]。/code-review。/verify。` |
+| 調査 | `[トピック]にsearch-firstスキルを使用。調査結果に基づき /plan。` |
+| テスト | `/tdd [モジュール]。重要フローに /e2e。/test-coverage。` |
+| レビュー | `/code-review。次にsecurity-reviewerエージェントを使用。` |
+| ドキュメント | `/update-docs。/update-codemaps。` |
+| 超大規模 | `"[目標]"に blueprintスキルを使用。/verify ゲートでフェーズを実行。` |
 
-### Section 5: Enhancement Rationale
+### セクション5: 改善の根拠
 
-| Enhancement | Reason |
+| 改善点 | 理由 |
 |-------------|--------|
-| (what was added) | (why it matters) |
+| （追加した内容） | （重要な理由） |
 
-### Footer
+### フッター
 
-> Not what you need? Tell me what to adjust, or make a normal task request
-> if you want execution instead of prompt optimization.
+> これが必要なものでない場合は、何を調整すべきか教えてください。プロンプト最適化ではなく実行を希望する場合は、通常のタスクリクエストを行ってください。
 
 ---
 
-## Examples
+## 例
 
-### Trigger Examples
+### トリガー例
 
-- "Optimize this prompt for ECC"
-- "Rewrite this prompt so Claude Code uses the right commands"
-- "帮我优化这个指令"
-- "How should I prompt ECC for this task?"
+- 「Optimize this prompt for ECC」
+- 「Rewrite this prompt so Claude Code uses the right commands」
+- 「帮我优化这个指令」
+- 「How should I prompt ECC for this task?」
 
-### Example 1: Vague Chinese Prompt (Project Detected)
+### 例1: 曖昧な中国語プロンプト（プロジェクト検出あり）
 
-**User input:**
+**ユーザー入力:**
 ```
 帮我写一个用户登录页面
 ```
 
-**Phase 0 detects:** `package.json` with Next.js 15, TypeScript, Tailwind CSS
+**フェーズ0が検出:** `package.json` に Next.js 15、TypeScript、Tailwind CSS
 
-**Optimized Prompt (Full):**
+**最適化プロンプト（完全版）:**
 ```
 使用项目现有技术栈（Next.js 15 + TypeScript + Tailwind CSS）实现用户登录页面。
 
@@ -315,16 +292,16 @@ A compact version for experienced ECC users. Vary by intent type:
 - 不要修改现有的路由结构
 ```
 
-### Example 2: Moderate English Prompt
+### 例2: 中程度の英語プロンプト
 
-**User input:**
+**ユーザー入力:**
 ```
 Add a REST API endpoint for user profile updates with validation
 ```
 
-**Phase 0 detects:** `go.mod` with Go 1.22, Chi router
+**フェーズ0が検出:** `go.mod` に Go 1.22、Chiルーター
 
-**Optimized Prompt (Full):**
+**最適化プロンプト（完全版）:**
 ```
 Add a REST API endpoint for user profile updates (PATCH /api/users/:id).
 
@@ -352,14 +329,14 @@ Do not:
 - Add new dependencies without checking existing ones first (use search-first skill)
 ```
 
-### Example 3: EPIC Project
+### 例3: 超大規模プロジェクト
 
-**User input:**
+**ユーザー入力:**
 ```
 Migrate our monolith to microservices
 ```
 
-**Optimized Prompt (Full):**
+**最適化プロンプト（完全版）:**
 ```
 Use the blueprint skill to plan: "Migrate monolith to microservices architecture"
 
@@ -386,13 +363,13 @@ Recommended: Opus 4.6 for blueprint planning, Sonnet 4.6 for phase execution.
 
 ---
 
-## Related Components
+## 関連コンポーネント
 
-| Component | When to Reference |
+| コンポーネント | 参照するタイミング |
 |-----------|------------------|
-| `configure-ecc` | User hasn't set up ECC yet |
-| `skill-stocktake` | Audit which components are installed (use instead of hardcoded catalog) |
-| `search-first` | Research phase in optimized prompts |
-| `blueprint` | EPIC-scope optimized prompts (invoke as skill, not command) |
-| `strategic-compact` | Long session context management |
-| `cost-aware-llm-pipeline` | Token optimization recommendations |
+| `configure-ecc` | ユーザーがまだECCをセットアップしていない場合 |
+| `skill-stocktake` | インストール済みコンポーネントの監査（ハードコードされたカタログの代わりに使用） |
+| `search-first` | 最適化プロンプトの調査フェーズ |
+| `blueprint` | 超大規模スコープの最適化プロンプト（コマンドではなくスキルとして呼び出す） |
+| `strategic-compact` | 長いセッションのコンテキスト管理 |
+| `cost-aware-llm-pipeline` | トークン最適化の推奨 |

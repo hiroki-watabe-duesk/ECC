@@ -1,123 +1,123 @@
 ---
 name: plan-orchestrate
-description: Read a plan document, decompose it into steps, design a per-step agent chain from the ECC catalogue, and emit ready-to-paste /orchestrate custom prompts. Generative only — never invokes /orchestrate itself. Use when the user has a multi-step plan and wants to drive it through orchestrate without composing chains by hand.
+description: 計画ドキュメントを読み込み、ステップに分解し、ECCカタログからステップごとのエージェントチェーンを設計し、すぐに貼り付け可能な /orchestrate カスタムプロンプトを出力する。生成のみ — /orchestrate 自体は実行しない。複数ステップの計画を手動でチェーン構成せずに orchestrate で進めたいときに使用する。
 origin: ECC
 ---
 
 # Plan Orchestrate
 
-Bridge a plan document to `/orchestrate custom` by emitting one ready-to-paste invocation per step. The skill is generative only — it never executes `/orchestrate`. The user pastes each line when ready.
+計画ドキュメントを`/orchestrate custom`に橋渡しし、ステップごとに貼り付け可能な呼び出しを1つ出力します。スキルは生成のみ — `/orchestrate`を実行しません。ユーザーは準備ができたら各行を貼り付けます。
 
-## When to Activate
+## アクティブにするタイミング
 
-- User has a multi-step plan document (PRD, RFC, implementation plan) and wants to drive it through `/orchestrate`.
-- User says "orchestrate this plan", "give me orchestrate prompts for each step", "compose chains for this plan".
-- A step-by-step plan exists but the user does not want to manually pick agents per step.
+- ユーザーが複数ステップの計画ドキュメント（PRD、RFC、実装計画）を持ち、`/orchestrate`で進めたいとき。
+- ユーザーが「この計画をオーケストレートして」「各ステップのorchestrateプロンプトをください」「この計画のチェーンを構成して」と言うとき。
+- ステップバイステップの計画は存在するが、ユーザーがステップごとにエージェントを手動で選択したくないとき。
 
-Skip when:
-- The work is one ad-hoc step → call `/orchestrate custom` directly.
-- The plan is unreadable or empty. Lack of explicit numbering alone is not a skip condition — see the "No clear steps" edge case below.
+スキップするとき:
+- 作業が1つのアドホックなステップの場合 → `/orchestrate custom`を直接呼び出す。
+- 計画が読めないまたは空の場合。明示的な番号付けがないだけではスキップ条件にならない — 以下の「ステップが明確でない」エッジケースを参照。
 
-## Inputs
+## 入力
 
 ```
 <plan-doc-path> [--lang=python|typescript|go|rust|cpp|java|kotlin|flutter|auto] [--scope=all|step:<n>|range:<a>-<b>] [--dry-run]
 ```
 
-- `<plan-doc-path>` — required; relative or absolute path (`@docs/...` accepted).
-- `--lang` — reviewer language variant; defaults to `auto` (detected from project).
-- `--scope` — limits emitted steps; defaults to `all`.
-- `--dry-run` — print decomposition + chain rationale only; do not emit final prompts.
+- `<plan-doc-path>` — 必須。相対または絶対パス（`@docs/...`も可）。
+- `--lang` — レビュアーの言語バリアント。デフォルトは`auto`（プロジェクトから検出）。
+- `--scope` — 出力するステップを限定。デフォルトは`all`。
+- `--dry-run` — 分解とチェーン根拠のみ出力。最終プロンプトは出力しない。
 
-## Authoritative `/orchestrate` shape (do not deviate)
+## 権威ある`/orchestrate`の形式（逸脱禁止）
 
 ```
 {ORCH_CMD} custom "<agent1>,<agent2>,...,<agentN>" "<task description>"
 ```
 
-Where `{ORCH_CMD}` is determined in Phase 0 (see below). The command string in the emitted output **always uses one concrete form** — never both, never a placeholder.
+`{ORCH_CMD}`はフェーズ0で決定される（以下参照）。出力で生成されるコマンド文字列は**常に1つの具体的な形式を使用する** — 両方、またはプレースホルダーは使わない。
 
-- `custom` is a sequential chain; each agent's HANDOFF feeds the next.
-- Comma-separated agent list. No spaces preferred; one space tolerated.
-- No `--mode` / `--gate` / `--agents=...` flags exist — never invent them.
-- Agent names come from the catalogue in this skill. Embedded double quotes in the task description are escaped as `\"`.
+- `custom`は順次チェーン。各エージェントのHANDOFFが次に渡される。
+- カンマ区切りのエージェントリスト。スペースなしが望ましい。スペース1つは許容。
+- `--mode` / `--gate` / `--agents=...`フラグは存在しない — 決して発明しない。
+- エージェント名はこのスキルのカタログから取る。タスク説明内の埋め込みダブルクォートは`\"`としてエスケープする。
 
-## ECC install form and namespacing
+## ECCインストール形式と名前空間
 
-Two install forms determine the prefix on **both** the slash command and every agent name. The two MUST stay in sync — one form per output, never mixed:
+2つのインストール形式が、スラッシュコマンドと全エージェント名の両方のプレフィックスを決定する。2つは必ず同期する — 出力は1つの形式のみ、決して混在しない:
 
-Let `<claude-home>` denote the Claude Code home directory: `~/.claude` on macOS/Linux, `%USERPROFILE%\.claude` on Windows. Resolve it the way the host platform resolves the user home directory (do not hardcode `~`).
+`<claude-home>`はClaude Codeのホームディレクトリを示す: macOS/Linuxでは`~/.claude`、Windowsでは`%USERPROFILE%\.claude`。ホームディレクトリをホストプラットフォームの方法で解決する（`~`をハードコードしない）。
 
-| Form | Detection | `{ORCH_CMD}` | Agent name format |
+| 形式 | 検出方法 | `{ORCH_CMD}` | エージェント名の形式 |
 |---|---|---|---|
-| Plugin install (1.9.0+) | `<claude-home>/plugins/marketplaces/everything-claude-code/` exists | `/everything-claude-code:orchestrate` | `everything-claude-code:<name>` |
-| Legacy bare install | Above absent; agent files under `<claude-home>/agents/` | `/orchestrate` | `<name>` |
+| プラグインインストール（1.9.0+） | `<claude-home>/plugins/marketplaces/everything-claude-code/`が存在する | `/everything-claude-code:orchestrate` | `everything-claude-code:<name>` |
+| レガシーベアインストール | 上記が存在しない。`<claude-home>/agents/`にエージェントファイルがある | `/orchestrate` | `<name>` |
 
-Why this matters: under the plugin install, agents register as `everything-claude-code:tdd-guide`. Bare names force fuzzy matching, which fails intermittently under parallel calls. Under legacy, the prefixed forms are not registered and fail outright.
+なぜ重要か: プラグインインストールでは、エージェントは`everything-claude-code:tdd-guide`として登録される。ベア名は並列呼び出しで断続的に失敗するファジーマッチングを強制する。レガシーでは、プレフィックス付き形式は登録されておらず完全に失敗する。
 
-## Available agent catalogue (must pick from these)
+## 利用可能なエージェントカタログ（これらから選ぶこと）
 
-General:
-- `planner` — requirement restatement, risk decomposition, step planning
-- `architect` — architecture, system design, refactor proposals
-- `tdd-guide` — write tests → implement → 80%+ coverage
-- `code-reviewer` — generic code review
-- `security-reviewer` — security audit, OWASP, secret leakage
-- `refactor-cleaner` — dead code, duplicates, knip-class cleanup
-- `doc-updater` — documentation, codemap, README
-- `docs-lookup` — third-party library API lookups (Context7)
-- `e2e-runner` — end-to-end test orchestration
-- `database-reviewer` — PostgreSQL schema, migration, performance
-- `harness-optimizer` — local agent harness configuration
-- `loop-operator` — long-running autonomous loops
-- `chief-of-staff` — multi-channel triage (rarely a fit for plan steps)
+汎用:
+- `planner` — 要件の再記述、リスク分解、ステップ計画
+- `architect` — アーキテクチャ、システム設計、リファクタリング提案
+- `tdd-guide` — テスト作成 → 実装 → カバレッジ80%以上
+- `code-reviewer` — 汎用コードレビュー
+- `security-reviewer` — セキュリティ監査、OWASP、シークレット漏洩
+- `refactor-cleaner` — デッドコード、重複、knipクラスのクリーンアップ
+- `doc-updater` — ドキュメント、コードマップ、README
+- `docs-lookup` — サードパーティライブラリAPIのルックアップ（Context7）
+- `e2e-runner` — エンドツーエンドテストのオーケストレーション
+- `database-reviewer` — PostgreSQLスキーマ、マイグレーション、パフォーマンス
+- `harness-optimizer` — ローカルエージェントハーネス設定
+- `loop-operator` — 長時間実行の自律ループ
+- `chief-of-staff` — マルチチャンネルトリアージ（計画ステップにはほとんど適さない）
 
-Build error resolvers:
-- `build-error-resolver` (generic) / `cpp-build-resolver` / `go-build-resolver` / `java-build-resolver` / `kotlin-build-resolver` / `rust-build-resolver` / `pytorch-build-resolver`
+ビルドエラー解決者:
+- `build-error-resolver`（汎用）/ `cpp-build-resolver` / `go-build-resolver` / `java-build-resolver` / `kotlin-build-resolver` / `rust-build-resolver` / `pytorch-build-resolver`
 
-Code reviewers:
+コードレビュアー:
 - `python-reviewer` / `typescript-reviewer` / `go-reviewer` / `rust-reviewer` / `cpp-reviewer` / `java-reviewer` / `kotlin-reviewer` / `flutter-reviewer`
 
-A misspelled agent name fails `/orchestrate`. Cross-check against this list before emitting.
+エージェント名のスペルミスは`/orchestrate`を失敗させる。出力前にこのリストと照合すること。
 
-## How It Works
+## 仕組み
 
-### Phase 0 — Detect ECC mode + language
+### フェーズ0 — ECCモード + 言語の検出
 
-1. Read `<plan-doc-path>`. If missing or empty, report and stop.
-2. Detect ECC install form once and freeze it into `ECC_MODE`. Algorithm (run in order, stop at the first match):
-   1. If `<claude-home>/plugins/marketplaces/everything-claude-code/` exists → `ECC_MODE=plugin`.
-   2. Else if `<claude-home>/agents/` exists and contains at least one ECC agent file (e.g. `tdd-guide.md`, `code-reviewer.md`) → `ECC_MODE=legacy`.
-   3. Else → default to `ECC_MODE=legacy` and emit a one-line warning at the top of the output: `> Warning: could not detect ECC install; defaulting to legacy form. If you use the plugin install, edit the prefixes manually.`
-   4. If both markers exist (mixed install), `plugin` wins — the plugin namespace is the only one that resolves agent names without fuzzy matching.
+1. `<plan-doc-path>`を読み込む。見つからないまたは空の場合、報告して停止。
+2. ECCインストール形式を一度検出し`ECC_MODE`に固定する。アルゴリズム（順番に実行し、最初に一致したところで停止）:
+   1. `<claude-home>/plugins/marketplaces/everything-claude-code/`が存在する → `ECC_MODE=plugin`。
+   2. そうでなければ`<claude-home>/agents/`が存在し、少なくとも1つのECCエージェントファイル（例: `tdd-guide.md`、`code-reviewer.md`）を含む → `ECC_MODE=legacy`。
+   3. そうでなければ → `ECC_MODE=legacy`をデフォルトとし、出力の先頭に1行の警告を出力: `> Warning: could not detect ECC install; defaulting to legacy form. If you use the plugin install, edit the prefixes manually.`
+   4. 両方のマーカーが存在する（混在インストール）場合、`plugin`が優先 — プラグイン名前空間のみがファジーマッチングなしでエージェント名を解決する唯一の方法。
 
-   From this point on, every emitted line uses the matching prefix on **both** the slash command and every agent name. **Never emit both forms in the same output.**
-3. Resolve `--lang`. When `auto`, run a polyglot-aware detection:
-   - Probe markers: `pyproject.toml` / `uv.lock` / `requirements.txt` → python; `package.json` → typescript; `go.mod` → go; `Cargo.toml` → rust; `CMakeLists.txt` or top-level `*.cpp` → cpp; `pom.xml` / `build.gradle` (Java) → java; `build.gradle.kts` or top-level Kotlin → kotlin; `pubspec.yaml` → flutter.
-   - **Polyglot tie-break**: if more than one marker matches, pick the language whose source files outnumber the others (count via `git ls-files`, excluding `vendor/`, `node_modules/`, `dist/`, `build/`, `.venv/`, generated files, and obvious test fixtures). On a tie or when no language exceeds 60% of source files, set `lang=unknown`.
-   - No marker matched → set `lang=unknown`.
-   - `lang=unknown` is a sentinel — it is **not** an agent name. Phase 2 rules 4 and 5 turn it into `code-reviewer` / `build-error-resolver` at chain composition time.
-4. Detect a **PyTorch sub-profile**: when `lang=python` and any of `pyproject.toml` / `requirements.txt` / `uv.lock` declares a dependency on `torch`, set `pytorch=true`. This only affects `build` chain selection (Phase 2 rule below); the reviewer remains `python-reviewer`.
-5. **Normalize any agent names declared in the plan**: if the plan text references agents by their plugin-prefixed form (e.g. `everything-claude-code:tdd-guide`), strip the prefix to get the bare catalogue name before validating or composing chains. Re-prefixing happens only at output time per `ECC_MODE` (Phase 4). Never let a pre-prefixed name flow into chain composition — it would double-prefix in plugin mode.
+   この時点から、出力する全行は対応するプレフィックスを**スラッシュコマンドと全エージェント名の両方に**使用する。**同じ出力内で両方の形式を出力しない。**
+3. `--lang`を解決する。`auto`の場合、多言語対応の検出を実行:
+   - プローブマーカー: `pyproject.toml` / `uv.lock` / `requirements.txt` → python; `package.json` → typescript; `go.mod` → go; `Cargo.toml` → rust; `CMakeLists.txt`またはトップレベルの`*.cpp` → cpp; `pom.xml` / `build.gradle`（Java）→ java; `build.gradle.kts`またはトップレベルのKotlin → kotlin; `pubspec.yaml` → flutter。
+   - **多言語タイブレーク**: 複数のマーカーが一致する場合、ソースファイル数が他を上回る言語を選ぶ（`git ls-files`でカウント、`vendor/`、`node_modules/`、`dist/`、`build/`、`.venv/`、生成ファイル、明らかなテストフィクスチャを除く）。同数または単一言語がソースファイルの60%を超えない場合、`lang=unknown`を設定。
+   - マーカーが一致しない → `lang=unknown`を設定。
+   - `lang=unknown`はセンチネル — エージェント名ではない。フェーズ2のルール4と5がチェーン構成時に`code-reviewer` / `build-error-resolver`に変換する。
+4. **PyTorchサブプロファイルを検出**: `lang=python`かつ`pyproject.toml` / `requirements.txt` / `uv.lock`のいずれかが`torch`への依存関係を宣言している場合、`pytorch=true`を設定。これは`build`チェーンの選択にのみ影響する（フェーズ2のルール参照）。レビュアーは`python-reviewer`のまま。
+5. **計画内で宣言されたエージェント名を正規化する**: 計画テキストがプラグインプレフィックス形式でエージェントを参照している場合（例: `everything-claude-code:tdd-guide`）、プレフィックスを取り除いてベアカタログ名を取得してからバリデーションまたはチェーン構成を行う。プレフィックスの再付与はECC_MODEに従って出力時（フェーズ4）にのみ行う。プレフィックス付きの名前がチェーン構成に流れ込まないようにする — プラグインモードでダブルプレフィックスになってしまう。
 
-### Phase 1 — Decompose steps
+### フェーズ1 — ステップの分解
 
-Identify "step units" in priority order:
+優先順位順に「ステップ単位」を特定:
 
-1. Explicit numbering: `## Step N` / `### Phase N` / `## N. ...` / top-level ordered list.
-2. A "Step" column in a table.
-3. `---`-separated blocks with verb-led headings.
-4. Otherwise treat each H2 as one step.
+1. 明示的な番号付け: `## Step N` / `### Phase N` / `## N. ...` / トップレベルの順序付きリスト。
+2. テーブルの「Step」列。
+3. 動詞主導の見出しを持つ`---`区切りのブロック。
+4. それ以外は各H2を1つのステップとして扱う。
 
-Per step extract `id` (1-based), `title` (≤ 80 chars), `intent` (1–3 sentences), `tags`.
+各ステップから`id`（1ベース）、`title`（80文字以下）、`intent`（1〜3文）、`tags`を抽出する。
 
-### Phase 2 — Tag and pick chain
+### フェーズ2 — タグ付けとチェーン選択
 
-Tag by intent (multi-tag allowed; chain built from primary + stacked secondaries):
+意図によるタグ付け（複数タグ可。チェーンはプライマリ + スタックされたセカンダリから構築）:
 
-Trigger words below are matched case-insensitively. Multilingual plans are supported by matching the word stems in any language as long as the meaning aligns with the listed English trigger words.
+以下のトリガーワードは大文字小文字を区別せずマッチングする。多言語の計画は、意味が列挙された英語のトリガーワードと一致する限り、任意の言語の語幹にマッチングすることでサポートされる。
 
-| Tag | Trigger words | Default chain |
+| タグ | トリガーワード | デフォルトチェーン |
 |---|---|---|
 | `design` | architecture, design, choose, evaluate, RFC | `planner,architect` |
 | `plan` | plan, breakdown, milestone | `planner` |
@@ -127,45 +127,45 @@ Trigger words below are matched case-insensitively. Multilingual plans are suppo
 | `migration` | migrate, upgrade, rewrite, port | `architect,tdd-guide,<lang>-reviewer` |
 | `db` | schema, migration, index, SQL, Postgres, alembic, sqlmodel | `database-reviewer,<lang>-reviewer` |
 | `security` | encrypt, auth, secret, OWASP, PII | `security-reviewer,<lang>-reviewer` |
-| `build` | build, compile, lint failure, CI | `<lang>-build-resolver` (falls back to `build-error-resolver`) |
+| `build` | build, compile, lint failure, CI | `<lang>-build-resolver`（`build-error-resolver`にフォールバック） |
 | `docs` | docs, readme, codemap, changelog | `doc-updater` |
 | `lookup` | lookup, reference, API usage | `docs-lookup` |
 | `review` | review, audit, verify | `<lang>-reviewer,code-reviewer` |
 | `loop` | loop, autonomous, watchdog | `loop-operator` |
 
-Chain composition rules:
-1. **Primary tag selection**: when a step matches multiple tags, the **first one in table order** (top of the table = highest priority) is the primary; the rest are secondaries. Composition rules 2 and 3 below handle specific multi-tag combinations explicitly; otherwise, append secondary chains in tag table order.
-2. `impl` + `security` → `tdd-guide,<lang>-reviewer,security-reviewer`.
-3. `impl` + `db` → `tdd-guide,database-reviewer,<lang>-reviewer`.
-4. **Deduplicate** the resulting chain (preserve first occurrence). E.g. `review` + `lang=unknown` would yield `code-reviewer,code-reviewer` after rule 5; deduplication collapses it to `code-reviewer`.
-5. `<lang>-reviewer` resolves to `code-reviewer` when `lang=unknown`.
-6. `<lang>-build-resolver` resolves to `build-error-resolver` when `lang=unknown`. **Special case**: if Phase 0 set `pytorch=true`, use `pytorch-build-resolver` for `build` chains regardless of `<lang>`. There is no `python-build-resolver`; `--lang=python` without `pytorch=true` resolves to `build-error-resolver`.
-7. **Zero-tag steps**: if no trigger word matches, set chain to `code-reviewer` and write `no tag matched; default review-only chain` under "Chain rationale".
-8. Chain length ≤ 4 after deduplication. If exceeded, drop weakest tag (`lookup` and `docs` first).
-9. Do not pair `planner` and `architect` in an `impl` chain (token waste). Pair them only on `design` steps.
-10. Steps tagged `impl`, `refactor`, or `migration` end with a **reviewer-class** agent — any of `<lang>-reviewer`, `code-reviewer`, `security-reviewer`, or `database-reviewer`. The most domain-specific reviewer wins the tail position (e.g. rule 2's `impl+security` ends with `security-reviewer`; rule 3's `impl+db` ends with `<lang>-reviewer` because `database-reviewer` already gates the migration earlier in the chain). `test` and `build` steps are gated by their own validators (`e2e-runner` and the build resolver respectively) and do not require an additional reviewer.
+チェーン構成ルール:
+1. **プライマリタグの選択**: ステップが複数のタグにマッチする場合、**テーブル順で最初のもの**（テーブルの上 = 最高優先度）がプライマリ。残りはセカンダリ。以下の構成ルール2と3は特定の複数タグの組み合わせを明示的に処理する。それ以外は、セカンダリチェーンをタグテーブルの順序で追加する。
+2. `impl` + `security` → `tdd-guide,<lang>-reviewer,security-reviewer`。
+3. `impl` + `db` → `tdd-guide,database-reviewer,<lang>-reviewer`。
+4. 結果のチェーンを**重複排除**する（最初の出現を保持）。例: `review` + `lang=unknown`はルール5の後`code-reviewer,code-reviewer`になるが、重複排除で`code-reviewer`に折りたたまれる。
+5. `<lang>-reviewer`は`lang=unknown`の場合`code-reviewer`に解決される。
+6. `<lang>-build-resolver`は`lang=unknown`の場合`build-error-resolver`に解決される。**特殊ケース**: フェーズ0で`pytorch=true`が設定されている場合、`<lang>`に関係なく`build`チェーンには`pytorch-build-resolver`を使用する。`python-build-resolver`は存在しない。`pytorch=true`なしの`--lang=python`は`build-error-resolver`に解決される。
+7. **ゼロタグのステップ**: トリガーワードがマッチしない場合、チェーンを`code-reviewer`に設定し「Chain rationale」に`no tag matched; default review-only chain`と記述する。
+8. 重複排除後のチェーン長は4以下。超過した場合、最も弱いタグを削除する（`lookup`と`docs`を最初に）。
+9. `impl`チェーンに`planner`と`architect`をペアにしない（トークンの無駄）。`design`ステップでのみペアにする。
+10. `impl`、`refactor`、または`migration`タグのステップは**レビュアークラス**エージェントで終わる — `<lang>-reviewer`、`code-reviewer`、`security-reviewer`、または`database-reviewer`のいずれか。最もドメイン固有のレビュアーがテール位置を獲得する（例: ルール2の`impl+security`は`security-reviewer`で終わる。ルール3の`impl+db`は、`database-reviewer`がすでにチェーンの早い段階でマイグレーションをゲートしているため`<lang>-reviewer`で終わる）。`test`と`build`のステップは独自のバリデーター（`e2e-runner`とビルドリゾルバー）でゲートされており、追加レビュアーは不要。
 
-### Phase 3 — Compress task description
+### フェーズ3 — タスク説明の圧縮
 
-Each emitted `<task description>` must:
-- Be self-contained (the first agent does not need the plan document open).
-- Start with `[Plan: <path>#step-<id>]`.
-- Include 1–3 verifiable Acceptance criteria.
-- Include a Scope guard (`Out of scope: ...`) **only if the plan declares one for this step**. Inherit verbatim. If the plan has no out-of-scope statement, omit the clause entirely — do not invent one.
-- Be 200–600 characters; one line; embedded `"` escaped as `\"`; no literal newlines.
+各出力の`<task description>`は以下の条件を満たす必要がある:
+- 自己完結型（最初のエージェントが計画ドキュメントを開く必要がない）。
+- `[Plan: <path>#step-<id>]`で始まる。
+- 1〜3つの検証可能な受け入れ基準を含む。
+- スコープガード（`Out of scope: ...`）を含める — **計画がそのステップに対してスコープ外を宣言している場合のみ**。そのまま継承する。計画にスコープ外の記述がない場合、節を完全に省略する — 発明しない。
+- 200〜600文字。1行。埋め込みの`"`は`\"`としてエスケープ。リテラルの改行なし。
 
-### Phase 4 — Output
+### フェーズ4 — 出力
 
-Emit Markdown using **the form determined by `ECC_MODE`**. The output uses one form throughout — every `{ORCH_CMD}` and every agent name is rendered with the matching prefix from Phase 0. **Do not emit both forms; do not include "this is plugin form" / "strip the prefix" instructions in the rendered output.**
+`ECC_MODE`で決定した**形式を使用して**Markdownを出力する。出力は1つの形式を全体で使用 — 全ての`{ORCH_CMD}`と全てのエージェント名は、フェーズ0で対応するプレフィックスでレンダリングされる。**両方の形式を出力しない。「これはプラグイン形式です」/「プレフィックスを削除してください」という指示をレンダリングされた出力に含めない。**
 
-Concrete rendering rules:
+具体的なレンダリングルール:
 
-- `{ORCH_CMD}` = `/everything-claude-code:orchestrate` under `plugin`, `/orchestrate` under `legacy`.
-- `{AGENT(name)}` = `everything-claude-code:<name>` under `plugin`, `<name>` under `legacy`.
-- The overview-table "Chain" column uses the same `{AGENT(name)}` rendering.
-- Per-step bash blocks contain only the runnable command. **No `# plugin form` or `# legacy form` comments** — the form is implicit and uniform across the whole output.
+- `{ORCH_CMD}` = `plugin`では`/everything-claude-code:orchestrate`、`legacy`では`/orchestrate`。
+- `{AGENT(name)}` = `plugin`では`everything-claude-code:<name>`、`legacy`では`<name>`。
+- 概要テーブルの「Chain」列は同じ`{AGENT(name)}`レンダリングを使用する。
+- ステップごとのbashブロックには実行可能なコマンドのみを含む。**`# plugin form`や`# legacy form`のコメントなし** — 形式は出力全体で暗黙的かつ統一されている。
 
-Output structure:
+出力構造:
 
 ````markdown
 # Plan-Orchestrate Result
@@ -187,76 +187,76 @@ Output structure:
 
 ## Step 1 — <title>
 
-**Intent**: <1–3 sentences>
+**Intent**: <1〜3文>
 **Tags**: <a, b>
-**Chain rationale**: <why this chain; which agent closes the loop>
+**Chain rationale**: <このチェーンを選んだ理由。どのエージェントがループを閉じるか>
 
 ```bash
-{ORCH_CMD} custom "{AGENT(tdd-guide)},{AGENT(database-reviewer)},{AGENT(python-reviewer)}" "[Plan: docs/foo.md#step-1] <compressed task description>; Acceptance: <1–3 items>; Out of scope: <…>"
+{ORCH_CMD} custom "{AGENT(tdd-guide)},{AGENT(database-reviewer)},{AGENT(python-reviewer)}" "[Plan: docs/foo.md#step-1] <圧縮されたタスク説明>; Acceptance: <1〜3項目>; Out of scope: <…>"
 ```
 ````
 
-> The `{ORCH_CMD}` and `{AGENT(...)}` notation above describes the substitution this skill performs at runtime. The actual emitted Markdown contains the resolved strings, never the placeholders.
+> 上記の`{ORCH_CMD}`と`{AGENT(...)}`表記は、このスキルが実行時に行う置換を説明する。実際に出力されるMarkdownには解決済みの文字列が含まれ、プレースホルダーは含まれない。
 
-Append a final "Batch execution" block aggregating every step's command in order so the user can paste them all at once. **Skip the Batch block in overview-only mode** (see "Large plan" edge case): when only the overview table is being emitted, there are no per-step commands to aggregate.
+全ステップのコマンドを順番にまとめた最終的な「Batch execution」ブロックを追加し、ユーザーが一度に全て貼り付けられるようにする。**概要専用モードではBatchブロックをスキップする**（「大規模な計画」エッジケース参照）: 概要テーブルのみを出力するモードでは、ステップごとのコマンドがないため集約するものがない。
 
-### Phase 5 — Self-check (run before emitting)
+### フェーズ5 — 自己チェック（出力前に実行）
 
-- [ ] Every agent in every chain comes from the catalogue (after stripping any `everything-claude-code:` prefix that appeared in the plan; see Phase 0 step 5).
-- [ ] Resolved `{ORCH_CMD}` and every resolved `{AGENT(...)}` use the **same** form (`plugin` or `legacy`) — never mixed in one output.
-- [ ] No `# plugin form` / `# legacy form` annotations and no "strip the prefix" instructions remain in the rendered output.
-- [ ] No invented `--mode` / `--gate` / `--agents=...` fields.
-- [ ] Each task description is single-line, double-quoted, with embedded `"` escaped.
-- [ ] Each task description begins with `[Plan: <path>#step-<id>]` and includes Acceptance (1–3 items). The `Out of scope:` clause is present only when inherited from the plan.
-- [ ] No duplicate agent in any chain after Phase 2 dedup.
-- [ ] Chain length ≤ 4.
-- [ ] Steps tagged `impl`/`refactor`/`migration` end with a reviewer-class agent (`<lang>-reviewer`, `code-reviewer`, `security-reviewer`, or `database-reviewer`). `test` and `build` are exempt — see Phase 2 rule 10.
-- [ ] Zero-tag steps emit `code-reviewer` with the rationale `no tag matched; default review-only chain`.
-- [ ] Overview table lists every step in the plan, regardless of `--scope`.
-- [ ] Per-step detail block count matches the resolved `--scope` (full plan when `--scope=all`; one block for `step:n`; range size for `range:a-b`). In overview-only mode, no per-step blocks and no Batch block are emitted.
+- [ ] 全チェーンの全エージェントがカタログに存在する（計画に現れた`everything-claude-code:`プレフィックスを取り除いた後。フェーズ0ステップ5参照）。
+- [ ] 解決済みの`{ORCH_CMD}`と全ての解決済み`{AGENT(...)}`が**同じ**形式（`plugin`または`legacy`）を使用している — 1つの出力内で混在しない。
+- [ ] `# plugin form` / `# legacy form`のアノテーションや「プレフィックスを削除してください」という指示がレンダリングされた出力に残っていない。
+- [ ] 発明した`--mode` / `--gate` / `--agents=...`フィールドがない。
+- [ ] 各タスク説明が1行で、ダブルクォートで囲まれ、埋め込みの`"`がエスケープされている。
+- [ ] 各タスク説明が`[Plan: <path>#step-<id>]`で始まり、受け入れ基準（1〜3項目）を含む。`Out of scope:`節は計画から継承した場合のみ存在する。
+- [ ] 各チェーンにフェーズ2の重複排除後の重複エージェントがない。
+- [ ] チェーン長が4以下。
+- [ ] `impl`/`refactor`/`migration`タグのステップがレビュアークラスエージェント（`<lang>-reviewer`、`code-reviewer`、`security-reviewer`、または`database-reviewer`）で終わっている。`test`と`build`は免除 — フェーズ2ルール10参照。
+- [ ] ゼロタグのステップが`code-reviewer`を出力し、根拠に`no tag matched; default review-only chain`と記述されている。
+- [ ] 概要テーブルが`--scope`に関係なく計画の全ステップを列挙している。
+- [ ] ステップごとの詳細ブロック数が解決済みの`--scope`と一致している（`--scope=all`の場合は計画全体。`step:n`の場合は1ブロック。範囲の場合は範囲サイズ）。概要専用モードでは、ステップごとのブロックもBatchブロックも出力しない。
 
-## Edge cases
+## エッジケース
 
-- **No clear steps**: prefer H2/H3 splitting; if still ambiguous, report "no structured steps detected" with the document outline and ask the user to confirm running by outline.
-- **Large plan (>1500 lines)**: enter **overview-only mode** — emit only the overview table and ask the user to narrow with `--scope` before re-running for details. In this mode, skip per-step detail blocks and skip the Batch execution block.
-- **Step too broad** (e.g. "complete all backend work"): do not force a single chain. Suggest splitting into N.a and N.b and propose a split.
-- **Plan declares agents** (rare): first **strip any `everything-claude-code:` prefix** to get the bare catalogue name (Phase 0 step 5), then validate against the catalogue. Replace invalid agents and explain under "Chain rationale". The bare name is re-prefixed at output time per `ECC_MODE`.
-- **Polyglot project where `--lang=auto` cannot pick a winner**: set `lang=unknown`; reviewer resolves to `code-reviewer` and build resolver to `build-error-resolver`. Mention the fallback under "Chain rationale".
+- **ステップが明確でない**: H2/H3の分割を優先する。それでも曖昧な場合、「no structured steps detected」と報告してドキュメントのアウトラインを表示し、アウトラインに沿って実行することをユーザーに確認する。
+- **大規模な計画（1500行超）**: **概要専用モード**に入る — 概要テーブルのみを出力し、詳細を再実行する前に`--scope`で絞り込むよう求める。このモードでは、ステップごとの詳細ブロックとBatch executionブロックをスキップする。
+- **ステップが広すぎる**（例: 「全バックエンド作業を完成させる」）: 無理に1つのチェーンにしない。N.aとN.bに分割することを提案し、分割案を提示する。
+- **計画がエージェントを宣言している**（まれ）: まず**`everything-claude-code:`プレフィックスを取り除いて**ベアカタログ名を取得し（フェーズ0ステップ5）、カタログに対してバリデーションする。無効なエージェントを置き換え、「Chain rationale」で説明する。ベア名は出力時に`ECC_MODE`に従って再プレフィックスされる。
+- **`--lang=auto`が勝者を決定できない多言語プロジェクト**: `lang=unknown`を設定。レビュアーは`code-reviewer`に、ビルドリゾルバーは`build-error-resolver`にフォールバックする。「Chain rationale」でフォールバックについて言及する。
 
-## Examples
+## 例
 
-### Example 1 — Plugin mode, Python plan
+### 例1 — プラグインモード、Pythonの計画
 
-Input:
+入力:
 ```
 plan-orchestrate @docs/plan/example-feature.md --lang=python
 ```
 
-Excerpt of expected output:
+期待される出力の抜粋:
 ````markdown
 ## Step 2 — Encrypt sensitive UserProfile fields
 
-**Intent**: Introduce an `EncryptedString` SQLAlchemy type and AES-GCM encrypt `birth_datetime` / `location` before persistence; load the key from an environment variable.
+**Intent**: `EncryptedString` SQLAlchemy型を導入し、`birth_datetime` / `location`をAES-GCMで暗号化してから永続化する。キーは環境変数からロードする。
 **Tags**: impl, security, db
-**Chain rationale**: Security-sensitive write path, so `security-reviewer` closes the chain; `database-reviewer` validates the alembic migration; `python-reviewer` covers typing and PEP 8.
+**Chain rationale**: セキュリティに敏感な書き込みパスのため、`security-reviewer`がチェーンを閉じる。`database-reviewer`がalembicマイグレーションを検証し、`python-reviewer`が型付けとPEP 8をカバーする。
 
 ```bash
 /everything-claude-code:orchestrate custom "everything-claude-code:tdd-guide,everything-claude-code:database-reviewer,everything-claude-code:python-reviewer,everything-claude-code:security-reviewer" "[Plan: docs/plan/example-feature.md#step-2] Implement EncryptedString SQLAlchemy type and migrate UserProfile.birth_datetime/location columns; key from ENV APP_DB_KEY; Acceptance: encrypt/decrypt roundtrip tests pass; alembic upgrade/downgrade clean on empty DB; no plaintext in DB after migrate; Out of scope: cross-tenant profile sharing logic"
 ```
 ````
 
-### Example 2 — Legacy mode, same step
+### 例2 — レガシーモード、同じステップ
 
-If `ECC_MODE=legacy` were detected, the same step would be emitted as a single uniform command (no plugin-prefixed forms anywhere in the output):
+`ECC_MODE=legacy`が検出された場合、同じステップは統一されたコマンドとして出力される（出力のどこにもプラグインプレフィックス形式なし）:
 
 ```bash
 /orchestrate custom "tdd-guide,database-reviewer,python-reviewer,security-reviewer" "[Plan: docs/plan/example-feature.md#step-2] ..."
 ```
 
-The two examples above illustrate **the two possible outputs** for two different environments. A single skill invocation produces only one of them, end to end.
+上記の2つの例は**2つの異なる環境に対する2つの可能な出力**を示している。1回のスキル呼び出しはそのうちの1つのみを、エンドツーエンドで生成する。
 
-## Notes
+## 注意事項
 
-- Generative only. Never invoke `/orchestrate` from inside this skill.
-- Match the language of the plan document for task descriptions (agent names always remain English).
-- Do not insert "Co-Authored-By" lines or emoji in the output unless the user explicitly asks.
+- 生成のみ。このスキルの内部から`/orchestrate`を呼び出さない。
+- タスク説明には計画ドキュメントの言語に合わせる（エージェント名は常に英語のまま）。
+- ユーザーが明示的に求めない限り、出力に「Co-Authored-By」行や絵文字を挿入しない。

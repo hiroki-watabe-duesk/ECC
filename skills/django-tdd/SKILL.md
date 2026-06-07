@@ -1,23 +1,23 @@
 ---
 name: django-tdd
-description: Django testing strategies with pytest-django, TDD methodology, factory_boy, mocking, coverage, and testing Django REST Framework APIs.
+description: pytest-django を使った Django テスト戦略、TDD 手法、factory_boy、モック、カバレッジ、および Django REST Framework API のテスト。
 origin: ECC
 ---
 
-# Django Testing with TDD
+# Django における TDD を用いたテスト
 
-Test-driven development for Django applications using pytest, factory_boy, and Django REST Framework.
+pytest、factory_boy、Django REST Framework を使った Django アプリケーションのテスト駆動開発。
 
-## When to Activate
+## いつ有効にするか
 
-- Writing new Django applications
-- Implementing Django REST Framework APIs
-- Testing Django models, views, and serializers
-- Setting up testing infrastructure for Django projects
+- 新しい Django アプリケーションの作成
+- Django REST Framework API の実装
+- Django のモデル、ビュー、シリアライザーのテスト
+- Django プロジェクトのテスト基盤のセットアップ
 
-## TDD Workflow for Django
+## Django における TDD ワークフロー
 
-### Red-Green-Refactor Cycle
+### レッド・グリーン・リファクタリングサイクル
 
 ```python
 # Step 1: RED - Write failing test
@@ -33,9 +33,9 @@ def test_user_creation():
 # Step 3: REFACTOR - Improve while keeping tests green
 ```
 
-## Setup
+## セットアップ
 
-### pytest Configuration
+### pytest 設定
 
 ```ini
 # pytest.ini
@@ -57,7 +57,7 @@ markers =
     integration: marks tests as integration tests
 ```
 
-### Test Settings
+### テスト設定
 
 ```python
 # config/settings/test.py
@@ -148,7 +148,7 @@ def authenticated_api_client(api_client, user):
 
 ## Factory Boy
 
-### Factory Setup
+### ファクトリーのセットアップ
 
 ```python
 # tests/factories.py
@@ -208,7 +208,7 @@ class ProductFactory(factory.django.DjangoModelFactory):
                 self.tags.add(tag)
 ```
 
-### Using Factories
+### ファクトリーの使用方法
 
 ```python
 # tests/test_models.py
@@ -234,9 +234,9 @@ def test_multiple_products():
     assert len(products) == 10
 ```
 
-## Model Testing
+## モデルのテスト
 
-### Model Tests
+### モデルテスト
 
 ```python
 # tests/test_models.py
@@ -310,9 +310,9 @@ class TestProductModel:
             product.reduce_stock(10)  # Not enough stock
 ```
 
-## View Testing
+## ビューのテスト
 
-### Django View Testing
+### Django ビューテスト
 
 ```python
 # tests/test_views.py
@@ -370,9 +370,9 @@ class TestProductViews:
         assert Product.objects.filter(name='Test Product').exists()
 ```
 
-## DRF API Testing
+## DRF API テスト
 
-### Serializer Testing
+### シリアライザーテスト
 
 ```python
 # tests/test_serializers.py
@@ -440,7 +440,7 @@ class TestProductSerializer:
         assert 'stock' in serializer.errors
 ```
 
-### API ViewSet Testing
+### API ViewSet テスト
 
 ```python
 # tests/test_api.py
@@ -546,9 +546,9 @@ class TestProductAPI:
         assert response.data['count'] == 1
 ```
 
-## Mocking and Patching
+## モックとパッチ
 
-### Mocking External Services
+### 外部サービスのモック
 
 ```python
 # tests/test_views.py
@@ -592,7 +592,7 @@ class TestPaymentView:
         assert 'error' in response.url
 ```
 
-### Mocking Email Sending
+### メール送信のモック
 
 ```python
 # tests/test_email.py
@@ -609,9 +609,9 @@ def test_order_confirmation_email(db, order):
     assert 'Order Confirmation' in mail.outbox[0].subject
 ```
 
-## Integration Testing
+## 結合テスト
 
-### Full Flow Testing
+### フロー全体のテスト
 
 ```python
 # tests/test_integration.py
@@ -665,32 +665,32 @@ class TestCheckoutFlow:
         assert Order.objects.filter(user__email='test@example.com').exists()
 ```
 
-## Testing Best Practices
+## テストのベストプラクティス
 
-### DO
+### やること
 
-- **Use factories**: Instead of manual object creation
-- **One assertion per test**: Keep tests focused
-- **Descriptive test names**: `test_user_cannot_delete_others_post`
-- **Test edge cases**: Empty inputs, None values, boundary conditions
-- **Mock external services**: Don't depend on external APIs
-- **Use fixtures**: Eliminate duplication
-- **Test permissions**: Ensure authorization works
-- **Keep tests fast**: Use `--reuse-db` and `--nomigrations`
+- **ファクトリーを使う**: 手動オブジェクト生成の代わりに使用する
+- **1テスト1アサーション**: テストを目的に集中させる
+- **わかりやすいテスト名**: `test_user_cannot_delete_others_post` のように命名する
+- **エッジケースをテストする**: 空入力、None 値、境界条件
+- **外部サービスをモックする**: 外部 API に依存しない
+- **フィクスチャを使う**: 重複を排除する
+- **権限をテストする**: 認可が正しく機能することを確認する
+- **テストを高速に保つ**: `--reuse-db` と `--nomigrations` を使用する
 
-### DON'T
+### やってはいけないこと
 
-- **Don't test Django internals**: Trust Django to work
-- **Don't test third-party code**: Trust libraries to work
-- **Don't ignore failing tests**: All tests must pass
-- **Don't make tests dependent**: Tests should run in any order
-- **Don't over-mock**: Mock only external dependencies
-- **Don't test private methods**: Test public interface
-- **Don't use production database**: Always use test database
+- **Django の内部をテストしない**: Django が動作することを信頼する
+- **サードパーティコードをテストしない**: ライブラリが動作することを信頼する
+- **失敗するテストを放置しない**: すべてのテストが合格していなければならない
+- **テストを依存させない**: テストはどの順序でも実行可能にする
+- **過度にモックしない**: 外部依存関係のみをモックする
+- **プライベートメソッドをテストしない**: パブリックインターフェースをテストする
+- **本番データベースを使わない**: 常にテストデータベースを使用する
 
-## Coverage
+## カバレッジ
 
-### Coverage Configuration
+### カバレッジ設定
 
 ```bash
 # Run tests with coverage
@@ -700,30 +700,30 @@ pytest --cov=apps --cov-report=html --cov-report=term-missing
 open htmlcov/index.html
 ```
 
-### Coverage Goals
+### カバレッジ目標
 
-| Component | Target Coverage |
+| コンポーネント | 目標カバレッジ |
 |-----------|-----------------|
-| Models | 90%+ |
-| Serializers | 85%+ |
-| Views | 80%+ |
-| Services | 90%+ |
-| Utilities | 80%+ |
-| Overall | 80%+ |
+| モデル | 90%以上 |
+| シリアライザー | 85%以上 |
+| ビュー | 80%以上 |
+| サービス | 90%以上 |
+| ユーティリティ | 80%以上 |
+| 全体 | 80%以上 |
 
-## Quick Reference
+## クイックリファレンス
 
-| Pattern | Usage |
+| パターン | 用途 |
 |---------|-------|
-| `@pytest.mark.django_db` | Enable database access |
-| `client` | Django test client |
-| `api_client` | DRF API client |
-| `factory.create_batch(n)` | Create multiple objects |
-| `patch('module.function')` | Mock external dependencies |
-| `override_settings` | Temporarily change settings |
-| `force_authenticate()` | Bypass authentication in tests |
-| `assertRedirects` | Check for redirects |
-| `assertTemplateUsed` | Verify template usage |
-| `mail.outbox` | Check sent emails |
+| `@pytest.mark.django_db` | データベースアクセスを有効にする |
+| `client` | Django テストクライアント |
+| `api_client` | DRF API クライアント |
+| `factory.create_batch(n)` | 複数オブジェクトの作成 |
+| `patch('module.function')` | 外部依存関係のモック |
+| `override_settings` | 一時的な設定変更 |
+| `force_authenticate()` | テストで認証をバイパスする |
+| `assertRedirects` | リダイレクトの確認 |
+| `assertTemplateUsed` | テンプレートの使用を検証する |
+| `mail.outbox` | 送信済みメールの確認 |
 
-Remember: Tests are documentation. Good tests explain how your code should work. Keep them simple, readable, and maintainable.
+注意: テストはドキュメントです。優れたテストはコードがどのように動作すべきかを説明します。シンプルで読みやすく、保守しやすい状態に保ってください。

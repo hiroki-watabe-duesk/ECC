@@ -1,37 +1,37 @@
 ---
 name: vite-patterns
-description: Vite build tool patterns including config, plugins, HMR, env variables, proxy setup, SSR, library mode, dependency pre-bundling, and build optimization. Activate when working with vite.config.ts, Vite plugins, or Vite-based projects.
+description: Viteビルドツールのパターン（設定、プラグイン、HMR、環境変数、プロキシ設定、SSR、ライブラリモード、依存関係プリバンドル、ビルド最適化）。vite.config.ts、Viteプラグイン、またはViteベースのプロジェクトを扱う際に有効化する。
 origin: ECC
 ---
 
-# Vite Patterns
+# Vite パターン
 
-Build tool and dev server patterns for Vite 8+ projects. Covers configuration, environment variables, proxy setup, library mode, dependency pre-bundling, and common production pitfalls.
+Vite 8+ プロジェクト向けのビルドツール・開発サーバーパターン集。設定、環境変数、プロキシ設定、ライブラリモード、依存関係プリバンドル、および本番環境でよくある落とし穴を網羅する。
 
-## When to Use
+## 使用するタイミング
 
-- Configuring `vite.config.ts` or `vite.config.js`
-- Setting up environment variables or `.env` files
-- Configuring dev server proxy for API backends
-- Optimizing build output (chunks, minification, assets)
-- Publishing libraries with `build.lib`
-- Troubleshooting dependency pre-bundling or CJS/ESM interop
-- Debugging HMR, dev server, or build errors
-- Choosing or ordering Vite plugins
+- `vite.config.ts` または `vite.config.js` の設定
+- 環境変数や `.env` ファイルのセットアップ
+- APIバックエンド向けの開発サーバープロキシ設定
+- ビルド出力の最適化（チャンク、ミニファイ、アセット）
+- `build.lib` を用いたライブラリの公開
+- 依存関係プリバンドルや CJS/ESM 相互運用の問題解決
+- HMR、開発サーバー、またはビルドエラーのデバッグ
+- Vite プラグインの選定・順序付け
 
-## How It Works
+## 仕組み
 
-- **Dev mode** serves source files as native ESM — no bundling. Transforms happen on-demand per module request, which is why cold starts are fast and HMR is precise.
-- **Build mode** uses Rolldown (v7+) or Rollup (v5–v6) to bundle the app for production with tree-shaking, code-splitting, and Oxc-based minification.
-- **Dependency pre-bundling** converts CJS/UMD deps to ESM once via esbuild and caches the result under `node_modules/.vite`, so subsequent starts skip the work.
-- **Plugins** share a unified interface across dev and build — the same plugin object works for both the dev server's on-demand transforms and the production pipeline.
-- **Environment variables** are statically inlined at build time. `VITE_`-prefixed vars become public constants in the bundle; everything unprefixed is invisible to client code.
+- **開発モード**ではソースファイルをネイティブ ESM として提供し、バンドルは行わない。変換はモジュールリクエストごとにオンデマンドで実行されるため、コールドスタートが速く HMR が精密に行われる。
+- **ビルドモード**では Rolldown（v7+）または Rollup（v5〜v6）を使用してアプリを本番向けにバンドルし、ツリーシェイキング、コード分割、Oxc ベースのミニファイを適用する。
+- **依存関係プリバンドル**では esbuild を用いて CJS/UMD の依存関係を ESM へ一度だけ変換し、結果を `node_modules/.vite` にキャッシュするため、以降の起動ではその処理をスキップする。
+- **プラグイン**は開発とビルドにわたって統一されたインターフェースを共有する——同一のプラグインオブジェクトが、開発サーバーのオンデマンド変換と本番パイプラインの両方で機能する。
+- **環境変数**はビルド時に静的にインライン化される。`VITE_` プレフィックス付き変数はバンドル内の公開定数となり、プレフィックスなしのものはクライアントコードには見えない。
 
-## Examples
+## 例
 
-### Config Structure
+### 設定の構造
 
-#### Basic Config
+#### 基本設定
 
 ```typescript
 // vite.config.ts
@@ -46,7 +46,7 @@ export default defineConfig({
 })
 ```
 
-#### Conditional Config
+#### 条件付き設定
 
 ```typescript
 // vite.config.ts
@@ -66,40 +66,40 @@ export default defineConfig(({ command, mode }) => {
 })
 ```
 
-#### Key Config Options
+#### 主要な設定オプション
 
-| Key | Default | Description |
+| キー | デフォルト | 説明 |
 |-----|---------|-------------|
-| `root` | `'.'` | Project root (where `index.html` lives) |
-| `base` | `'/'` | Public base path for deployed assets |
-| `envPrefix` | `'VITE_'` | Prefix for client-exposed env vars |
-| `build.outDir` | `'dist'` | Output directory |
-| `build.minify` | `'oxc'` | Minifier (`'oxc'`, `'terser'`, or `false`) |
-| `build.sourcemap` | `false` | `true`, `'inline'`, or `'hidden'` |
+| `root` | `'.'` | プロジェクトルート（`index.html` の場所） |
+| `base` | `'/'` | デプロイされたアセットの公開ベースパス |
+| `envPrefix` | `'VITE_'` | クライアントに公開する環境変数のプレフィックス |
+| `build.outDir` | `'dist'` | 出力ディレクトリ |
+| `build.minify` | `'oxc'` | ミニファイアー（`'oxc'`、`'terser'`、または `false`） |
+| `build.sourcemap` | `false` | `true`、`'inline'`、または `'hidden'` |
 
-### Plugins
+### プラグイン
 
-#### Essential Plugins
+#### 主要プラグイン
 
-Most plugin needs are covered by a handful of well-maintained packages. Reach for these before writing your own.
+プラグインのニーズの大半は、メンテナンスが行き届いた少数のパッケージで満たせる。独自のプラグインを書く前にこれらを検討すること。
 
-| Plugin | Purpose | When to use |
+| プラグイン | 目的 | 使用タイミング |
 |--------|---------|-------------|
-| `@vitejs/plugin-react-swc` | React HMR + Fast Refresh via SWC | Default for React apps (faster than Babel variant) |
-| `@vitejs/plugin-react` | React HMR + Fast Refresh via Babel | Only if you need Babel plugins (emotion, MobX decorators) |
-| `@vitejs/plugin-vue` | Vue 3 SFC support | Vue apps |
-| `vite-plugin-checker` | Runs `tsc` + ESLint in worker thread with HMR overlay | **Any TypeScript app** — Vite does NOT type-check during `vite build` |
-| `vite-tsconfig-paths` | Honors `tsconfig.json` `paths` aliases | Any time you already have aliases in `tsconfig.json` |
-| `vite-plugin-dts` | Emits `.d.ts` files in library mode | Publishing TypeScript libraries |
-| `vite-plugin-svgr` | Imports SVGs as React components | React apps using SVGs as components |
-| `rollup-plugin-visualizer` | Bundle treemap/sunburst report | Periodic bundle size audits (use `enforce: 'post'`) |
-| `vite-plugin-pwa` | Zero-config PWA + Workbox | Offline-capable apps |
+| `@vitejs/plugin-react-swc` | SWC による React HMR + Fast Refresh | React アプリのデフォルト（Babel 版より高速） |
+| `@vitejs/plugin-react` | Babel による React HMR + Fast Refresh | Babel プラグインが必要な場合のみ（emotion、MobX デコレータ） |
+| `@vitejs/plugin-vue` | Vue 3 SFC サポート | Vue アプリ |
+| `vite-plugin-checker` | HMR オーバーレイ付きワーカースレッドで `tsc` + ESLint を実行 | **TypeScript アプリ全般**——`vite build` 中は型チェックを行わない |
+| `vite-tsconfig-paths` | `tsconfig.json` の `paths` エイリアスを使用 | すでに `tsconfig.json` にエイリアスがある場合 |
+| `vite-plugin-dts` | ライブラリモードで `.d.ts` ファイルを生成 | TypeScript ライブラリの公開時 |
+| `vite-plugin-svgr` | SVG を React コンポーネントとしてインポート | SVG をコンポーネントとして使用する React アプリ |
+| `rollup-plugin-visualizer` | バンドルのツリーマップ/サンバーストレポート | 定期的なバンドルサイズ監査（`enforce: 'post'` を使用） |
+| `vite-plugin-pwa` | ゼロ設定 PWA + Workbox | オフライン対応アプリ |
 
-**Critical callout:** `vite build` transpiles but does NOT type-check. Type errors silently ship to production unless you add `vite-plugin-checker` or run `tsc --noEmit` in CI.
+**重要な注意点:** `vite build` はトランスパイルのみを行い、型チェックは**行わない**。`vite-plugin-checker` を追加するか CI で `tsc --noEmit` を実行しない限り、型エラーはサイレントに本番環境へ届いてしまう。
 
-#### Authoring Custom Plugins
+#### カスタムプラグインの作成
 
-Authoring is rare — most needs are covered by existing plugins. When you do need one, start inline in `vite.config.ts` and only extract if reused.
+作成が必要になるケースは稀で、既存プラグインで大半のニーズは満たせる。必要な場合は `vite.config.ts` にインラインで記述し始め、再利用する場合にのみ抽出すること。
 
 ```typescript
 // vite.config.ts — minimal inline plugin
@@ -116,15 +116,15 @@ function myPlugin(): Plugin {
 }
 ```
 
-**Key hooks:** `transform` (modify source), `resolveId` + `load` (virtual modules), `transformIndexHtml` (inject into HTML), `configureServer` (add dev middleware), `hotUpdate` (custom HMR — replaces deprecated `handleHotUpdate` in v7+).
+**主要フック:** `transform`（ソース変換）、`resolveId` + `load`（仮想モジュール）、`transformIndexHtml`（HTML への注入）、`configureServer`（開発ミドルウェア追加）、`hotUpdate`（カスタム HMR——v7+ で非推奨の `handleHotUpdate` を置き換え）。
 
-**Virtual modules** use the `\0` prefix convention — `resolveId` returns `'\0virtual:my-id'` so other plugins skip it. User code imports `'virtual:my-id'`.
+**仮想モジュール**には `\0` プレフィックスの規約を使用する——`resolveId` は `'\0virtual:my-id'` を返し、他のプラグインがスキップするようにする。ユーザーコードは `'virtual:my-id'` としてインポートする。
 
-For full plugin API, see [vite.dev/guide/api-plugin](https://vite.dev/guide/api-plugin). Use `vite-plugin-inspect` during development to debug the transform pipeline.
+プラグイン API の全容は [vite.dev/guide/api-plugin](https://vite.dev/guide/api-plugin) を参照。開発中に変換パイプラインをデバッグするには `vite-plugin-inspect` を使用する。
 
 ### HMR API
 
-Framework plugins (`@vitejs/plugin-react`, `@vitejs/plugin-vue`, etc.) handle HMR automatically. Reach for `import.meta.hot` directly only when building custom state stores, dev tools, or framework-agnostic utilities that need to persist state across updates.
+フレームワークプラグイン（`@vitejs/plugin-react`、`@vitejs/plugin-vue` 等）は HMR を自動的に処理する。カスタム状態ストア、開発ツール、または更新をまたいで状態を保持する必要があるフレームワーク非依存のユーティリティを構築する場合にのみ `import.meta.hot` を直接使用すること。
 
 ```typescript
 // src/store.ts — manual HMR for a vanilla module
@@ -140,15 +140,15 @@ if (import.meta.hot) {
 }
 ```
 
-All `import.meta.hot` code is tree-shaken out of production builds — no guard removal needed.
+`import.meta.hot` のコードはすべて本番ビルドでツリーシェイクされるため、ガード削除は不要。
 
-### Environment Variables
+### 環境変数
 
-Vite loads `.env`, `.env.local`, `.env.[mode]`, and `.env.[mode].local` in that order (later overrides earlier); `*.local` files are gitignored and meant for local secrets.
+Vite は `.env`、`.env.local`、`.env.[mode]`、`.env.[mode].local` をその順番で読み込み（後の方が優先）、`*.local` ファイルは gitignore され、ローカルシークレット用として使われる。
 
-#### Client-Side Access
+#### クライアントサイドアクセス
 
-Only `VITE_`-prefixed vars are exposed to client code:
+`VITE_` プレフィックス付き変数のみがクライアントコードに公開される:
 
 ```typescript
 import.meta.env.VITE_API_URL   // string
@@ -159,7 +159,7 @@ import.meta.env.PROD            // boolean
 import.meta.env.SSR             // boolean
 ```
 
-#### Using Env in Config
+#### 設定内での環境変数の使用
 
 ```typescript
 // vite.config.ts
@@ -175,15 +175,15 @@ export default defineConfig(({ mode }) => {
 })
 ```
 
-### Security
+### セキュリティ
 
-#### `VITE_` Prefix is NOT a Security Boundary
+#### `VITE_` プレフィックスはセキュリティ境界ではない
 
-Any variable prefixed with `VITE_` is **statically inlined into the client bundle at build time**. Minification, base64 encoding, and disabling source maps do NOT hide it. A determined attacker can extract any `VITE_` var from the shipped JavaScript.
+`VITE_` プレフィックスの付いた変数はすべて**ビルド時にクライアントバンドルへ静的にインライン化**される。ミニファイ、base64 エンコード、ソースマップの無効化によっては隠せない。意図的な攻撃者は配布された JavaScript から任意の `VITE_` 変数を抽出できる。
 
-**Rule:** Only public values (API URLs, feature flags, public keys) go in `VITE_` vars. Secrets (API tokens, database URLs, private keys) MUST live server-side behind an API or serverless function.
+**ルール:** 公開値（API URL、フィーチャーフラグ、公開鍵）のみを `VITE_` 変数に入れる。シークレット（API トークン、データベース URL、秘密鍵）は必ずサーバーサイドの API またはサーバーレス関数の裏側に置くこと。
 
-#### The `loadEnv('')` Trap
+#### `loadEnv('')` の罠
 
 ```typescript
 // BAD: passing '' as the third arg loads ALL env vars — including server secrets —
@@ -194,9 +194,9 @@ const env = loadEnv(mode, process.cwd(), '')
 const env = loadEnv(mode, process.cwd(), ['VITE_', 'APP_'])
 ```
 
-#### Source Maps in Production
+#### 本番環境のソースマップ
 
-Production source maps leak your original source code. Disable them unless you upload to an error tracker (Sentry, Bugsnag) and delete locally afterward:
+本番ソースマップは元のソースコードを漏洩させる。エラートラッカー（Sentry、Bugsnag）にアップロードしてローカルから削除する場合を除き、無効化すること:
 
 ```typescript
 build: {
@@ -204,13 +204,13 @@ build: {
 }
 ```
 
-#### `.gitignore` Checklist
+#### `.gitignore` チェックリスト
 
-- `.env.local`, `.env.*.local` — local secret overrides
-- `dist/` — build output
-- `node_modules/.vite` — pre-bundle cache (stale entries cause phantom errors)
+- `.env.local`、`.env.*.local` — ローカルシークレットの上書き
+- `dist/` — ビルド出力
+- `node_modules/.vite` — プリバンドルキャッシュ（古いエントリが幻のエラーを引き起こす）
 
-### Server Proxy
+### サーバープロキシ
 
 ```typescript
 // vite.config.ts — server.proxy
@@ -227,11 +227,11 @@ server: {
 }
 ```
 
-For WebSocket proxying, add `ws: true` to the route config.
+WebSocket プロキシには、ルート設定に `ws: true` を追加する。
 
-### Build Optimization
+### ビルド最適化
 
-#### Manual Chunks
+#### マニュアルチャンク
 
 ```typescript
 // vite.config.ts — build.rolldownOptions
@@ -256,11 +256,11 @@ manualChunks(id) {
 }
 ```
 
-### Performance
+### パフォーマンス
 
-#### Avoid Barrel Files
+#### バレルファイルの回避
 
-Barrel files (`index.ts` re-exporting everything from a directory) force Vite to load every re-exported file even when you import a single symbol. This is the #1 dev-server slowdown flagged by the official docs.
+バレルファイル（ディレクトリ内のすべてを再エクスポートする `index.ts`）は、単一のシンボルをインポートしても Vite に再エクスポートされたすべてのファイルを読み込ませてしまう。公式ドキュメントが指摘する開発サーバー低速化の最大原因 #1 がこれだ。
 
 ```typescript
 // BAD — importing one util forces Vite to load the whole barrel
@@ -270,9 +270,9 @@ import { slash } from '@/utils'
 import { slash } from '@/utils/slash'
 ```
 
-#### Be Explicit with Import Extensions
+#### インポート拡張子を明示する
 
-Each implicit extension forces up to 6 filesystem checks via `resolve.extensions`. In large codebases, this adds up.
+暗黙の拡張子ごとに `resolve.extensions` を通じて最大 6 回のファイルシステム確認が走る。大規模なコードベースでは積み重なる。
 
 ```typescript
 // BAD
@@ -282,11 +282,11 @@ import Component from './Component'
 import Component from './Component.tsx'
 ```
 
-Narrow `tsconfig.json` `allowImportingTsExtensions` + `resolve.extensions` to only the extensions you actually use.
+`tsconfig.json` の `allowImportingTsExtensions` と `resolve.extensions` を実際に使用する拡張子のみに絞ること。
 
-#### Warm-Up Hot-Path Routes
+#### ホットパスルートのウォームアップ
 
-`server.warmup.clientFiles` pre-transforms known hot entries before the browser requests them — eliminating the cold-load request waterfall on large apps.
+`server.warmup.clientFiles` はブラウザがリクエストする前に既知のホットエントリを事前変換し、大規模アプリでのコールドロードリクエストウォーターフォールをなくす。
 
 ```typescript
 // vite.config.ts
@@ -297,16 +297,16 @@ server: {
 }
 ```
 
-#### Profiling Slow Dev Servers
+#### 遅い開発サーバーのプロファイリング
 
-When `vite dev` feels slow, start with `vite --profile`, interact with the app, then press `p+enter` to save a `.cpuprofile`. Load it in [Speedscope](https://www.speedscope.app) to find which plugins are eating time — usually `buildStart`, `config`, or `configResolved` hooks in community plugins.
+`vite dev` が遅く感じる場合は、`vite --profile` で起動してアプリを操作し、`p+enter` で `.cpuprofile` を保存する。[Speedscope](https://www.speedscope.app) で読み込み、どのプラグインが時間を食っているかを特定する——通常はコミュニティプラグインの `buildStart`、`config`、または `configResolved` フックが原因だ。
 
-### Library Mode
+### ライブラリモード
 
-When publishing an npm package, use `build.lib`. Two footguns matter more than config detail:
+npm パッケージを公開する際は `build.lib` を使用する。設定の詳細よりも重要な落とし穴が 2 つある:
 
-1. **Types are not emitted** — add `vite-plugin-dts` or run `tsc --emitDeclarationOnly` separately.
-2. **Peer dependencies MUST be externalized** — unlisted peers get bundled into your library, causing duplicate-runtime errors in consumers.
+1. **型は生成されない**——`vite-plugin-dts` を追加するか `tsc --emitDeclarationOnly` を別途実行する。
+2. **ピア依存関係は必ず外部化しなければならない**——リストされていないピアがライブラリにバンドルされ、消費側で重複ランタイムエラーが発生する。
 
 ```typescript
 // vite.config.ts
@@ -322,9 +322,9 @@ build: {
 }
 ```
 
-### SSR Externals
+### SSR 外部化
 
-Bare `createServer({ middlewareMode: true })` setups are framework-author territory. Most apps should use Nuxt, Remix, SvelteKit, Astro, or TanStack Start instead. What you *will* tweak as a framework user is the externals config when deps break in SSR:
+素の `createServer({ middlewareMode: true })` セットアップはフレームワーク作者向けの領域だ。多くのアプリは Nuxt、Remix、SvelteKit、Astro、または TanStack Start を使用すべきだ。フレームワークユーザーとして*実際に*調整するのは、依存関係が SSR で壊れたときの外部化設定だ:
 
 ```typescript
 // vite.config.ts — ssr options
@@ -335,9 +335,9 @@ ssr: {
 }
 ```
 
-### Dependency Pre-Bundling
+### 依存関係プリバンドル
 
-Vite pre-bundles dependencies to convert CJS/UMD to ESM and reduce request count.
+Vite は CJS/UMD を ESM に変換し、リクエスト数を減らすために依存関係をプリバンドルする。
 
 ```typescript
 // vite.config.ts — optimizeDeps
@@ -352,22 +352,22 @@ optimizeDeps: {
 }
 ```
 
-### Common Pitfalls
+### よくある落とし穴
 
-#### Dev Does Not Match Build
+#### 開発とビルドで挙動が異なる
 
-Dev uses esbuild/Rolldown for transforms; build uses Rolldown for bundling. CJS libraries can behave differently between the two. Always verify with `vite build && vite preview` before deploying.
+開発では変換に esbuild/Rolldown を使用し、ビルドではバンドルに Rolldown を使用する。CJS ライブラリは両者で挙動が異なる場合がある。デプロイ前に必ず `vite build && vite preview` で確認すること。
 
-#### Stale Chunks After Deployment
+#### デプロイ後に古いチャンクが残る
 
-New builds produce new chunk hashes. Users with active sessions request old filenames that no longer exist. Vite has no built-in solution. Mitigations:
+新しいビルドは新しいチャンクハッシュを生成する。アクティブなセッションを持つユーザーが存在しなくなった古いファイル名をリクエストしてしまう。Vite にはビルトインの解決策がない。軽減策:
 
-- Keep old `dist/assets/` files live for a deployment window
-- Catch dynamic import errors in your router and force a page reload
+- 旧 `dist/assets/` ファイルをデプロイウィンドウ中は有効なままにしておく
+- ルーターで動的インポートエラーをキャッチしてページリロードを強制する
 
-#### Docker and Containers
+#### Docker とコンテナ
 
-Vite binds to `localhost` by default, which is unreachable from outside a container:
+Vite はデフォルトで `localhost` にバインドするため、コンテナ外からアクセスできない:
 
 ```typescript
 // vite.config.ts — Docker/container setup
@@ -377,9 +377,9 @@ server: {
 }
 ```
 
-#### Monorepo File Access
+#### モノレポのファイルアクセス
 
-Vite restricts file serving to the project root. Packages outside root are blocked:
+Vite はファイル提供をプロジェクトルートに制限する。ルート外のパッケージはブロックされる:
 
 ```typescript
 // vite.config.ts — monorepo file access
@@ -390,7 +390,7 @@ server: {
 }
 ```
 
-### Anti-Patterns
+### アンチパターン
 
 ```typescript
 // BAD: Setting envPrefix to '' exposes ALL env vars (including secrets) to the client
@@ -417,33 +417,33 @@ import.meta.hot.data = { count: 0 }           // WRONG: must mutate properties, 
 import.meta.hot.data.count = 0                 // CORRECT
 ```
 
-**Process anti-patterns:**
+**プロセス上のアンチパターン:**
 
-- **`vite preview` is NOT a production server** — it is a smoke test for the built bundle. Deploy `dist/` to a real static host (NGINX, Cloudflare Pages, Vercel static) or use a multi-stage Dockerfile.
-- **Expecting `vite build` to type-check** — it only transpiles. Type errors silently ship to production. Add `vite-plugin-checker` or run `tsc --noEmit` in CI.
-- **Shipping `@vitejs/plugin-legacy` by default** — it bloats bundles ~40%, breaks source-map bundle analyzers, and is unnecessary for the 95%+ of users on modern browsers. Gate it on real analytics, not assumption.
-- **Hand-rolling 30+ `resolve.alias` entries that duplicate `tsconfig.json` paths** — use `vite-tsconfig-paths` instead. Observed in Excalidraw and PostHog; avoid in new projects.
-- **Leaving stale `node_modules/.vite` after dep changes** — pre-bundle cache causes phantom errors. Clear it when switching branches or after patching deps.
+- **`vite preview` は本番サーバーではない**——ビルドバンドルのスモークテストだ。`dist/` を実際の静的ホスト（NGINX、Cloudflare Pages、Vercel static）にデプロイするか、マルチステージ Dockerfile を使用すること。
+- **`vite build` が型チェックを行うと期待する**——トランスパイルのみを行う。型エラーはサイレントに本番へ届く。`vite-plugin-checker` を追加するか CI で `tsc --noEmit` を実行すること。
+- **`@vitejs/plugin-legacy` をデフォルトで含める**——バンドルを約 40% 膨らませ、ソースマップバンドルアナライザを壊し、モダンブラウザを使う 95% 以上のユーザーには不要だ。仮定ではなく実際のアナリティクスに基づいてゲートすること。
+- **`tsconfig.json` のパスを複製する 30 以上の `resolve.alias` エントリを手作業で記述する**——代わりに `vite-tsconfig-paths` を使うこと。Excalidraw や PostHog で見られたパターンだが、新規プロジェクトでは避けること。
+- **依存関係変更後に古い `node_modules/.vite` を残す**——プリバンドルキャッシュが幻のエラーを引き起こす。ブランチ切り替え時や依存関係パッチ適用後にクリアすること。
 
-## Quick Reference
+## クイックリファレンス
 
-| Pattern | When to Use |
+| パターン | 使用タイミング |
 |---------|-------------|
-| `defineConfig` | Always — provides type inference |
-| `loadEnv(mode, root, ['VITE_'])` | Access env vars in config (explicit prefix) |
-| `vite-plugin-checker` | Any TypeScript app (fills the type-check gap) |
-| `vite-tsconfig-paths` | Instead of hand-rolled `resolve.alias` |
-| `optimizeDeps.include` | CJS deps causing interop issues |
-| `server.proxy` | Route API requests to backend in dev |
-| `server.host: true` | Docker, containers, remote access |
-| `server.warmup.clientFiles` | Pre-transform hot-path routes |
-| `build.lib` + `external` | Publishing npm packages |
-| `manualChunks` (object) | Vendor bundle splitting |
-| `vite --profile` | Debug slow dev server |
-| `vite build && vite preview` | Smoke-test prod bundle locally (NOT a prod server) |
+| `defineConfig` | 常に使用——型推論を提供する |
+| `loadEnv(mode, root, ['VITE_'])` | 設定内で環境変数にアクセスする（明示的なプレフィックス） |
+| `vite-plugin-checker` | 任意の TypeScript アプリ（型チェックのギャップを埋める） |
+| `vite-tsconfig-paths` | 手作業の `resolve.alias` の代わりに |
+| `optimizeDeps.include` | 相互運用の問題を起こす CJS の依存関係 |
+| `server.proxy` | 開発時に API リクエストをバックエンドへルーティング |
+| `server.host: true` | Docker、コンテナ、リモートアクセス |
+| `server.warmup.clientFiles` | ホットパスルートの事前変換 |
+| `build.lib` + `external` | npm パッケージの公開 |
+| `manualChunks`（オブジェクト形式） | ベンダーバンドルの分割 |
+| `vite --profile` | 遅い開発サーバーのデバッグ |
+| `vite build && vite preview` | ビルドバンドルをローカルでスモークテスト（本番サーバーではない） |
 
-## Related Skills
+## 関連スキル
 
-- `frontend-patterns` — React component patterns
-- `docker-patterns` — containerized dev with Vite
-- `nextjs-turbopack` — alternative bundler for Next.js
+- `frontend-patterns` — React コンポーネントパターン
+- `docker-patterns` — Vite を使ったコンテナ化開発
+- `nextjs-turbopack` — Next.js 向けの代替バンドラー

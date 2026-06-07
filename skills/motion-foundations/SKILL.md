@@ -1,94 +1,92 @@
 ---
 name: motion-foundations
-description: Motion tokens, spring presets, performance rules, device adaptation, accessibility enforcement, and SSR safety for React / Next.js using motion/react. Foundation layer — all other motion skills depend on this.
+description: React / Next.js（motion/react使用）向けのモーショントークン・スプリングプリセット・パフォーマンスルール・デバイス適応・アクセシビリティ強制・SSR安全性の基盤レイヤー。他のすべてのモーションスキルがこのスキルに依存する。
 version: 1.0
 tags: [motion, animation, performance, accessibility]
 category: frontend
 author: jeff
 ---
 
-# Motion Foundations
+# モーション基盤
 
-The base layer of the motion system. Defines every value, constraint, and
-rule that downstream skills (`motion-patterns`, `motion-advanced`) inherit.
-Load this skill before any animation work begins.
+モーションシステムの基底レイヤー。下流のスキル（`motion-patterns`・`motion-advanced`）が継承するすべての値・制約・ルールを定義する。
+アニメーション作業を始める前に必ずこのスキルを読み込むこと。
 
-## When to Activate
+## アクティベートするタイミング
 
-- Starting any animated component from scratch
-- Setting up tokens, spring presets, or easing values
-- Implementing `prefers-reduced-motion` support
-- Debugging hydration mismatches from animation initial states
-- Evaluating whether an animation should exist at all
+- アニメーションコンポーネントをゼロから作成するとき
+- トークン・スプリングプリセット・イージング値を設定するとき
+- `prefers-reduced-motion`のサポートを実装するとき
+- アニメーション初期状態によるハイドレーションミスマッチをデバッグするとき
+- アニメーションを存在させるべきかどうかを評価するとき
 
-## Outputs
+## 出力
 
-This skill produces:
+このスキルが生成するもの:
 
-- A shared `motionTokens` object (duration, easing, distance, scale)
-- A shared `springs` preset map (5 named configs)
-- A `shouldAnimate()` gate used by all components
-- Accessibility-compliant animation defaults via `useReducedMotion`
-- SSR-safe initial states with zero hydration warnings
+- 共有`motionTokens`オブジェクト（duration・easing・distance・scale）
+- 共有`springs`プリセットマップ（5つの名前付き設定）
+- すべてのコンポーネントが使用する`shouldAnimate()`ゲート
+- `useReducedMotion`によるアクセシビリティ準拠のアニメーションデフォルト
+- ハイドレーション警告ゼロのSSR安全な初期状態
 
-## Principles
+## 原則
 
-Motion must do at least one of the following or it must be removed:
+モーションは以下の少なくとも1つを満たさなければ削除する:
 
-- Guide attention
-- Communicate state
-- Preserve spatial continuity
+- 注意を誘導する
+- 状態を伝える
+- 空間的な連続性を維持する
 
-Responsiveness always outranks smoothness. A 60 fps animation that causes
-input delay is worse than no animation.
+応答性は常にスムーズさより優先される。60fpsのアニメーションでも入力遅延を引き起こすなら、アニメーションなしの方がよい。
 
-## Rules
+## ルール
 
-These are non-negotiable. They apply to every component in the system.
+これらは非交渉的。システム内のすべてのコンポーネントに適用される。
 
-1. **Use `motion/react` only.** Never import from `framer-motion`. Never mix the two in the same tree.
-2. **`initial` must match server output.** If the server renders `opacity: 1`, the `initial` prop must also be `opacity: 1`. No exceptions.
-3. **Reduced motion overrides everything.** When `useReducedMotion()` returns `true` or `prefersReduced` is `true`, all transforms are disabled. Opacity-only fades at ≤ 0.2s are the only permitted fallback.
-4. **Never animate layout properties.** `width`, `height`, `top`, `left`, `margin`, `padding` are banned from `animate`. Use `transform` and `opacity` only.
-5. **All token values come from `motionTokens`.** Hardcoded durations and easings in component files are forbidden.
-6. **All spring configs come from the `springs` map.** Inline `stiffness`/`damping` values are forbidden.
-7. **`"use client"` is required** on every file that imports from `motion/react`.
-8. **Never read `window` or `navigator` at module level.** Always guard with `typeof window !== "undefined"`.
+1. **`motion/react`のみを使用する。** `framer-motion`からのインポートは禁止。同一ツリー内での混在も禁止。
+2. **`initial`はサーバー出力と一致させる。** サーバーが`opacity: 1`をレンダリングするなら、`initial`プロップも`opacity: 1`でなければならない。例外なし。
+3. **モーション低減は常に最優先。** `useReducedMotion()`が`true`を返すか`prefersReduced`が`true`の場合、すべてのトランスフォームを無効にする。0.2s以下のopacityのみのフェードだけが許可されるフォールバック。
+4. **レイアウトプロパティはアニメーション禁止。** `width`・`height`・`top`・`left`・`margin`・`padding`を`animate`で使うことを禁止する。`transform`と`opacity`のみを使用すること。
+5. **すべてのトークン値は`motionTokens`から取得する。** コンポーネントファイル内にdurationやeasingをハードコードすることを禁止する。
+6. **すべてのスプリング設定は`springs`マップから取得する。** `stiffness`/`damping`のインライン値は禁止。
+7. **`"use client"`は必須。** `motion/react`からインポートするすべてのファイルに必要。
+8. **モジュールレベルで`window`や`navigator`を読まない。** 必ず`typeof window !== "undefined"`でガードする。
 
-## Decision Guidance
+## 意思決定ガイダンス
 
-### Choosing a duration
+### durationの選択
 
-| Token | Use when |
+| トークン | 使用場面 |
 | --------- | -------------------------------------------- |
-| `instant` | Tooltip show/hide, focus ring, badge update |
-| `fast` | Button feedback, icon swap, chip toggle |
-| `normal` | Modal open, card expand, page element enter |
-| `slow` | Hero entrance, full-page transition |
-| `crawl` | Deliberate storytelling; use sparingly |
+| `instant` | ツールチップの表示/非表示・フォーカスリング・バッジ更新 |
+| `fast` | ボタンフィードバック・アイコン切り替え・チップトグル |
+| `normal` | モーダルを開く・カード展開・ページ要素の入場 |
+| `slow` | ヒーロー入場・フルページトランジション |
+| `crawl` | 意図的なストーリーテリング。多用しないこと |
 
-### Choosing a spring
+### スプリングの選択
 
-| Preset | Use when |
+| プリセット | 使用場面 |
 | --------- | ------------------------------------------ |
-| `snappy` | Default UI — buttons, chips, nav items |
-| `gentle` | Cards, modals, panels landing softly |
-| `bouncy` | Playful moments — empty states, onboarding |
-| `instant` | Tooltips, popovers, dropdowns |
-| `release` | Drag release — natural physics feel |
+| `snappy` | デフォルトUI――ボタン・チップ・ナビゲーション項目 |
+| `gentle` | 柔らかく着地するカード・モーダル・パネル |
+| `bouncy` | 遊び心のある場面――空の状態・オンボーディング |
+| `instant` | ツールチップ・ポップオーバー・ドロップダウン |
+| `release` | ドラッグリリース――自然な物理的感触 |
 
-### When to disable animation entirely
+### アニメーションを完全に無効にするタイミング
 
-Disable (make `shouldAnimate()` return `false`) when:
+次の場合に`shouldAnimate()`が`false`を返すよう無効化する:
 
-- `prefersReduced` is `true`
-- `isLowEnd` is `true` and the animation is non-essential
-- The element is off-screen and will never enter the viewport
-- The animation is purely decorative with no UX purpose
+- `prefersReduced`が`true`
+- `isLowEnd`が`true`かつアニメーションが必須でない
+- 要素がビューポート外にあり、ビューポートに入ることがない
+- アニメーションが純粋に装飾的でUX上の目的がない
 
-## Core Concepts
+## コアコンセプト
 
-### Token system
+### トークンシステム
 
 ```ts
 // lib/motion-tokens.ts
@@ -129,7 +127,7 @@ export const springs = {
 }
 ```
 
-### Runtime flags
+### ランタイムフラグ
 
 ```ts
 // lib/motion-config.ts
@@ -162,16 +160,15 @@ export const motionConfig = {
 }
 ```
 
-### Accessibility
+### アクセシビリティ
 
-**Priority order (highest to lowest):**
+**優先順位（高い順）:**
 
-1. `prefers-reduced-motion: reduce` — disables all transforms, limits opacity transitions to ≤ 0.2s
-2. Low-end device detection — reduces duration, removes non-essential animations
-3. Design preference — everything else
+1. `prefers-reduced-motion: reduce` — すべてのトランスフォームを無効化し、opacityのトランジションを0.2s以下に制限する
+2. ローエンドデバイス検出 — durationを短縮し、必須でないアニメーションを削除する
+3. デザインの好み――それ以外のすべて
 
-Motion must degrade gracefully. It must never disappear abruptly in a way
-that causes layout shift or confuses orientation.
+モーションはグレースフルにデグレードしなければならない。レイアウトシフトを引き起こしたり向きの感覚を失わせるような突然の消滅は許されない。
 
 ```tsx
 // hooks/use-reduced-motion.tsx
@@ -201,15 +198,15 @@ export function useSafeMotion(fullY: number = 16) {
 <div class="motion-safe:animate-fade motion-reduce:opacity-100"></div>
 ```
 
-### SSR / hydration safety
+### SSR / ハイドレーションの安全性
 
-**Rule: `initial` must always match what the server renders.**
+**ルール: `initial`は常にサーバーがレンダリングするものと一致させること。**
 
 ```tsx
-// WRONG — server renders opacity:1 but initial says 0 → hydration mismatch
+// 誤り――サーバーはopacity:1をレンダリングするが、initialは0と指定 → ハイドレーションミスマッチ
 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} />
 
-// CORRECT — use AnimatePresence or defer to client mount
+// 正しい――AnimatePressenceを使うか、クライアントマウントまで遅延させる
 "use client"
 const [mounted, setMounted] = useState(false)
 useEffect(() => setMounted(true), [])
@@ -220,9 +217,9 @@ useEffect(() => setMounted(true), [])
 />
 ```
 
-## Code Examples
+## コード例
 
-### End-to-end: tokens + springs + accessibility + SSR guard
+### エンドツーエンド: トークン + スプリング + アクセシビリティ + SSRガード
 
 ```tsx
 // components/fade-in-card.tsx
@@ -240,14 +237,14 @@ interface FadeInCardProps {
 }
 
 export function FadeInCard({ children, delay = 0 }: FadeInCardProps) {
-  // SSR guard — initial must match server output (opacity: 1)
+  // SSRガード――initialはサーバー出力（opacity: 1）と一致させる
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
 
-  // Accessibility — disables transform when reduced motion is preferred
+  // アクセシビリティ――モーション低減が優先される場合はトランスフォームを無効化
   const safeMotion = useSafeMotion(motionTokens.distance.md)
 
-  // Device gate — skip animation on low-end hardware
+  // デバイスゲート――ローエンドハードウェアではアニメーションをスキップ
   if (!motionConfig.shouldAnimate() || !mounted) {
     return <div>{children}</div>
   }
@@ -270,30 +267,30 @@ export function FadeInCard({ children, delay = 0 }: FadeInCardProps) {
 }
 ```
 
-## Constraints / Non-Goals
+## 制約 / 対象外
 
-This skill does **not** cover:
+このスキルは以下をカバー**しない**:
 
-- UI component patterns (button, modal, stagger) → see `motion-patterns`
-- Drag, gestures, SVG, text animations, custom hooks → see `motion-advanced`
-- CSS-only animations or Tailwind `animate-*` classes without `motion/react`
-- Third-party animation libraries (GSAP, anime.js, etc.)
-- Motion design decisions (when to animate, what to emphasize) — that is a design concern, not a code constraint
+- UIコンポーネントパターン（ボタン・モーダル・スタガー）→ `motion-patterns`参照
+- ドラッグ・ジェスチャー・SVG・テキストアニメーション・カスタムフック → `motion-advanced`参照
+- `motion/react`を使わないCSSのみのアニメーションやTailwindの`animate-*`クラス
+- サードパーティのアニメーションライブラリ（GSAP・anime.jsなど）
+- モーションデザインの判断（何をアニメーション化するか・何を強調するか）――これはコードの制約ではなくデザインの問題
 
-## Anti-Patterns
+## アンチパターン
 
-| Anti-pattern | Rule violated | Fix |
+| アンチパターン | 違反するルール | 修正方法 |
 | --------------------------------------- | ------- | ------------------------------- |
-| `import { motion } from "framer-motion"` | Rule 1 | Use `motion/react` |
-| `initial={{ opacity: 0 }}` on SSR component | Rule 2 | Add mount guard |
-| Skipping `useReducedMotion` check | Rule 3 | Use `useSafeMotion` hook |
-| `animate={{ width: "100%" }}` | Rule 4 | Use `scaleX` transform instead |
-| `transition={{ duration: 0.4 }}` inline | Rule 5 | Use `motionTokens.duration.normal` |
-| `{ stiffness: 300, damping: 30 }` inline | Rule 6 | Use `springs.snappy` |
-| Missing `"use client"` directive | Rule 7 | Add to top of file |
-| `navigator.hardwareConcurrency` at module level | Rule 8 | Wrap in `typeof navigator !== "undefined"` |
+| `import { motion } from "framer-motion"` | ルール1 | `motion/react`を使用する |
+| SSRコンポーネントで`initial={{ opacity: 0 }}` | ルール2 | マウントガードを追加する |
+| `useReducedMotion`チェックをスキップ | ルール3 | `useSafeMotion`フックを使用する |
+| `animate={{ width: "100%" }}` | ルール4 | 代わりに`scaleX`トランスフォームを使用する |
+| `transition={{ duration: 0.4 }}`のインライン記述 | ルール5 | `motionTokens.duration.normal`を使用する |
+| `{ stiffness: 300, damping: 30 }`のインライン記述 | ルール6 | `springs.snappy`を使用する |
+| `"use client"`ディレクティブの欠如 | ルール7 | ファイルの先頭に追加する |
+| モジュールレベルでの`navigator.hardwareConcurrency` | ルール8 | `typeof navigator !== "undefined"`でラップする |
 
-## Related Skills
+## 関連スキル
 
-- **`motion-patterns`** — consumes tokens and springs defined here to build button, modal, stagger, page transition, and scroll patterns. Does not redefine any values.
-- **`motion-advanced`** — consumes tokens and springs defined here for drag, SVG, text, and gesture patterns. Adds `useAnimate` sequences and custom hooks on top of this foundation.
+- **`motion-patterns`** — ここで定義されたトークンとスプリングを使い、ボタン・モーダル・スタガー・ページトランジション・スクロールパターンを構築する。値の再定義はしない。
+- **`motion-advanced`** — ここで定義されたトークンとスプリングを使い、ドラッグ・SVG・テキスト・ジェスチャーパターンを実装する。この基盤の上に`useAnimate`シーケンスとカスタムフックを追加する。

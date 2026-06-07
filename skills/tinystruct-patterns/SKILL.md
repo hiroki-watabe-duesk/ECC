@@ -1,42 +1,42 @@
 ---
 name: tinystruct-patterns
-description: Expert guidance for developing with the tinystruct Java framework. Use when working on the tinystruct codebase or any project built on tinystruct — including creating Application classes, @Action-mapped routes, unit tests, ActionRegistry, HTTP/CLI dual-mode handling, the built-in HTTP server, the event system, JSON with Builder/Builders, database persistence with AbstractData, POJO generation, Server-Sent Events (SSE), file uploads, and outbound HTTP networking.
+description: tinystruct Java フレームワークを使った開発のエキスパートガイダンス。tinystruct コードベースまたは tinystruct で構築されたプロジェクト（Application クラスの作成、@Action マッピングルート、単体テスト、ActionRegistry、HTTP/CLI デュアルモード処理、組み込み HTTP サーバー、イベントシステム、Builder/Builders を使った JSON、AbstractData によるデータベース永続化、POJO 生成、Server-Sent Events（SSE）、ファイルアップロード、アウトバウンド HTTP ネットワーキングを含む）の作業時に使用する。
 origin: ECC
 ---
 
-# tinystruct Development Patterns
+# tinystruct 開発パターン
 
-Architecture and implementation patterns for building modules with the **tinystruct** Java framework – a lightweight, high-performance framework that treats CLI and HTTP as equal citizens, requiring no `main()` method and minimal configuration.
+**tinystruct** Java フレームワーク — CLI と HTTP を対等な市民として扱い、`main()` メソッドが不要で最小限の設定で済む軽量かつ高性能なフレームワーク — でモジュールを構築するためのアーキテクチャと実装パターン。
 
-## Core Principle
+## 基本原則
 
-**CLI and HTTP are equal citizens.** Every method annotated with `@Action` should ideally be runnable from both a terminal and a web browser without modification. This "dual-mode" capability is the core design philosophy of tinystruct.
+**CLI と HTTP は対等な市民です。** `@Action` でアノテーションされたすべてのメソッドは、理想的には変更なしにターミナルとウェブブラウザの両方から実行できるべきです。この「デュアルモード」機能が tinystruct の核となる設計哲学です。
 
-## When to Activate
+## 有効化のタイミング
 
-### When to Use
+### 使用するケース
 
-- Creating new `Application` modules by extending `AbstractApplication`.
-- Defining routes and command-line actions using `@Action`.
-- Handling per-request state via `Context`.
-- Performing JSON serialization using the native `Builder` and `Builders` components.
-- Working with database persistence via `AbstractData` POJOs.
-- Generating POJOs from database tables using the `generate` command.
-- Implementing Server-Sent Events (SSE) for real-time push.
-- Handling file uploads via multipart data.
-- Making outbound HTTP requests with `URLRequest` and `HTTPHandler`.
-- Configuring database connections or system settings in `application.properties`.
-- Debugging routing conflicts (Actions) or CLI argument parsing.
+- `AbstractApplication` を継承して新しい `Application` モジュールを作成する。
+- `@Action` を使ってルートとコマンドラインアクションを定義する。
+- `Context` を介してリクエストごとの状態を処理する。
+- ネイティブの `Builder` と `Builders` コンポーネントを使って JSON シリアライゼーションを行う。
+- `AbstractData` POJO を介してデータベース永続化を行う。
+- `generate` コマンドを使ってデータベーステーブルから POJO を生成する。
+- リアルタイムプッシュのための Server-Sent Events（SSE）を実装する。
+- マルチパートデータを介したファイルアップロードを処理する。
+- `URLRequest` と `HTTPHandler` でアウトバウンド HTTP リクエストを行う。
+- `application.properties` でデータベース接続またはシステム設定を構成する。
+- ルーティングの競合（アクション）または CLI 引数の解析をデバッグする。
 
-## How It Works
+## 仕組み
 
-The tinystruct framework treats any method annotated with `@Action` as a routable endpoint for both terminal and web environments. Applications are created by extending `AbstractApplication`, which provides core lifecycle hooks like `init()` and access to the request `Context`.
+tinystruct フレームワークは `@Action` でアノテーションされたすべてのメソッドを、ターミナルと Web 環境の両方でルーティング可能なエンドポイントとして扱います。アプリケーションはコアライフサイクルフック（`init()` など）とリクエスト `Context` へのアクセスを提供する `AbstractApplication` を継承して作成します。
 
-Routing is handled by the `ActionRegistry`, which automatically maps path segments to method arguments and injects dependencies. For data-only services, the native `Builder` and `Builders` components should be used for JSON serialization to maintain a zero-dependency footprint. The database layer uses `AbstractData` POJOs paired with XML mapping files for CRUD operations without external ORM libraries.
+ルーティングは `ActionRegistry` が処理し、パスセグメントをメソッド引数に自動的にマッピングして依存関係を注入します。データのみのサービスでは、ゼロ依存のフットプリントを維持するために JSON シリアライゼーションにネイティブの `Builder` と `Builders` コンポーネントを使用すべきです。データベースレイヤーは、外部 ORM ライブラリなしで CRUD 操作を行うために XML マッピングファイルと対になった `AbstractData` POJO を使用します。
 
-## Examples
+## 使用例
 
-### Basic Application (MyService)
+### 基本的なアプリケーション（MyService）
 ```java
 public class MyService extends AbstractApplication {
     @Override
@@ -59,7 +59,7 @@ public class MyService extends AbstractApplication {
 }
 ```
 
-### HTTP Mode Disambiguation (login)
+### HTTP モードの識別（login）
 ```java
 @Action(value = "login", mode = Mode.HTTP_POST)
 public String doLogin(Request<?, ?> request) throws ApplicationException {
@@ -68,7 +68,7 @@ public String doLogin(Request<?, ?> request) throws ApplicationException {
 }
 ```
 
-### Native JSON Data Handling (Builder + Builders)
+### ネイティブ JSON データ処理（Builder + Builders）
 ```java
 import org.tinystruct.data.component.Builder;
 import org.tinystruct.data.component.Builders;
@@ -88,7 +88,7 @@ public String getData() throws ApplicationException {
 }
 ```
 
-### SSE (Server-Sent Events)
+### SSE（Server-Sent Events）
 ```java
 import org.tinystruct.http.SSEPushManager;
 
@@ -108,7 +108,7 @@ SSEPushManager.getInstance().push(sessionId, msg);
 SSEPushManager.getInstance().broadcast(msg);
 ```
 
-### File Upload
+### ファイルアップロード
 ```java
 import org.tinystruct.data.FileEntity;
 
@@ -124,9 +124,9 @@ public String upload(Request<?, ?> request) throws ApplicationException {
 }
 ```
 
-## Configuration
+## 設定
 
-Settings are managed in `src/main/resources/application.properties`.
+設定は `src/main/resources/application.properties` で管理される。
 
 ```properties
 # Database
@@ -148,56 +148,56 @@ default.language=en_US
 # redis.port=6379
 ```
 
-Access config values in your application:
+アプリケーション内で設定値にアクセスする:
 ```java
 String port = this.getConfiguration("server.port");
 ```
 
-## Red Flags & Anti-patterns
+## レッドフラグとアンチパターン
 
-| Symptom | Correct Pattern |
+| 症状 | 正しいパターン |
 |---|---|
-| Importing `com.google.gson` or `com.fasterxml.jackson` | Use `org.tinystruct.data.component.Builder` / `Builders`. |
-| Using `List<Builder>` for JSON arrays | Use `Builders` to avoid generic type erasure issues. |
-| `ApplicationRuntimeException: template not found` | Call `setTemplateRequired(false)` in `init()` for API-only apps. |
-| Annotating `private` methods with `@Action` | Actions must be `public` to be registered by the framework. |
-| Hardcoding `main(String[] args)` in apps | Use `bin/dispatcher` as the entry point for all modules. |
-| Manual `ActionRegistry` registration | Prefer the `@Action` annotation for automatic discovery. |
-| Action not found at runtime | Ensure class is imported via `--import` or listed in `application.properties`. |
-| CLI arg not visible | Pass with `--key value`; access via `getContext().getAttribute("--key")`. |
-| Two methods same path, wrong one fires | Set explicit `mode` (e.g., `HTTP_GET` vs `HTTP_POST`) to disambiguate. |
+| `com.google.gson` または `com.fasterxml.jackson` のインポート | `org.tinystruct.data.component.Builder` / `Builders` を使用する。 |
+| JSON 配列に `List<Builder>` を使用 | 総称型消去の問題を避けるために `Builders` を使用する。 |
+| `ApplicationRuntimeException: template not found` | API のみのアプリでは `init()` 内で `setTemplateRequired(false)` を呼び出す。 |
+| `private` メソッドに `@Action` をアノテート | アクションはフレームワークによって登録されるために `public` でなければならない。 |
+| アプリに `main(String[] args)` をハードコーディング | すべてのモジュールのエントリポイントとして `bin/dispatcher` を使用する。 |
+| 手動での `ActionRegistry` 登録 | 自動検出のために `@Action` アノテーションを優先する。 |
+| ランタイムでアクションが見つからない | `--import` でクラスがインポートされているか `application.properties` にリストされていることを確認する。 |
+| CLI 引数が見えない | `--key value` で渡し、`getContext().getAttribute("--key")` でアクセスする。 |
+| 同じパスの 2 つのメソッドで間違った方が呼ばれる | 識別のために明示的な `mode`（例: `HTTP_GET` vs `HTTP_POST`）を設定する。 |
 
-## Best Practices
+## ベストプラクティス
 
-1. **Granular Applications**: Break logic into smaller, focused applications rather than one monolithic class.
-2. **Setup in `init()`**: Leverage `init()` for setup (config, DB) rather than the constructor. Do NOT call `setAction()` — use `@Action` annotation.
-3. **Mode Awareness**: Use the `Mode` parameter in `@Action` to restrict sensitive operations to `CLI` only or specific HTTP methods.
-4. **Context over Params**: For optional CLI flags, use `getContext().getAttribute("--flag")` rather than adding parameters to the method signature.
-5. **Asynchronous Events**: For heavy tasks triggered by events, use `CompletableFuture.runAsync()` inside the event handler.
+1. **粒度の細かいアプリケーション**: 1 つのモノリシックなクラスではなく、小さな焦点を絞ったアプリケーションにロジックを分割する。
+2. **`init()` でのセットアップ**: コンストラクタではなく `init()` をセットアップ（設定、DB）に活用する。`setAction()` を呼び出さない — `@Action` アノテーションを使用する。
+3. **モードの意識**: センシティブな操作を `CLI` のみまたは特定の HTTP メソッドに限定するために `@Action` の `Mode` パラメータを使用する。
+4. **パラメータよりコンテキスト**: オプションの CLI フラグには、メソッドシグネチャにパラメータを追加するのではなく `getContext().getAttribute("--flag")` を使用する。
+5. **非同期イベント**: イベントハンドラによってトリガーされる重いタスクには、ハンドラ内で `CompletableFuture.runAsync()` を使用する。
 
-## Technical Reference
+## テクニカルリファレンス
 
-Detailed guides are available in the `references/` directory:
+詳細なガイドは `references/` ディレクトリで利用可能:
 
-- [Architecture & Config](references/architecture.md) — Abstractions, Package Map, Properties
-- [Routing & @Action](references/routing.md) — Annotation details, Modes, Parameters
-- [Data Handling](references/data-handling.md) — Builder, Builders, JSON serialization & parsing
-- [Database Persistence](references/database.md) — AbstractData POJOs, CRUD, mapping XML, POJO generation
-- [System & Usage](references/system-usage.md) — Context, Sessions, SSE, File Uploads, Events, Networking
-- [Testing Patterns](references/testing.md) — JUnit 5 unit and HTTP integration testing
+- [アーキテクチャと設定](references/architecture.md) — 抽象化、パッケージマップ、プロパティ
+- [ルーティングと @Action](references/routing.md) — アノテーションの詳細、モード、パラメータ
+- [データ処理](references/data-handling.md) — Builder、Builders、JSON シリアライゼーションと解析
+- [データベース永続化](references/database.md) — AbstractData POJO、CRUD、マッピング XML、POJO 生成
+- [システムと使用法](references/system-usage.md) — Context、セッション、SSE、ファイルアップロード、イベント、ネットワーキング
+- [テストパターン](references/testing.md) — JUnit 5 の単体テストと HTTP 統合テスト
 
-## Reference Source Files (Internal)
+## リファレンスソースファイル（内部）
 
-- `src/main/java/org/tinystruct/AbstractApplication.java` — Core base class with lifecycle hooks
-- `src/main/java/org/tinystruct/system/annotation/Action.java` — Annotation & Modes
-- `src/main/java/org/tinystruct/application/ActionRegistry.java` — Routing Engine
-- `src/main/java/org/tinystruct/data/component/Builder.java` — JSON object serializer
-- `src/main/java/org/tinystruct/data/component/Builders.java` — JSON array serializer
-- `src/main/java/org/tinystruct/data/component/AbstractData.java` — Base POJO class with CRUD
-- `src/main/java/org/tinystruct/data/Mapping.java` — Mapping XML parser
-- `src/main/java/org/tinystruct/data/tools/MySQLGenerator.java` — POJO generator reference
-- `src/main/java/org/tinystruct/data/component/FieldType.java` — SQL-to-Java type mappings
-- `src/main/java/org/tinystruct/data/component/Condition.java` — Fluent SQL query builder
-- `src/main/java/org/tinystruct/http/SSEPushManager.java` — SSE connection management
-- `src/test/java/org/tinystruct/application/ActionRegistryTest.java` — Registry test examples
-- `src/test/java/org/tinystruct/system/HttpServerHttpModeTest.java` — HTTP integration test patterns
+- `src/main/java/org/tinystruct/AbstractApplication.java` — ライフサイクルフックを持つコアベースクラス
+- `src/main/java/org/tinystruct/system/annotation/Action.java` — アノテーションとモード
+- `src/main/java/org/tinystruct/application/ActionRegistry.java` — ルーティングエンジン
+- `src/main/java/org/tinystruct/data/component/Builder.java` — JSON オブジェクトシリアライザ
+- `src/main/java/org/tinystruct/data/component/Builders.java` — JSON 配列シリアライザ
+- `src/main/java/org/tinystruct/data/component/AbstractData.java` — CRUD を持つベース POJO クラス
+- `src/main/java/org/tinystruct/data/Mapping.java` — マッピング XML パーサー
+- `src/main/java/org/tinystruct/data/tools/MySQLGenerator.java` — POJO ジェネレータリファレンス
+- `src/main/java/org/tinystruct/data/component/FieldType.java` — SQL から Java への型マッピング
+- `src/main/java/org/tinystruct/data/component/Condition.java` — フルエントな SQL クエリビルダー
+- `src/main/java/org/tinystruct/http/SSEPushManager.java` — SSE 接続管理
+- `src/test/java/org/tinystruct/application/ActionRegistryTest.java` — レジストリテストの例
+- `src/test/java/org/tinystruct/system/HttpServerHttpModeTest.java` — HTTP 統合テストのパターン

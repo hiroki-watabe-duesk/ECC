@@ -1,64 +1,61 @@
 ---
 name: homelab-wireguard-vpn
-description: WireGuard VPN server setup, peer configuration, key generation, split tunneling vs full tunnel routing, and remote access to a home network from mobile and laptop clients.
+description: WireGuard VPNサーバーのセットアップ、ピア設定、鍵生成、スプリットトンネリングとフルトンネルルーティングの比較、モバイルおよびノートPCクライアントからホームネットワークへのリモートアクセス。
 origin: community
 ---
 
 # Homelab WireGuard VPN
 
-WireGuard is a fast, modern VPN protocol. It is the right choice for remote access to a
-home network — simpler to configure than OpenVPN and faster than most alternatives.
+WireGuardは高速でモダンなVPNプロトコルである。ホームネットワークへのリモートアクセスに適した選択肢で、OpenVPNより設定が簡単で、ほとんどの代替手段より高速である。
 
-All configuration examples show common setups. Review each command — especially the
-iptables forwarding rules and key file permissions — before applying them to your
-system, and make changes in a maintenance window.
+以下の設定例はよくある構成を示している。システムに適用する前に、特にiptablesの転送ルールと鍵ファイルのパーミッションに関する各コマンドを確認し、メンテナンスウィンドウ内で変更を行うこと。
 
-## When to Use
+## 使用するタイミング
 
-- Setting up WireGuard server on a Raspberry Pi, Linux host, pfSense, or router
-- Generating WireGuard keypairs and writing peer config files
-- Configuring remote access from a phone or laptop to a home network
-- Explaining split tunneling (route only home traffic) vs full tunnel (route all traffic)
-- Troubleshooting WireGuard connections that will not come up
-- Automating peer configuration generation for multiple clients
+- Raspberry Pi、Linuxホスト、pfSense、またはルーターにWireGuardサーバーをセットアップするとき
+- WireGuardの鍵ペアを生成してピア設定ファイルを作成するとき
+- スマートフォンやノートPCからホームネットワークへのリモートアクセスを設定するとき
+- スプリットトンネリング（ホームトラフィックのみルーティング）とフルトンネル（全トラフィックをルーティング）の違いを説明するとき
+- 接続が確立しないWireGuard接続をトラブルシューティングするとき
+- 複数クライアントのピア設定生成を自動化するとき
 
-## How WireGuard Works
+## WireGuardの仕組み
 
 ```
-Your phone (WireGuard client)
+スマートフォン（WireGuardクライアント）
     │
-    │  Encrypted UDP tunnel (port 51820)
+    │  暗号化されたUDPトンネル（ポート51820）
     │
-Your home router (WireGuard server — needs a public IP or DDNS)
+ホームルーター（WireGuardサーバー — パブリックIPまたはDDNSが必要）
     │
-    Your home network (192.168.1.0/24, NAS, Pi, etc.)
+    ホームネットワーク（192.168.1.0/24、NAS、Piなど）
 
-Every device has a keypair (public + private key).
-The server knows each client's public key.
-The client knows the server's public key + endpoint (IP:port).
-Traffic is encrypted end-to-end with no central server or certificate authority.
+各デバイスが鍵ペア（公開鍵 + 秘密鍵）を持つ。
+サーバーは各クライアントの公開鍵を知っている。
+クライアントはサーバーの公開鍵 + エンドポイント（IP:ポート）を知っている。
+中央サーバーや認証機関なしでエンドツーエンド暗号化が行われる。
 ```
 
-## Server Setup (Linux)
+## サーバーセットアップ（Linux）
 
 ```bash
-# Install WireGuard
+# WireGuardをインストール
 sudo apt update && sudo apt install wireguard -y
 
-# Generate server keypair — create files with private permissions from the start
+# サーバーの鍵ペアを生成 — 最初からプライベートパーミッションでファイルを作成
 sudo mkdir -p /etc/wireguard
 sudo sh -c 'umask 077; wg genkey > /etc/wireguard/server_private.key'
 sudo sh -c 'wg pubkey < /etc/wireguard/server_private.key > /etc/wireguard/server_public.key'
 
-# Write server config — substitute the actual private key value
-# Do not store private keys in version control or share them
+# サーバー設定を書き込む — 実際の秘密鍵の値に置き換える
+# 秘密鍵はバージョン管理に保存したり共有したりしないこと
 sudo tee /etc/wireguard/wg0.conf << 'EOF'
 [Interface]
-Address = 10.8.0.1/24              # VPN subnet — server gets .1
+Address = 10.8.0.1/24              # VPNサブネット — サーバーは .1 を取得
 ListenPort = 51820
 PrivateKey = <paste_server_private_key_here>
 
-# Scoped forwarding rules: allow VPN traffic in/out, not a blanket FORWARD ACCEPT
+# スコープを絞った転送ルール：VPNトラフィックの入出力を許可するが、FORWARDを全許可しない
 PostUp   = iptables -A FORWARD -i wg0 -o eth0 -j ACCEPT
 PostUp   = iptables -A FORWARD -i eth0 -o wg0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 PostUp   = iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
@@ -67,77 +64,77 @@ PostDown = iptables -D FORWARD -i eth0 -o wg0 -m conntrack --ctstate RELATED,EST
 PostDown = iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
 
 [Peer]
-# Phone — replace with the actual phone public key
+# スマートフォン — 実際のスマートフォンの公開鍵に置き換える
 PublicKey = <phone_public_key>
 AllowedIPs = 10.8.0.2/32
 
 [Peer]
-# Laptop — replace with the actual laptop public key
+# ノートPC — 実際のノートPCの公開鍵に置き換える
 PublicKey = <laptop_public_key>
 AllowedIPs = 10.8.0.3/32
 EOF
 sudo chmod 600 /etc/wireguard/wg0.conf
 
-# Replace eth0 with your actual outbound interface name
-# Check with: ip route show default
+# eth0 を実際のアウトバウンドインターフェース名に置き換える
+# 確認方法: ip route show default
 
-# Enable IP forwarding (required for routing traffic through the server)
+# IPフォワーディングを有効化（サーバー経由のトラフィックルーティングに必要）
 echo "net.ipv4.ip_forward=1" | sudo tee /etc/sysctl.d/99-wireguard.conf
 sudo sysctl --system
 
-# Start WireGuard and enable on boot
+# WireGuardを起動し、起動時に自動開始するよう設定
 sudo wg-quick up wg0
 sudo systemctl enable wg-quick@wg0
 ```
 
-## Client Configuration
+## クライアント設定
 
 ```bash
-# Generate a unique keypair for each client device
-# Run on the client, or on the server and transfer the private key securely — never in plaintext
+# 各クライアントデバイス用に固有の鍵ペアを生成する
+# クライアント上で実行するか、サーバー上で生成して秘密鍵を安全に転送する — 平文での転送は不可
 umask 077
 wg genkey | tee phone_private.key | wg pubkey > phone_public.key
 
-# Client config file (phone_wg0.conf):
+# クライアント設定ファイル（phone_wg0.conf）:
 [Interface]
 PrivateKey = <phone_private_key>
 Address = 10.8.0.2/32
-DNS = 192.168.1.2                  # Optional: use Pi-hole for DNS over the tunnel
+DNS = 192.168.1.2                  # オプション: トンネル経由のDNSにPi-holeを使用
 
 [Peer]
 PublicKey = <server_public_key>
-Endpoint = your-home-ip.ddns.net:51820  # Your public IP or DDNS hostname
-AllowedIPs = 192.168.1.0/24            # Split tunnel: only home network traffic
-# AllowedIPs = 0.0.0.0/0, ::/0        # Full tunnel: all traffic through VPN
+Endpoint = your-home-ip.ddns.net:51820  # パブリックIPまたはDDNSホスト名
+AllowedIPs = 192.168.1.0/24            # スプリットトンネル: ホームネットワークのトラフィックのみ
+# AllowedIPs = 0.0.0.0/0, ::/0        # フルトンネル: 全トラフィックをVPN経由
 
-PersistentKeepalive = 25              # Keep NAT hole open (required for mobile clients)
+PersistentKeepalive = 25              # NATホールを開いたままにする（モバイルクライアントに必要）
 ```
 
-## Split Tunnel vs Full Tunnel
+## スプリットトンネルとフルトンネルの比較
 
 ```
-# Split tunnel: AllowedIPs = 192.168.1.0/24
-  Only traffic destined for your home network goes through the VPN.
-  Internet traffic (YouTube, Spotify) goes directly — better performance on mobile.
-  Best for: "I just want to reach my NAS and Pi from anywhere."
+# スプリットトンネル: AllowedIPs = 192.168.1.0/24
+  ホームネットワーク宛てのトラフィックのみVPNを通過する。
+  インターネットトラフィック（YouTube、Spotify）は直接通信 — モバイルでのパフォーマンスが向上する。
+  適したケース: 「どこからでもNASやPiにアクセスしたいだけ」という場合。
 
-# Full tunnel: AllowedIPs = 0.0.0.0/0, ::/0
-  ALL traffic goes through your home internet connection.
-  Useful for: piggybacking home DNS/Pi-hole ad blocking.
-  Downside: home upload speed becomes your bottleneck everywhere.
+# フルトンネル: AllowedIPs = 0.0.0.0/0, ::/0
+  全トラフィックがホームのインターネット接続を通過する。
+  用途: ホームDNS/Pi-holeの広告ブロックを活用する。
+  デメリット: ホームのアップロード速度がどこでもボトルネックになる。
 
-# Multi-subnet split tunnel (most common homelab use case):
+# マルチサブネットのスプリットトンネル（ホームラボでの最も一般的なケース）:
   AllowedIPs = 192.168.10.0/24, 192.168.20.0/24, 192.168.30.0/24, 10.8.0.0/24
-  Routes all your VLANs through the tunnel; internet stays direct.
+  全VLANをトンネル経由でルーティングし、インターネットは直接接続を維持する。
 ```
 
-## Key Generation and Peer Management
+## 鍵生成とピア管理
 
 ```python
 import subprocess
 
 def generate_keypair() -> tuple[str, str]:
-    """Generate a WireGuard keypair. Returns (private_key, public_key)."""
+    """WireGuardの鍵ペアを生成する。(秘密鍵, 公開鍵) のタプルを返す。"""
     private = subprocess.check_output(["wg", "genkey"]).decode().strip()
     public = subprocess.run(
         ["wg", "pubkey"], input=private.encode(), capture_output=True
@@ -149,9 +146,9 @@ def generate_preshared_key() -> str:
 
 def build_client_config(
     client_private_key: str,
-    client_vpn_ip: str,       # e.g. "10.8.0.3"
+    client_vpn_ip: str,       # 例: "10.8.0.3"
     server_public_key: str,
-    server_endpoint: str,     # e.g. "home.example.com:51820"
+    server_endpoint: str,     # 例: "home.example.com:51820"
     allowed_ips: str = "192.168.1.0/24",
     dns: str = "",
 ) -> str:
@@ -180,50 +177,48 @@ AllowedIPs = {client_vpn_ip}/32
 """
 ```
 
-Keep private keys out of source control. If you use this script, write key material
-to files with mode 600 and never log or print it.
+秘密鍵をソース管理に含めないこと。このスクリプトを使用する場合は、鍵材料をモード600のファイルに書き込み、ログやプリントに出力しないこと。
 
 ## pfSense / OPNsense WireGuard
 
 ```
 # pfSense: VPN → WireGuard → Add Tunnel
-  Interface Keys: Generate (creates keypair automatically)
+  Interface Keys: Generate（自動的に鍵ペアを作成）
   Listen Port: 51820
   Interface Address: 10.8.0.1/24
 
-# Add Peer (one per client):
-  Public Key: <client public key>
+# ピアを追加（クライアントごとに1つ）:
+  Public Key: <クライアントの公開鍵>
   Allowed IPs: 10.8.0.2/32
 
-# Assign the WireGuard interface:
-  Interfaces → Assignments → Add (select wg0)
-  Enable interface, no IP needed (it is set in the tunnel config)
+# WireGuardインターフェースを割り当て:
+  Interfaces → Assignments → Add（wg0を選択）
+  インターフェースを有効化、IPは不要（トンネル設定で設定済み）
 
-# Firewall rules:
-  WAN → Allow UDP port 51820 inbound (so clients can reach the server)
-  WireGuard interface → Allow traffic to LAN networks you want reachable
+# ファイアウォールルール:
+  WAN → UDPポート51820のインバウンドを許可（クライアントがサーバーに到達できるように）
+  WireGuardインターフェース → アクセスを許可したいLANネットワークへのトラフィックを許可
 ```
 
-## DDNS (Dynamic DNS) for Home Servers
+## DDNS（ダイナミックDNS）ホームサーバー用
 
-Most home internet connections have a dynamic IP. Use DDNS so your VPN endpoint
-stays reachable after an IP change.
+ほとんどのホームインターネット接続は動的IPを持つ。DDNSを使用することで、IP変更後もVPNエンドポイントに到達できる。
 
 ```bash
-# Option 1: Cloudflare DDNS — store credentials in a secrets file, not inline
-# docker-compose entry using an env file:
+# オプション1: Cloudflare DDNS — 認証情報をシークレットファイルに保存し、インラインに書かない
+# envファイルを使用したdocker-composeのエントリ:
   ddns-updater:
     image: qmcgaw/ddns-updater
-    env_file: ./ddns.env   # store zone_id and token here, not in compose
+    env_file: ./ddns.env   # zone_idとtokenをここに保存し、composeには書かない
     restart: unless-stopped
 
-# ddns.env (chmod 600, not committed to git):
+# ddns.env（chmod 600、gitにコミットしない）:
 #   SETTINGS_CLOUDFLARE_ZONE_ID=your_zone_id
 #   SETTINGS_CLOUDFLARE_TOKEN=your_api_token
 
-# Option 2: DuckDNS (free, simple)
-  Sign up at duckdns.org → get a token and subdomain (myhome.duckdns.org)
-  Store token in /etc/ddns.env (mode 600), then use a small root-owned script:
+# オプション2: DuckDNS（無料、シンプル）
+  duckdns.orgでサインアップ → トークンとサブドメインを取得（myhome.duckdns.org）
+  トークンを /etc/ddns.env（モード600）に保存し、rootが所有する小さなスクリプトを使用:
 
   # /usr/local/bin/update-duckdns
   #!/bin/sh
@@ -235,70 +230,70 @@ stays reachable after an IP change.
     --data-urlencode "token=${DUCKDNS_TOKEN}" \
     --data-urlencode "ip="
 
-  # Cron job:
+  # cronジョブ:
   */5 * * * * /usr/local/bin/update-duckdns >/dev/null 2>&1
 ```
 
-## Troubleshooting
+## トラブルシューティング
 
 ```bash
-# Check WireGuard status and last handshake
+# WireGuardのステータスと最後のハンドシェイクを確認
 sudo wg show
 
-# If "latest handshake" is never or very old, the tunnel is not connected.
-# Check:
-# 1. Is UDP port 51820 open on the router/firewall?
-sudo ufw status  # or check pfSense/UniFi firewall rules
+# "latest handshake" が表示されないか非常に古い場合、トンネルが接続されていない。
+# 確認事項:
+# 1. ルーター/ファイアウォールでUDPポート51820が開いているか？
+sudo ufw status  # またはpfSense/UniFiのファイアウォールルールを確認
 
-# 2. Is the server public key in the client config correct?
-sudo wg show wg0 public-key   # Compare to what is in the client config
+# 2. クライアント設定のサーバー公開鍵が正しいか？
+sudo wg show wg0 public-key   # クライアント設定の内容と比較する
 
-# 3. Is IP forwarding enabled on the server?
-cat /proc/sys/net/ipv4/ip_forward  # Should be 1
+# 3. サーバーでIPフォワーディングが有効になっているか？
+cat /proc/sys/net/ipv4/ip_forward  # 1であるべき
 
-# 4. Does the client AllowedIPs cover the IP you are trying to reach?
-# If AllowedIPs = 192.168.1.0/24 and you are trying to reach 192.168.3.5, it will not route.
+# 4. クライアントのAllowedIPsが到達しようとしているIPをカバーしているか？
+# AllowedIPs = 192.168.1.0/24 で 192.168.3.5 に到達しようとしても、ルーティングされない。
 
-# Check kernel logs for WireGuard errors
+# WireGuardエラーのカーネルログを確認
 dmesg | grep wireguard
 
-# Restart WireGuard
+# WireGuardを再起動
 sudo wg-quick down wg0 && sudo wg-quick up wg0
 ```
 
-## Anti-Patterns
+## アンチパターン
 
 ```
-# BAD: Storing private keys in version control or sharing them
-# Private keys are equivalent to passwords — never commit them to git
+# 悪い例: 秘密鍵をバージョン管理に保存したり共有したりする
+# 秘密鍵はパスワードと同等 — gitにコミットしないこと
 
-# BAD: Using AllowedIPs = 0.0.0.0/0 on mobile without considering the impact
-# Full tunnel routes all mobile traffic through your home upload — usually slow
+# 悪い例: モバイルで影響を考慮せずにAllowedIPs = 0.0.0.0/0を使用する
+# フルトンネルは全モバイルトラフィックをホームのアップロード経由にする — 通常は遅い
 
-# BAD: Not setting PersistentKeepalive on mobile clients
-# Mobile clients behind NAT drop idle tunnels without it
+# 悪い例: モバイルクライアントにPersistentKeepaliveを設定しない
+# NAT下のモバイルクライアントは設定がなければアイドルトンネルを切断する
 
-# BAD: Opening port 51820 in the firewall but forgetting IP forwarding on the server
-# Tunnel connects but no traffic routes — confusing to debug
+# 悪い例: ファイアウォールでポート51820を開けるがサーバーのIPフォワーディングを忘れる
+# トンネルは接続するがトラフィックがルーティングされない — デバッグが困難
 
-# BAD: Sharing a keypair across multiple client devices
-# Each device must have its own unique keypair — shared keys break the security model
+# 悪い例: 複数のクライアントデバイスで鍵ペアを共有する
+# 各デバイスは固有の鍵ペアを持たなければならない — 鍵の共有はセキュリティモデルを破壊する
 
-# BAD: Using a broad "FORWARD ACCEPT" iptables rule
-# Scope forwarding rules to the wg0 interface and direction only
+# 悪い例: 広範な「FORWARD ACCEPT」iptablesルールを使用する
+# 転送ルールはwg0インターフェースと方向のみに絞ること
 ```
 
-## Best Practices
+## ベストプラクティス
 
-- Generate a unique keypair per client device — never reuse keys
-- Use split tunneling (`AllowedIPs = <home subnets>`) for mobile
-- Set `PersistentKeepalive = 25` on all mobile clients
-- Use DDNS if your ISP assigns a dynamic IP; store credentials in env files, not inline
-- Use scoped iptables forwarding rules (inbound on wg0 only) rather than a blanket FORWARD ACCEPT
-- Add Pi-hole's IP as `DNS =` in client configs to get ad blocking over the VPN
-- Rotate the server keypair periodically and update all client configs
+- クライアントデバイスごとに固有の鍵ペアを生成する — 鍵を再利用しない
+- モバイルにはスプリットトンネリング（`AllowedIPs = <ホームサブネット>`）を使用する
+- 全モバイルクライアントに `PersistentKeepalive = 25` を設定する
+- ISPが動的IPを割り当てる場合はDDNSを使用し、認証情報はenvファイルに保存してインラインに書かない
+- スコープを絞ったiptables転送ルール（wg0のみのインバウンド）を使用し、FORWARDの全許可は避ける
+- クライアント設定の `DNS =` にPi-holeのIPを追加してVPN経由の広告ブロックを有効にする
+- サーバーの鍵ペアを定期的にローテーションして全クライアント設定を更新する
 
-## Related Skills
+## 関連スキル
 
 - homelab-network-setup
 - homelab-vlan-segmentation

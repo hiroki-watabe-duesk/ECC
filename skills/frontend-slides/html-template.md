@@ -1,8 +1,8 @@
-# HTML Presentation Template
+# HTML プレゼンテーションテンプレート
 
-Reference architecture for generating slide presentations. Every presentation follows this structure.
+スライドプレゼンテーション生成のための参照アーキテクチャです。すべてのプレゼンテーションはこの構造に従います。
 
-## Base HTML Structure
+## 基本 HTML 構造
 
 ```html
 <!DOCTYPE html>
@@ -159,42 +159,42 @@ Reference architecture for generating slide presentations. Every presentation fo
 </html>
 ```
 
-## Required JavaScript Features
+## 必須 JavaScript 機能
 
-Every presentation must include:
+すべてのプレゼンテーションに含める必要があります:
 
-1. **SlidePresentation Class** — Main controller with:
-   - Keyboard navigation (arrows, space, page up/down)
-   - Touch/swipe support
-   - Mouse wheel navigation
-   - Progress bar updates
-   - Navigation dots
+1. **SlidePresentation クラス** — 以下を含むメインコントローラー:
+   - キーボードナビゲーション（矢印キー・スペース・Page Up/Down）
+   - タッチ/スワイプサポート
+   - マウスホイールナビゲーション
+   - プログレスバー更新
+   - ナビゲーションドット
 
-2. **Intersection Observer** — For scroll-triggered animations:
-   - Add `.visible` class when slides enter viewport
-   - Trigger CSS transitions efficiently
+2. **Intersection Observer** — スクロールトリガーアニメーション用:
+   - スライドがビューポートに入ったときに `.visible` クラスを追加
+   - CSS トランジションを効率的にトリガー
 
-3. **Optional Enhancements** (match to chosen style):
-   - Custom cursor with trail
-   - Particle system background (canvas)
-   - Parallax effects
-   - 3D tilt on hover
-   - Magnetic buttons
-   - Counter animations
+3. **オプションの拡張機能**（選択したスタイルに合わせる）:
+   - カスタムカーソルとトレイル
+   - パーティクルシステム背景（canvas）
+   - パララックス効果
+   - ホバー時の 3D チルト
+   - マグネティックボタン
+   - カウンターアニメーション
 
-4. **Inline Editing** (only if user opted in during Phase 1 — skip entirely if they said No):
-   - Edit toggle button (hidden by default, revealed via hover hotzone or `E` key)
-   - Auto-save to localStorage
-   - Export/save file functionality
-   - See "Inline Editing Implementation" section below
+4. **インライン編集**（フェーズ 1 でユーザーがオプトインした場合のみ — 「いいえ」と回答した場合は完全にスキップ）:
+   - 編集トグルボタン（デフォルトでは非表示、ホバーホットゾーンまたは `E` キーで表示）
+   - localStorage への自動保存
+   - ファイルのエクスポート/保存機能
+   - 以下の「インライン編集の実装」セクションを参照
 
-## Inline Editing Implementation (Opt-In Only)
+## インライン編集の実装（オプトインのみ）
 
-**If the user chose "No" for inline editing in Phase 1, do NOT generate any edit-related HTML, CSS, or JS.**
+**フェーズ 1 でユーザーがインライン編集を「いいえ」と選択した場合、編集関連の HTML・CSS・JS を一切生成しないでください。**
 
-**Do NOT use CSS `~` sibling selector for hover-based show/hide.** The CSS-only approach (`edit-hotzone:hover ~ .edit-toggle`) fails because `pointer-events: none` on the toggle button breaks the hover chain: user hovers hotzone -> button becomes visible -> mouse moves toward button -> leaves hotzone -> button disappears before click.
+**CSS の `~` 兄弟セレクターをホバーベースの表示/非表示に使用しないでください。** CSS のみのアプローチ（`edit-hotzone:hover ~ .edit-toggle`）は失敗します。理由: トグルボタンの `pointer-events: none` がホバーチェーンを壊すからです。ユーザーがホットゾーンにホバー → ボタンが表示 → マウスがボタンに向かって移動 → ホットゾーンを離れる → クリック前にボタンが消える。
 
-**Required approach: JS-based hover with 400ms delay timeout.**
+**必須アプローチ: 400ms 遅延タイムアウトを使用した JS ベースのホバー。**
 
 HTML:
 
@@ -203,7 +203,7 @@ HTML:
 <button class="edit-toggle" id="editToggle" title="Edit mode (E)">Edit</button>
 ```
 
-CSS (visibility controlled by JS classes only):
+CSS（表示はJS クラスのみで制御）:
 
 ```css
 /* Do NOT use CSS ~ sibling selector for this!
@@ -231,7 +231,7 @@ CSS (visibility controlled by JS classes only):
 }
 ```
 
-JS (three interaction methods):
+JS（3 つのインタラクション方法）:
 
 ```javascript
 // 1. Click handler on the toggle button
@@ -278,14 +278,11 @@ document.addEventListener("keydown", (e) => {
 });
 ```
 
-**CRITICAL: `exportFile()` must strip edit state before capturing outerHTML.**
+**重要: `exportFile()` は outerHTML をキャプチャする前に編集状態を取り除く必要があります。**
 
-When the user presses Ctrl+S in edit mode, `document.documentElement.outerHTML` captures the live DOM —
-including `body.edit-active`, `contenteditable="true"` on every text element, and `.active`/`.show` classes on
-the toggle button and banner. Anyone opening the saved file sees dashed outlines, a checkmark button, and an
-edit banner, as if permanently stuck in edit mode.
+編集モード中にユーザーが Ctrl+S を押すと、`document.documentElement.outerHTML` はライブ DOM をキャプチャします。これには `body.edit-active`・すべてのテキスト要素の `contenteditable="true"`・トグルボタンとバナーの `.active`/`.show` クラスが含まれます。保存されたファイルを開くと、破線のアウトライン・チェックマークボタン・編集バナーが表示され、永続的に編集モードに固まったように見えます。
 
-Always implement `exportFile()` like this:
+`exportFile()` は常に次のように実装してください:
 
 ```javascript
 exportFile() {
@@ -317,13 +314,13 @@ exportFile() {
 }
 ```
 
-## Image Pipeline (Skip If No Images)
+## 画像パイプライン（画像がない場合はスキップ）
 
-If user chose "No images" in Phase 1, skip this entirely. If images were provided, process them before generating HTML.
+フェーズ 1 でユーザーが「画像なし」を選択した場合は、完全にスキップしてください。画像が提供された場合は、HTML 生成前に処理します。
 
-**Dependency:** `pip install Pillow`
+**依存関係:** `pip install Pillow`
 
-### Image Processing
+### 画像処理
 
 ```python
 from PIL import Image, ImageDraw
@@ -347,17 +344,17 @@ def resize_max(input_path, output_path, max_dim=1200):
     img.save(output_path, quality=85)
 ```
 
-| Situation                        | Operation                     |
+| 状況 | 操作 |
 | -------------------------------- | ----------------------------- |
-| Square logo on rounded aesthetic | `crop_circle()`               |
-| Image > 1MB                      | `resize_max(max_dim=1200)`    |
-| Wrong aspect ratio               | Manual crop with `img.crop()` |
+| 角丸デザインの正方形ロゴ | `crop_circle()` |
+| 1MB を超える画像 | `resize_max(max_dim=1200)` |
+| アスペクト比が合わない | `img.crop()` による手動クロップ |
 
-Save processed images with `_processed` suffix. Never overwrite originals.
+処理済み画像は `_processed` サフィックスを付けて保存します。オリジナルは絶対に上書きしないでください。
 
-### Image Placement
+### 画像配置
 
-**Use direct file paths** (not base64) — presentations are viewed locally:
+**直接ファイルパスを使用**（base64 ではなく）— プレゼンテーションはローカルで表示されます:
 
 ```html
 <img src="assets/logo_round.png" alt="Logo" class="slide-image logo" />
@@ -385,33 +382,33 @@ Save processed images with `_processed` suffix. Never overwrite originals.
 }
 ```
 
-**Adapt border/shadow colors to match the chosen style's accent.** Never repeat the same image on multiple slides (except logos on title + closing).
+**ボーダー/シャドウの色は選択したスタイルのアクセントに合わせて調整してください。** 同じ画像を複数のスライドに繰り返し使用しないでください（タイトルとクロージングのロゴを除く）。
 
-**Placement patterns:** Logo centered on title slide. Screenshots in two-column layouts with text. Full-bleed images as slide backgrounds with text overlay (use sparingly).
+**配置パターン:** タイトルスライドの中央にロゴを配置。テキストとの 2 カラムレイアウトにスクリーンショットを配置。テキストオーバーレイ付きのスライド背景として全画面画像を使用（使用は控えめに）。
 
 ---
 
-## Code Quality
+## コード品質
 
-**Comments:** Every section needs clear comments explaining what it does and how to modify it.
+**コメント:** 各セクションには、その機能と変更方法を説明する明確なコメントが必要です。
 
-**Accessibility:**
+**アクセシビリティ:**
 
-- Semantic HTML (`<section>`, `<nav>`, `<main>`)
-- Keyboard navigation works fully
-- ARIA labels where needed
-- `prefers-reduced-motion` support (included in viewport-base.css)
+- セマンティック HTML（`<section>`・`<nav>`・`<main>`）
+- キーボードナビゲーションが完全に機能すること
+- 必要な箇所に ARIA ラベルを付与
+- `prefers-reduced-motion` のサポート（viewport-base.css に含まれる）
 
-## File Structure
+## ファイル構造
 
-Single presentations:
+単一プレゼンテーション:
 
 ```
 presentation.html    # Self-contained, all CSS/JS inline
 assets/              # Images only, if any
 ```
 
-Multiple presentations in one project:
+1 つのプロジェクトに複数のプレゼンテーション:
 
 ```
 [name].html

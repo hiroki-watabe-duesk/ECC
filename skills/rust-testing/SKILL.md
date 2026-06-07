@@ -1,46 +1,46 @@
 ---
 name: rust-testing
-description: Rust testing patterns including unit tests, integration tests, async testing, property-based testing, mocking, and coverage. Follows TDD methodology.
+description: Rustのテストパターン（ユニットテスト・統合テスト・非同期テスト・プロパティベーステスト・モッキング・カバレッジ）。TDD手法に従う。
 origin: ECC
 ---
 
-# Rust Testing Patterns
+# Rustテストパターン
 
-Comprehensive Rust testing patterns for writing reliable, maintainable tests following TDD methodology.
+TDD手法に従った信頼性が高く保守しやすいテストを書くための包括的なRustテストパターン。
 
-## When to Use
+## 使用タイミング
 
-- Writing new Rust functions, methods, or traits
-- Adding test coverage to existing code
-- Creating benchmarks for performance-critical code
-- Implementing property-based tests for input validation
-- Following TDD workflow in Rust projects
+- 新しいRust関数・メソッド・トレイトを書く場合
+- 既存コードにテストカバレッジを追加する場合
+- パフォーマンスクリティカルなコードのベンチマークを作成する場合
+- 入力バリデーションのプロパティベーステストを実装する場合
+- RustプロジェクトでTDDワークフローに従う場合
 
-## How It Works
+## 仕組み
 
-1. **Identify target code** — Find the function, trait, or module to test
-2. **Write a test** — Use `#[test]` in a `#[cfg(test)]` module, rstest for parameterized tests, or proptest for property-based tests
-3. **Mock dependencies** — Use mockall to isolate the unit under test
-4. **Run tests (RED)** — Verify the test fails with the expected error
-5. **Implement (GREEN)** — Write minimal code to pass
-6. **Refactor** — Improve while keeping tests green
-7. **Check coverage** — Use cargo-llvm-cov, target 80%+
+1. **テスト対象を特定** — テストするべき関数・トレイト・モジュールを見つける
+2. **テストを書く** — `#[cfg(test)]` モジュール内の `#[test]`、パラメーター化テストにはrstest、プロパティベーステストにはproptestを使用する
+3. **依存関係をモック** — mockallを使ってテスト対象のユニットを分離する
+4. **テストを実行（RED）** — テストが期待通りのエラーで失敗することを確認する
+5. **実装（GREEN）** — 通過させる最小限のコードを書く
+6. **リファクタリング** — テストをグリーンに保ちながら改善する
+7. **カバレッジを確認** — cargo-llvm-covを使用し、80%以上を目標とする
 
-## TDD Workflow for Rust
+## RustのTDDワークフロー
 
-### The RED-GREEN-REFACTOR Cycle
+### RED-GREEN-REFACTORサイクル
 
 ```
-RED     → Write a failing test first
-GREEN   → Write minimal code to pass the test
-REFACTOR → Improve code while keeping tests green
-REPEAT  → Continue with next requirement
+RED     → 失敗するテストを先に書く
+GREEN   → テストを通す最小限のコードを書く
+REFACTOR → テストをグリーンに保ちながらコードを改善する
+REPEAT  → 次の要件に進む
 ```
 
-### Step-by-Step TDD in Rust
+### RustでのステップバイステップTDD
 
 ```rust
-// RED: Write test first, use todo!() as placeholder
+// RED: 先にテストを書き、todo!() をプレースホルダーとして使用
 pub fn add(a: i32, b: i32) -> i32 { todo!() }
 
 #[cfg(test)]
@@ -49,18 +49,18 @@ mod tests {
     #[test]
     fn test_add() { assert_eq!(add(2, 3), 5); }
 }
-// cargo test → panics at 'not yet implemented'
+// cargo test → 'not yet implemented' でパニック
 ```
 
 ```rust
-// GREEN: Replace todo!() with minimal implementation
+// GREEN: todo!() を最小限の実装で置き換える
 pub fn add(a: i32, b: i32) -> i32 { a + b }
-// cargo test → PASS, then REFACTOR while keeping tests green
+// cargo test → PASS、その後テストをグリーンに保ちながらREFACTOR
 ```
 
-## Unit Tests
+## ユニットテスト
 
-### Module-Level Test Organization
+### モジュールレベルのテスト構成
 
 ```rust
 // src/user.rs
@@ -103,19 +103,19 @@ mod tests {
 }
 ```
 
-### Assertion Macros
+### アサーションマクロ
 
 ```rust
-assert_eq!(2 + 2, 4);                                    // Equality
-assert_ne!(2 + 2, 5);                                    // Inequality
-assert!(vec![1, 2, 3].contains(&2));                     // Boolean
-assert_eq!(value, 42, "expected 42 but got {value}");    // Custom message
-assert!((0.1_f64 + 0.2 - 0.3).abs() < f64::EPSILON);   // Float comparison
+assert_eq!(2 + 2, 4);                                    // 等値
+assert_ne!(2 + 2, 5);                                    // 非等値
+assert!(vec![1, 2, 3].contains(&2));                     // ブール
+assert_eq!(value, 42, "expected 42 but got {value}");    // カスタムメッセージ
+assert!((0.1_f64 + 0.2 - 0.3).abs() < f64::EPSILON);   // 浮動小数点比較
 ```
 
-## Error and Panic Testing
+## エラーとパニックのテスト
 
-### Testing `Result` Returns
+### `Result` 戻り値のテスト
 
 ```rust
 #[test]
@@ -123,7 +123,7 @@ fn parse_returns_error_for_invalid_input() {
     let result = parse_config("}{invalid");
     assert!(result.is_err());
 
-    // Assert specific error variant
+    // 特定のエラーバリアントをアサート
     let err = result.unwrap_err();
     assert!(matches!(err, ConfigError::ParseError(_)));
 }
@@ -132,11 +132,11 @@ fn parse_returns_error_for_invalid_input() {
 fn parse_succeeds_for_valid_input() -> Result<(), Box<dyn std::error::Error>> {
     let config = parse_config(r#"{"port": 8080}"#)?;
     assert_eq!(config.port, 8080);
-    Ok(()) // Test fails if any ? returns Err
+    Ok(()) // ? が Err を返した場合はテスト失敗
 }
 ```
 
-### Testing Panics
+### パニックのテスト
 
 ```rust
 #[test]
@@ -153,22 +153,22 @@ fn panics_with_specific_message() {
 }
 ```
 
-## Integration Tests
+## 統合テスト
 
-### File Structure
+### ファイル構造
 
 ```text
 my_crate/
 ├── src/
 │   └── lib.rs
-├── tests/              # Integration tests
-│   ├── api_test.rs     # Each file is a separate test binary
+├── tests/              # 統合テスト
+│   ├── api_test.rs     # 各ファイルが別テストバイナリ
 │   ├── db_test.rs
-│   └── common/         # Shared test utilities
+│   └── common/         # 共有テストユーティリティ
 │       └── mod.rs
 ```
 
-### Writing Integration Tests
+### 統合テストの書き方
 
 ```rust
 // tests/api_test.rs
@@ -185,9 +185,9 @@ fn full_request_lifecycle() {
 }
 ```
 
-## Async Tests
+## 非同期テスト
 
-### With Tokio
+### Tokioを使用
 
 ```rust
 #[tokio::test]
@@ -210,9 +210,9 @@ async fn handles_timeout() {
 }
 ```
 
-## Test Organization Patterns
+## テスト構成パターン
 
-### Parameterized Tests with `rstest`
+### `rstest` によるパラメーター化テスト
 
 ```rust
 use rstest::{rstest, fixture};
@@ -225,7 +225,7 @@ fn test_string_length(#[case] input: &str, #[case] expected: usize) {
     assert_eq!(input.len(), expected);
 }
 
-// Fixtures
+// フィクスチャ
 #[fixture]
 fn test_db() -> TestDb {
     TestDb::new_in_memory()
@@ -238,14 +238,14 @@ fn test_insert(test_db: TestDb) {
 }
 ```
 
-### Test Helpers
+### テストヘルパー
 
 ```rust
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    /// Creates a test user with sensible defaults.
+    /// 適切なデフォルト値を持つテストユーザーを作成する。
     fn make_user(name: &str) -> User {
         User::new(name, &format!("{name}@test.com")).unwrap()
     }
@@ -258,9 +258,9 @@ mod tests {
 }
 ```
 
-## Property-Based Testing with `proptest`
+## `proptest` によるプロパティベーステスト
 
-### Basic Property Tests
+### 基本的なプロパティテスト
 
 ```rust
 use proptest::prelude::*;
@@ -290,7 +290,7 @@ proptest! {
 }
 ```
 
-### Custom Strategies
+### カスタムストラテジー
 
 ```rust
 use proptest::prelude::*;
@@ -308,9 +308,9 @@ proptest! {
 }
 ```
 
-## Mocking with `mockall`
+## `mockall` によるモッキング
 
-### Trait-Based Mocking
+### トレイトベースのモッキング
 
 ```rust
 use mockall::{automock, predicate::eq};
@@ -345,14 +345,14 @@ fn service_returns_none_when_not_found() {
 }
 ```
 
-## Doc Tests
+## ドックテスト
 
-### Executable Documentation
+### 実行可能なドキュメント
 
 ```rust
-/// Adds two numbers together.
+/// 2つの数値を足し合わせる。
 ///
-/// # Examples
+/// # 例
 ///
 /// ```
 /// use my_crate::add;
@@ -364,11 +364,11 @@ pub fn add(a: i32, b: i32) -> i32 {
     a + b
 }
 
-/// Parses a config string.
+/// 設定文字列を解析する。
 ///
-/// # Errors
+/// # エラー
 ///
-/// Returns `Err` if the input is not valid TOML.
+/// 入力が有効なTOMLでない場合は `Err` を返す。
 ///
 /// ```no_run
 /// use my_crate::parse_config;
@@ -387,7 +387,7 @@ pub fn parse_config(input: &str) -> Result<Config, ParseError> {
 }
 ```
 
-## Benchmarking with Criterion
+## Criterionによるベンチマーク
 
 ```toml
 # Cargo.toml
@@ -418,59 +418,59 @@ criterion_group!(benches, bench_fibonacci);
 criterion_main!(benches);
 ```
 
-## Test Coverage
+## テストカバレッジ
 
-### Running Coverage
+### カバレッジの実行
 
 ```bash
-# Install: cargo install cargo-llvm-cov (or use taiki-e/install-action in CI)
-cargo llvm-cov                    # Summary
-cargo llvm-cov --html             # HTML report
-cargo llvm-cov --lcov > lcov.info # LCOV format for CI
-cargo llvm-cov --fail-under-lines 80  # Fail if below threshold
+# インストール: cargo install cargo-llvm-cov (またはCIでtaiki-e/install-actionを使用)
+cargo llvm-cov                    # 概要
+cargo llvm-cov --html             # HTMLレポート
+cargo llvm-cov --lcov > lcov.info # CI向けLCOVフォーマット
+cargo llvm-cov --fail-under-lines 80  # 閾値を下回った場合に失敗
 ```
 
-### Coverage Targets
+### カバレッジ目標
 
-| Code Type | Target |
+| コードの種類 | 目標 |
 |-----------|--------|
-| Critical business logic | 100% |
-| Public API | 90%+ |
-| General code | 80%+ |
-| Generated / FFI bindings | Exclude |
+| 重要なビジネスロジック | 100% |
+| 公開API | 90%以上 |
+| 一般コード | 80%以上 |
+| 生成済み / FFIバインディング | 除外 |
 
-## Testing Commands
+## テストコマンド
 
 ```bash
-cargo test                        # Run all tests
-cargo test -- --nocapture         # Show println output
-cargo test test_name              # Run tests matching pattern
-cargo test --lib                  # Unit tests only
-cargo test --test api_test        # Integration tests only
-cargo test --doc                  # Doc tests only
-cargo test --no-fail-fast         # Don't stop on first failure
-cargo test -- --ignored           # Run ignored tests
+cargo test                        # すべてのテストを実行
+cargo test -- --nocapture         # printlnの出力を表示
+cargo test test_name              # パターンに一致するテストを実行
+cargo test --lib                  # ユニットテストのみ
+cargo test --test api_test        # 統合テストのみ
+cargo test --doc                  # ドックテストのみ
+cargo test --no-fail-fast         # 最初の失敗で停止しない
+cargo test -- --ignored           # 無視されたテストを実行
 ```
 
-## Best Practices
+## ベストプラクティス
 
-**DO:**
-- Write tests FIRST (TDD)
-- Use `#[cfg(test)]` modules for unit tests
-- Test behavior, not implementation
-- Use descriptive test names that explain the scenario
-- Prefer `assert_eq!` over `assert!` for better error messages
-- Use `?` in tests that return `Result` for cleaner error output
-- Keep tests independent — no shared mutable state
+**すること:**
+- 最初にテストを書く（TDD）
+- ユニットテストには `#[cfg(test)]` モジュールを使用する
+- 実装ではなく振る舞いをテストする
+- シナリオを説明する記述的なテスト名を使用する
+- より良いエラーメッセージのために `assert!` より `assert_eq!` を優先する
+- より明確なエラー出力のために `Result` を返すテストで `?` を使用する
+- テストを独立に保つ — 共有可変状態なし
 
-**DON'T:**
-- Use `#[should_panic]` when you can test `Result::is_err()` instead
-- Mock everything — prefer integration tests when feasible
-- Ignore flaky tests — fix or quarantine them
-- Use `sleep()` in tests — use channels, barriers, or `tokio::time::pause()`
-- Skip error path testing
+**しないこと:**
+- `Result::is_err()` でテストできる場合に `#[should_panic]` を使用しない
+- 何でもモックしない — 可能な場合は統合テストを優先する
+- 不安定なテストを無視しない — 修正または隔離する
+- テストで `sleep()` を使用しない — チャネル・バリア・`tokio::time::pause()` を使用する
+- エラーパスのテストをスキップしない
 
-## CI Integration
+## CI連携
 
 ```yaml
 # GitHub Actions
@@ -497,4 +497,4 @@ test:
       run: cargo llvm-cov --fail-under-lines 80
 ```
 
-**Remember**: Tests are documentation. They show how your code is meant to be used. Write them clearly and keep them up to date.
+**覚えておいてください**: テストはドキュメントです。コードがどのように使われるべきかを示します。明確に書き、常に最新の状態に保ってください。

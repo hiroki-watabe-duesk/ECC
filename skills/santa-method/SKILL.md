@@ -1,178 +1,178 @@
 ---
 name: santa-method
-description: "Multi-agent adversarial verification with convergence loop. Two independent review agents must both pass before output ships."
+description: "複数エージェントによる敵対的検証と収束ループ。2つの独立したレビューエージェントが両方合格するまで出力を出荷しない。"
 origin: "Ronald Skelton - Founder, RapportScore.ai"
 ---
 
-# Santa Method
+# サンタメソッド
 
-Multi-agent adversarial verification framework. Make a list, check it twice. If it's naughty, fix it until it's nice.
+マルチエージェント敵対的検証フレームワーク。リストを作り、2度確認する。問題があれば、問題なくなるまで修正する。
 
-The core insight: a single agent reviewing its own output shares the same biases, knowledge gaps, and systematic errors that produced the output. Two independent reviewers with no shared context break this failure mode.
+核心となる考え方：自分の出力をレビューする単一エージェントは、その出力を生み出したのと同じバイアス、知識の空白、体系的なエラーを共有している。共有コンテキストを持たない2つの独立したレビュアーが、このエラーモードを解消する。
 
-## When to Activate
+## 起動すべき状況
 
-Invoke this skill when:
-- Output will be published, deployed, or consumed by end users
-- Compliance, regulatory, or brand constraints must be enforced
-- Code ships to production without human review
-- Content accuracy matters (technical docs, educational material, customer-facing copy)
-- Batch generation at scale where spot-checking misses systemic patterns
-- Hallucination risk is elevated (claims, statistics, API references, legal language)
+以下の場合にこのスキルを呼び出す：
+- 出力を公開・デプロイ・エンドユーザーが消費する場合
+- コンプライアンス・規制・ブランド制約を強制する必要がある場合
+- 人間のレビューなしにコードを本番環境に出荷する場合
+- コンテンツの正確さが重要な場合（技術文書、教育資材、顧客向けコピー）
+- スポットチェックでは体系的なパターンを見逃す大規模バッチ生成の場合
+- ハルシネーションリスクが高い場合（主張、統計、APIリファレンス、法的言語）
 
-Do NOT use for internal drafts, exploratory research, or tasks with deterministic verification (use build/test/lint pipelines for those).
+内部草案、探索的リサーチ、決定論的検証が可能なタスクには使用しない（それらにはビルド/テスト/lintパイプラインを使用すること）。
 
-## Architecture
+## アーキテクチャ
 
 ```
 ┌─────────────┐
-│  GENERATOR   │  Phase 1: Make a List
-│  (Agent A)   │  Produce the deliverable
+│  GENERATOR   │  フェーズ1: リストを作る
+│  (Agent A)   │  成果物を生産する
 └──────┬───────┘
-       │ output
+       │ 出力
        ▼
 ┌──────────────────────────────┐
-│     DUAL INDEPENDENT REVIEW   │  Phase 2: Check It Twice
+│     デュアル独立レビュー       │  フェーズ2: 2度確認する
 │                                │
-│  ┌───────────┐ ┌───────────┐  │  Two agents, same rubric,
-│  │ Reviewer B │ │ Reviewer C │  │  no shared context
+│  ┌───────────┐ ┌───────────┐  │  2エージェント、同じルーブリック、
+│  │ Reviewer B │ │ Reviewer C │  │  共有コンテキストなし
 │  └─────┬─────┘ └─────┬─────┘  │
 │        │              │        │
 └────────┼──────────────┼────────┘
          │              │
          ▼              ▼
 ┌──────────────────────────────┐
-│        VERDICT GATE           │  Phase 3: Naughty or Nice
+│        判定ゲート              │  フェーズ3: 問題あり or 問題なし
 │                                │
-│  B passes AND C passes → NICE  │  Both must pass.
-│  Otherwise → NAUGHTY           │  No exceptions.
+│  B合格 AND C合格 → 問題なし    │  両方が合格する必要あり。
+│  それ以外 → 問題あり           │  例外なし。
 └──────┬──────────────┬─────────┘
        │              │
-    NICE           NAUGHTY
+    問題なし        問題あり
        │              │
        ▼              ▼
-   [ SHIP ]    ┌─────────────┐
-               │  FIX CYCLE   │  Phase 4: Fix Until Nice
+   [ 出荷 ]    ┌─────────────┐
+               │  修正サイクル │  フェーズ4: 問題なくなるまで修正
                │              │
-               │ iteration++  │  Collect all flags.
-               │ if i > MAX:  │  Fix all issues.
-               │   escalate   │  Re-run both reviewers.
-               │ else:        │  Loop until convergence.
-               │   goto Ph.2  │
+               │ iteration++  │  すべてのフラグを収集する。
+               │ if i > MAX:  │  すべての問題を修正する。
+               │   エスカレート│  両方のレビュアーを再実行する。
+               │ else:        │  収束するまでループ。
+               │   Ph.2へ    │
                └──────────────┘
 ```
 
-## Phase Details
+## フェーズの詳細
 
-### Phase 1: Make a List (Generate)
+### フェーズ1: リストを作る（生成）
 
-Execute the primary task. No changes to your normal generation workflow. Santa Method is a post-generation verification layer, not a generation strategy.
+主タスクを実行する。通常の生成ワークフローへの変更はない。サンタメソッドは生成後の検証レイヤーであり、生成戦略ではない。
 
 ```python
-# The generator runs as normal
+# ジェネレーターは通常通り実行される
 output = generate(task_spec)
 ```
 
-### Phase 2: Check It Twice (Independent Dual Review)
+### フェーズ2: 2度確認する（独立デュアルレビュー）
 
-Spawn two review agents in parallel. Critical invariants:
+2つのレビューエージェントを並行してスポーン。重要な不変条件：
 
-1. **Context isolation** — neither reviewer sees the other's assessment
-2. **Identical rubric** — both receive the same evaluation criteria
-3. **Same inputs** — both receive the original spec AND the generated output
-4. **Structured output** — each returns a typed verdict, not prose
+1. **コンテキスト分離** — どちらのレビュアーも相手の評価を見ない
+2. **同一ルーブリック** — 両方が同じ評価基準を受け取る
+3. **同一入力** — 両方が元の仕様と生成された出力を受け取る
+4. **構造化出力** — 各レビュアーは散文ではなく型付きの判定を返す
 
 ```python
 REVIEWER_PROMPT = """
-You are an independent quality reviewer. You have NOT seen any other review of this output.
+あなたは独立した品質レビュアーです。この出力のいかなる他のレビューも見ていません。
 
-## Task Specification
+## タスク仕様
 {task_spec}
 
-## Output Under Review
+## レビュー対象の出力
 {output}
 
-## Evaluation Rubric
+## 評価ルーブリック
 {rubric}
 
-## Instructions
-Evaluate the output against EACH rubric criterion. For each:
-- PASS: criterion fully met, no issues
-- FAIL: specific issue found (cite the exact problem)
+## 指示
+各ルーブリック基準に対して出力を評価してください。それぞれについて：
+- PASS：基準が完全に満たされており、問題なし
+- FAIL：具体的な問題が発見された（正確な問題を引用する）
 
-Return your assessment as structured JSON:
+評価を構造化JSONで返してください：
 {
   "verdict": "PASS" | "FAIL",
   "checks": [
     {"criterion": "...", "result": "PASS|FAIL", "detail": "..."}
   ],
-  "critical_issues": ["..."],   // blockers that must be fixed
-  "suggestions": ["..."]         // non-blocking improvements
+  "critical_issues": ["..."],   // 修正必須のブロッカー
+  "suggestions": ["..."]         // 非ブロッキングの改善点
 }
 
-Be rigorous. Your job is to find problems, not to approve.
+厳格であること。あなたの仕事は問題を見つけることであり、承認することではない。
 """
 ```
 
 ```python
-# Spawn reviewers in parallel (Claude Code subagents)
+# レビュアーを並行してスポーン（Claude Code サブエージェント）
 review_b = Agent(prompt=REVIEWER_PROMPT.format(...), description="Santa Reviewer B")
 review_c = Agent(prompt=REVIEWER_PROMPT.format(...), description="Santa Reviewer C")
 
-# Both run concurrently — neither sees the other
+# 両方が並行して実行 — お互いを見ない
 ```
 
-### Rubric Design
+### ルーブリック設計
 
-The rubric is the most important input. Vague rubrics produce vague reviews. Every criterion must have an objective pass/fail condition.
+ルーブリックが最も重要な入力である。曖昧なルーブリックは曖昧なレビューを生む。すべての基準には客観的な合否条件が必要。
 
-| Criterion | Pass Condition | Failure Signal |
+| 基準 | 合格条件 | 不合格シグナル |
 |-----------|---------------|----------------|
-| Factual accuracy | All claims verifiable against source material or common knowledge | Invented statistics, wrong version numbers, nonexistent APIs |
-| Hallucination-free | No fabricated entities, quotes, URLs, or references | Links to pages that don't exist, attributed quotes with no source |
-| Completeness | Every requirement in the spec is addressed | Missing sections, skipped edge cases, incomplete coverage |
-| Compliance | Passes all project-specific constraints | Banned terms used, tone violations, regulatory non-compliance |
-| Internal consistency | No contradictions within the output | Section A says X, section B says not-X |
-| Technical correctness | Code compiles/runs, algorithms are sound | Syntax errors, logic bugs, wrong complexity claims |
+| 事実の正確性 | すべての主張が出典資料または一般知識で検証可能 | 作り話の統計、誤ったバージョン番号、存在しないAPI |
+| ハルシネーションなし | 架空のエンティティ、引用、URL、参照なし | 存在しないページへのリンク、出典のない引用文 |
+| 完全性 | 仕様のすべての要件に対処済み | 欠落したセクション、スキップされたエッジケース、不完全なカバレッジ |
+| コンプライアンス | プロジェクト固有の制約をすべて通過 | 禁止用語の使用、トーン違反、規制非準拠 |
+| 内部一貫性 | 出力内に矛盾なし | セクションAはXと言い、セクションBはXではないと言う |
+| 技術的正確性 | コードがコンパイル/実行され、アルゴリズムが健全 | 構文エラー、論理バグ、誤った計算量の主張 |
 
-#### Domain-Specific Rubric Extensions
+#### ドメイン固有のルーブリック拡張
 
-**Content/Marketing:**
-- Brand voice adherence
-- SEO requirements met (keyword density, meta tags, structure)
-- No competitor trademark misuse
-- CTA present and correctly linked
+**コンテンツ/マーケティング：**
+- ブランドボイスの遵守
+- SEO要件の充足（キーワード密度、メタタグ、構造）
+- 競合他社商標の誤用なし
+- CTAの存在と正しいリンク
 
-**Code:**
-- Type safety (no `any` leaks, proper null handling)
-- Error handling coverage
-- Security (no secrets in code, input validation, injection prevention)
-- Test coverage for new paths
+**コード：**
+- 型安全性（`any`の漏洩なし、適切なnullハンドリング）
+- エラーハンドリングのカバレッジ
+- セキュリティ（コード内に秘密なし、入力バリデーション、インジェクション防止）
+- 新しいパスに対するテストカバレッジ
 
-**Compliance-Sensitive (regulated, legal, financial):**
-- No outcome guarantees or unsubstantiated claims
-- Required disclaimers present
-- Approved terminology only
-- Jurisdiction-appropriate language
+**コンプライアンス重視（規制、法的、金融）：**
+- 結果保証や根拠のない主張なし
+- 必要な免責事項の存在
+- 承認済み用語のみ
+- 管轄区域に適した言語
 
-### Phase 3: Naughty or Nice (Verdict Gate)
+### フェーズ3: 問題あり or 問題なし（判定ゲート）
 
 ```python
 def santa_verdict(review_b, review_c):
-    """Both reviewers must pass. No partial credit."""
+    """両方のレビュアーが合格する必要あり。部分点なし。"""
     if review_b.verdict == "PASS" and review_c.verdict == "PASS":
-        return "NICE"  # Ship it
+        return "NICE"  # 出荷
 
-    # Merge flags from both reviewers, deduplicate
+    # 両方のレビュアーからのフラグをマージし、重複排除
     all_issues = dedupe(review_b.critical_issues + review_c.critical_issues)
     all_suggestions = dedupe(review_b.suggestions + review_c.suggestions)
 
     return "NAUGHTY", all_issues, all_suggestions
 ```
 
-Why both must pass: if only one reviewer catches an issue, that issue is real. The other reviewer's blind spot is exactly the failure mode Santa Method exists to eliminate.
+両方が合格する必要がある理由：一方のレビュアーだけが問題を発見した場合、その問題は実在する。もう一方のレビュアーの盲点こそが、サンタメソッドが排除しようとしているエラーモードである。
 
-### Phase 4: Fix Until Nice (Convergence Loop)
+### フェーズ4: 問題なくなるまで修正する（収束ループ）
 
 ```python
 MAX_ITERATIONS = 3
@@ -184,69 +184,69 @@ for iteration in range(MAX_ITERATIONS):
         log_santa_result(output, iteration, "passed")
         return ship(output)
 
-    # Fix all critical issues (suggestions are optional)
+    # すべての重要な問題を修正する（提案は任意）
     output = fix_agent.execute(
         output=output,
         issues=issues,
-        instruction="Fix ONLY the flagged issues. Do not refactor or add unrequested changes."
+        instruction="フラグされた問題のみを修正してください。リファクタリングや未要求の変更を行わないこと。"
     )
 
-    # Re-run BOTH reviewers on fixed output (fresh agents, no memory of previous round)
+    # 修正された出力で両方のレビュアーを再実行（以前のラウンドのメモリなしのフレッシュエージェント）
     review_b = Agent(prompt=REVIEWER_PROMPT.format(output=output, ...))
     review_c = Agent(prompt=REVIEWER_PROMPT.format(output=output, ...))
 
-# Exhausted iterations — escalate
+# イテレーション消尽 — エスカレート
 log_santa_result(output, MAX_ITERATIONS, "escalated")
 escalate_to_human(output, issues)
 ```
 
-Critical: each review round uses **fresh agents**. Reviewers must not carry memory from previous rounds, as prior context creates anchoring bias.
+重要：各レビューラウンドは**フレッシュなエージェント**を使用する。レビュアーは以前のラウンドのメモリを持ってはならない。過去のコンテキストはアンカリングバイアスを生み出すため。
 
-## Implementation Patterns
+## 実装パターン
 
-### Pattern A: Claude Code Subagents (Recommended)
+### パターンA: Claude Code サブエージェント（推奨）
 
-Subagents provide true context isolation. Each reviewer is a separate process with no shared state.
+サブエージェントは真のコンテキスト分離を提供する。各レビュアーは共有状態のない別プロセス。
 
 ```bash
-# In a Claude Code session, use the Agent tool to spawn reviewers
-# Both agents run in parallel for speed
+# Claude Code セッションでは、Agentツールを使ってレビュアーをスポーン
+# 速度のために両方のエージェントを並行して実行
 ```
 
 ```python
-# Pseudocode for Agent tool invocation
+# Agentツール呼び出しの擬似コード
 reviewer_b = Agent(
     description="Santa Review B",
-    prompt=f"Review this output for quality...\n\nRUBRIC:\n{rubric}\n\nOUTPUT:\n{output}"
+    prompt=f"この出力の品質をレビューしてください...\n\nルーブリック:\n{rubric}\n\n出力:\n{output}"
 )
 reviewer_c = Agent(
     description="Santa Review C",
-    prompt=f"Review this output for quality...\n\nRUBRIC:\n{rubric}\n\nOUTPUT:\n{output}"
+    prompt=f"この出力の品質をレビューしてください...\n\nルーブリック:\n{rubric}\n\n出力:\n{output}"
 )
 ```
 
-### Pattern B: Sequential Inline (Fallback)
+### パターンB: 逐次インライン（フォールバック）
 
-When subagents aren't available, simulate isolation with explicit context resets:
+サブエージェントが利用できない場合、明示的なコンテキストリセットで分離をシミュレートする：
 
-1. Generate output
-2. New context: "You are Reviewer 1. Evaluate ONLY against this rubric. Find problems."
-3. Record findings verbatim
-4. Clear context completely
-5. New context: "You are Reviewer 2. Evaluate ONLY against this rubric. Find problems."
-6. Compare both reviews, fix, repeat
+1. 出力を生成する
+2. 新しいコンテキスト：「あなたはレビュアー1です。このルーブリックのみに対して評価してください。問題を見つけてください。」
+3. 発見事項をそのまま記録する
+4. コンテキストを完全にクリアする
+5. 新しいコンテキスト：「あなたはレビュアー2です。このルーブリックのみに対して評価してください。問題を見つけてください。」
+6. 両方のレビューを比較し、修正し、繰り返す
 
-The subagent pattern is strictly superior — inline simulation risks context bleed between reviewers.
+サブエージェントパターンが明確に優れている — インラインシミュレーションはレビュアー間でコンテキストが漏洩するリスクがある。
 
-### Pattern C: Batch Sampling
+### パターンC: バッチサンプリング
 
-For large batches (100+ items), full Santa on every item is cost-prohibitive. Use stratified sampling:
+大規模バッチ（100件以上）の場合、すべての項目にフルサンタを実施するとコストが高い。層化サンプリングを使用する：
 
-1. Run Santa on a random sample (10-15% of batch, minimum 5 items)
-2. Categorize failures by type (hallucination, compliance, completeness, etc.)
-3. If systematic patterns emerge, apply targeted fixes to the entire batch
-4. Re-sample and re-verify the fixed batch
-5. Continue until a clean sample passes
+1. ランダムサンプルでサンタを実行する（バッチの10〜15%、最小5件）
+2. 失敗をタイプ別に分類する（ハルシネーション、コンプライアンス、完全性など）
+3. 体系的なパターンが現れた場合、バッチ全体に対象を絞った修正を適用する
+4. 修正されたバッチを再サンプリングして再検証する
+5. クリーンなサンプルが合格するまで継続する
 
 ```python
 import random
@@ -258,49 +258,49 @@ def santa_batch(items, rubric, sample_rate=0.15):
         result = santa_full(item, rubric)
         if result.verdict == "NAUGHTY":
             pattern = classify_failure(result.issues)
-            items = batch_fix(items, pattern)  # Fix all items matching pattern
-            return santa_batch(items, rubric)   # Re-sample
+            items = batch_fix(items, pattern)  # パターンに一致するすべての項目を修正
+            return santa_batch(items, rubric)   # 再サンプリング
 
-    return items  # Clean sample → ship batch
+    return items  # クリーンなサンプル → バッチを出荷
 ```
 
-## Failure Modes and Mitigations
+## 障害モードと軽減策
 
-| Failure Mode | Symptom | Mitigation |
+| 障害モード | 症状 | 軽減策 |
 |-------------|---------|------------|
-| Infinite loop | Reviewers keep finding new issues after fixes | Max iteration cap (3). Escalate. |
-| Rubber stamping | Both reviewers pass everything | Adversarial prompt: "Your job is to find problems, not approve." |
-| Subjective drift | Reviewers flag style preferences, not errors | Tight rubric with objective pass/fail criteria only |
-| Fix regression | Fixing issue A introduces issue B | Fresh reviewers each round catch regressions |
-| Reviewer agreement bias | Both reviewers miss the same thing | Mitigated by independence, not eliminated. For critical output, add a third reviewer or human spot-check. |
-| Cost explosion | Too many iterations on large outputs | Batch sampling pattern. Budget caps per verification cycle. |
+| 無限ループ | 修正後もレビュアーが新たな問題を発見し続ける | 最大イテレーション上限（3）。エスカレートする。 |
+| ゴム印押し | 両方のレビュアーがすべてを合格させる | 敵対的プロンプト：「あなたの仕事は問題を見つけることであり、承認することではない。」 |
+| 主観的なドリフト | レビュアーがエラーではなくスタイルの好みをフラグする | 客観的な合否基準のみを持つ厳密なルーブリック |
+| 修正による退行 | 問題Aの修正が問題Bを引き起こす | 各ラウンドのフレッシュなレビュアーが退行を検出する |
+| レビュアーの合意バイアス | 両方のレビュアーが同じことを見逃す | 独立性によって軽減されるが排除はされない。重要な出力には3人目のレビュアーまたは人間のスポットチェックを追加する。 |
+| コスト爆発 | 大きな出力で多くのイテレーション | バッチサンプリングパターン。検証サイクルごとのバジェット上限。 |
 
-## Integration with Other Skills
+## 他のスキルとの統合
 
-| Skill | Relationship |
+| スキル | 関係 |
 |-------|-------------|
-| Verification Loop | Use for deterministic checks (build, lint, test). Santa for semantic checks (accuracy, hallucinations). Run verification-loop first, Santa second. |
-| Eval Harness | Santa Method results feed eval metrics. Track pass@k across Santa runs to measure generator quality over time. |
-| Continuous Learning v2 | Santa findings become instincts. Repeated failures on the same criterion → learned behavior to avoid the pattern. |
-| Strategic Compact | Run Santa BEFORE compacting. Don't lose review context mid-verification. |
+| Verification Loop | 決定論的チェック（ビルド、lint、テスト）に使用する。サンタはセマンティックチェック（正確性、ハルシネーション）に使用する。最初に検証ループを実行し、次にサンタを実行する。 |
+| Eval Harness | サンタメソッドの結果がevalメトリクスにフィードされる。サンタの実行全体でpass@kを追跡してジェネレーターの品質を経時的に測定する。 |
+| Continuous Learning v2 | サンタの発見事項がインスティンクトになる。同じ基準での繰り返しの失敗 → そのパターンを避けるための学習された行動。 |
+| Strategic Compact | コンパクト前にサンタを実行する。検証の途中でレビューコンテキストを失わないようにする。 |
 
-## Metrics
+## メトリクス
 
-Track these to measure Santa Method effectiveness:
+サンタメソッドの有効性を測定するためにこれらを追跡する：
 
-- **First-pass rate**: % of outputs that pass Santa on round 1 (target: >70%)
-- **Mean iterations to convergence**: average rounds to NICE (target: <1.5)
-- **Issue taxonomy**: distribution of failure types (hallucination vs. completeness vs. compliance)
-- **Reviewer agreement**: % of issues flagged by both reviewers vs. only one (low agreement = rubric needs tightening)
-- **Escape rate**: issues found post-ship that Santa should have caught (target: 0)
+- **初回合格率**: 1回目でサンタを通過する出力の割合（目標：70%以上）
+- **収束までの平均イテレーション**: 問題なし（NICE）までの平均ラウンド数（目標：1.5未満）
+- **問題の分類**: 失敗タイプの分布（ハルシネーション vs. 完全性 vs. コンプライアンス）
+- **レビュアーの合意**: 両方のレビュアーによってフラグされた問題の割合 vs. 一方のみ（合意が低い = ルーブリックの改善が必要）
+- **エスケープ率**: 出荷後に発見されたサンタが検出すべきだった問題（目標：0）
 
-## Cost Analysis
+## コスト分析
 
-Santa Method costs approximately 2-3x the token cost of generation alone per verification cycle. For most high-stakes output, this is a bargain:
+サンタメソッドは検証サイクルごとに生成だけのトークンコストの約2〜3倍のコストがかかる。高リスクの出力のほとんどにとって、これは割安：
 
 ```
-Cost of Santa = (generation tokens) + 2×(review tokens per round) × (avg rounds)
-Cost of NOT Santa = (reputation damage) + (correction effort) + (trust erosion)
+サンタのコスト = （生成トークン）+ 2×（1ラウンドあたりのレビュートークン）×（平均ラウンド数）
+サンタなしのコスト = （評判の損傷）+（修正作業）+（信頼の侵食）
 ```
 
-For batch operations, the sampling pattern reduces cost to ~15-20% of full verification while catching >90% of systematic issues.
+バッチ操作の場合、サンプリングパターンによりコストはフルサンタの約15〜20%に削減され、体系的な問題の90%以上を検出できる。

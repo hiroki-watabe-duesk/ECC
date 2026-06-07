@@ -1,25 +1,25 @@
 ---
 name: dotnet-patterns
-description: Idiomatic C# and .NET patterns, conventions, dependency injection, async/await, and best practices for building robust, maintainable .NET applications.
+description: C# および .NET の慣用的なパターン、規約、依存性注入、async/await、堅牢で保守性の高い .NET アプリケーションを構築するためのベストプラクティス。
 origin: ECC
 ---
 
-# .NET Development Patterns
+# .NET 開発パターン
 
-Idiomatic C# and .NET patterns for building robust, performant, and maintainable applications.
+堅牢で高性能かつ保守性の高いアプリケーションを構築するための、C# および .NET 慣用パターン集。
 
-## When to Activate
+## 有効化のタイミング
 
-- Writing new C# code
-- Reviewing C# code
-- Refactoring existing .NET applications
-- Designing service architectures with ASP.NET Core
+- 新しい C# コードを書くとき
+- C# コードをレビューするとき
+- 既存の .NET アプリケーションをリファクタリングするとき
+- ASP.NET Core でサービスアーキテクチャを設計するとき
 
-## Core Principles
+## 基本原則
 
-### 1. Prefer Immutability
+### 1. 不変性を優先する
 
-Use records and init-only properties for data models. Mutability should be an explicit, justified choice.
+データモデルにはレコードと init-only プロパティを使用する。可変性は明示的かつ正当な理由のある選択であるべきだ。
 
 ```csharp
 // Good: Immutable value object
@@ -40,9 +40,9 @@ public class Order
 }
 ```
 
-### 2. Explicit Over Implicit
+### 2. 暗黙より明示
 
-Be clear about nullability, access modifiers, and intent.
+null 許容性、アクセス修飾子、意図を明確に示す。
 
 ```csharp
 // Good: Explicit access modifiers and nullability
@@ -64,9 +64,9 @@ public sealed class UserService
 }
 ```
 
-### 3. Depend on Abstractions
+### 3. 抽象に依存する
 
-Use interfaces for service boundaries. Register via DI container.
+サービス境界にはインターフェースを使用し、DI コンテナ経由で登録する。
 
 ```csharp
 // Good: Interface-based dependency
@@ -81,9 +81,9 @@ public interface IOrderRepository
 builder.Services.AddScoped<IOrderRepository, SqlOrderRepository>();
 ```
 
-## Async/Await Patterns
+## Async/Await パターン
 
-### Proper Async Usage
+### 適切な非同期の使い方
 
 ```csharp
 // Good: Async all the way, with CancellationToken
@@ -107,7 +107,7 @@ public OrderSummary GetOrderSummary(Guid orderId)
 }
 ```
 
-### Parallel Async Operations
+### 並列非同期処理
 
 ```csharp
 // Good: Concurrent independent operations
@@ -126,9 +126,9 @@ public async Task<DashboardData> LoadDashboardAsync(CancellationToken cancellati
 }
 ```
 
-## Options Pattern
+## オプションパターン
 
-Bind configuration sections to strongly-typed objects.
+設定セクションを厳密に型付けされたオブジェクトにバインドする。
 
 ```csharp
 public sealed class SmtpOptions
@@ -152,9 +152,9 @@ public class EmailService(IOptions<SmtpOptions> options)
 }
 ```
 
-## Result Pattern
+## 結果パターン
 
-Return explicit success/failure instead of throwing for expected failures.
+想定される失敗に対しては例外をスローするのではなく、明示的な成功/失敗を返す。
 
 ```csharp
 public sealed record Result<T>
@@ -182,7 +182,7 @@ public async Task<Result<Order>> PlaceOrderAsync(CreateOrderRequest request)
 }
 ```
 
-## Repository Pattern with EF Core
+## EF Core を使ったリポジトリパターン
 
 ```csharp
 public sealed class SqlOrderRepository : IOrderRepository
@@ -218,7 +218,7 @@ public sealed class SqlOrderRepository : IOrderRepository
 }
 ```
 
-## Middleware and Pipeline
+## ミドルウェアとパイプライン
 
 ```csharp
 // Custom middleware
@@ -254,7 +254,7 @@ public sealed class RequestTimingMiddleware
 }
 ```
 
-## Minimal API Patterns
+## Minimal API パターン
 
 ```csharp
 // Organized with route groups
@@ -285,7 +285,7 @@ orders.MapPost("/", async (
 });
 ```
 
-## Guard Clauses
+## ガード節
 
 ```csharp
 // Good: Early returns with clear validation
@@ -307,15 +307,15 @@ public async Task<ProcessResult> ProcessPaymentAsync(
 }
 ```
 
-## Anti-Patterns to Avoid
+## 避けるべきアンチパターン
 
-| Anti-Pattern | Fix |
+| アンチパターン | 修正方法 |
 |---|---|
-| `async void` methods | Return `Task` (except event handlers) |
-| `.Result` or `.Wait()` | Use `await` |
-| `catch (Exception) { }` | Handle or rethrow with context |
-| `new Service()` in constructors | Use constructor injection |
-| `public` fields | Use properties with appropriate accessors |
-| `dynamic` in business logic | Use generics or explicit types |
-| Mutable `static` state | Use DI scoping or `ConcurrentDictionary` |
-| `string.Format` in loops | Use `StringBuilder` or interpolated string handlers |
+| `async void` メソッド | `Task` を返す（イベントハンドラを除く） |
+| `.Result` または `.Wait()` | `await` を使用する |
+| `catch (Exception) { }` | 文脈情報を付けて処理するか再スローする |
+| コンストラクタ内での `new Service()` | コンストラクタインジェクションを使用する |
+| `public` フィールド | 適切なアクセサを持つプロパティを使用する |
+| ビジネスロジックでの `dynamic` | ジェネリクスまたは明示的な型を使用する |
+| 可変な `static` 状態 | DI スコープまたは `ConcurrentDictionary` を使用する |
+| ループ内での `string.Format` | `StringBuilder` または補間文字列ハンドラを使用する |

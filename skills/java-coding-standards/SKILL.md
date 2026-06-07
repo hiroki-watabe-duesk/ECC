@@ -1,88 +1,86 @@
 ---
 name: java-coding-standards
-description: "Java coding standards for Spring Boot and Quarkus services: naming, immutability, Optional usage, streams, exceptions, generics, CDI, reactive patterns, and project layout. Automatically applies framework-specific conventions."
+description: "Spring BootおよびQuarkusサービス向けJavaコーディング標準：命名、不変性、Optionalの使用、ストリーム、例外、ジェネリクス、CDI、リアクティブパターン、プロジェクトレイアウト。フレームワーク固有の規約を自動適用。"
 origin: ECC
 ---
 
-# Java Coding Standards
+# Java コーディング標準
 
-Standards for readable, maintainable Java (17+) code in Spring Boot and Quarkus services.
+Spring BootおよびQuarkusサービスにおける読みやすく保守しやすいJava（17以降）コードの標準。
 
-## When to Use
+## 使用タイミング
 
-- Writing or reviewing Java code in Spring Boot or Quarkus projects
-- Enforcing naming, immutability, or exception handling conventions
-- Working with records, sealed classes, or pattern matching (Java 17+)
-- Reviewing use of Optional, streams, or generics
-- Structuring packages and project layout
-- **[QUARKUS]**: Working with CDI scopes, Panache entities, or reactive pipelines
+- Spring BootまたはQuarkusプロジェクトでJavaコードを記述またはレビューするとき
+- 命名、不変性、例外処理の規約を強制するとき
+- レコード、封印クラス、またはパターンマッチング（Java 17以降）を使用するとき
+- Optional、ストリーム、またはジェネリクスの使用をレビューするとき
+- パッケージとプロジェクトレイアウトを構造化するとき
+- **[QUARKUS]**: CDIスコープ、Panacheエンティティ、またはリアクティブパイプラインを使用するとき
 
-## How It Works
+## 仕組み
 
-### Framework Detection
+### フレームワークの検出
 
-Before applying standards, determine the framework from the build file:
+標準を適用する前に、ビルドファイルからフレームワークを判定します:
 
-- Build file contains `quarkus` → apply **[QUARKUS]** conventions
-- Build file contains `spring-boot` → apply **[SPRING]** conventions
-- Neither detected → apply shared conventions only
+- ビルドファイルに `quarkus` が含まれる → **[QUARKUS]** 規約を適用
+- ビルドファイルに `spring-boot` が含まれる → **[SPRING]** 規約を適用
+- どちらも検出されない → 共通規約のみを適用
 
-## Core Principles
+## コア原則
 
-- Prefer clarity over cleverness
-- Immutable by default; minimize shared mutable state
-- Fail fast with meaningful exceptions
-- Consistent naming and package structure
-- **[QUARKUS]**: Favor build-time over runtime processing; avoid runtime reflection where possible
+- 巧さよりも明確さを優先する
+- デフォルトで不変にする。共有された可変状態を最小化する
+- 意味のある例外でフェイルファストする
+- 一貫した命名とパッケージ構造を維持する
+- **[QUARKUS]**: ランタイム処理よりビルド時処理を優先する。可能な限りランタイムリフレクションを避ける
 
-## Examples
+## 例
 
-The sections below show concrete Spring Boot, Quarkus, and shared Java examples
-for naming, immutability, dependency injection, reactive code, exceptions,
-project layout, logging, configuration, and tests.
+以下のセクションでは、命名、不変性、依存性注入、リアクティブコード、例外、プロジェクトレイアウト、ロギング、設定、テストについてSpring Boot、Quarkus、および共通Javaの具体的な例を示します。
 
-## Naming
+## 命名
 
 ```java
-// PASS: Classes/Records: PascalCase
+// PASS: クラス/レコード: PascalCase
 public class MarketService {}
 public record Money(BigDecimal amount, Currency currency) {}
 
-// PASS: Methods/fields: camelCase
+// PASS: メソッド/フィールド: camelCase
 private final MarketRepository marketRepository;
 public Market findBySlug(String slug) {}
 
-// PASS: Constants: UPPER_SNAKE_CASE
+// PASS: 定数: UPPER_SNAKE_CASE
 private static final int MAX_PAGE_SIZE = 100;
 
-// PASS: [QUARKUS] JAX-RS resources named as *Resource, not *Controller
+// PASS: [QUARKUS] JAX-RSリソースは*Resourceと命名（*Controllerではない）
 public class MarketResource {}
 
-// PASS: [SPRING] REST controllers named as *Controller
+// PASS: [SPRING] RESTコントローラーは*Controllerと命名
 public class MarketController {}
 ```
 
-## Immutability
+## 不変性
 
 ```java
-// PASS: Favor records and final fields
+// PASS: レコードとfinalフィールドを優先する
 public record MarketDto(Long id, String name, MarketStatus status) {}
 
 public class Market {
   private final Long id;
   private final String name;
-  // getters only, no setters
+  // ゲッターのみ、セッターなし
 }
 
-// PASS: [QUARKUS] Panache active-record entities use public fields (Quarkus convention)
+// PASS: [QUARKUS] Panacheアクティブレコードエンティティはpublicフィールドを使用（Quarkus規約）
 @Entity
 public class Market extends PanacheEntity {
   public String name;
   public MarketStatus status;
-  // Panache generates accessors at build time; public fields are idiomatic here
+  // Panacheはビルド時にアクセサーを生成する。publicフィールドはここでは慣用的
 }
 
-// PASS: [QUARKUS] Panache MongoDB entities
+// PASS: [QUARKUS] Panache MongoDBエンティティ
 @MongoEntity(collection = "markets")
 public class Market extends PanacheMongoEntity {
   public String name;
@@ -90,38 +88,38 @@ public class Market extends PanacheMongoEntity {
 }
 ```
 
-## Optional Usage
+## Optionalの使用
 
 ```java
-// PASS: Return Optional from find* methods
+// PASS: find*メソッドからOptionalを返す
 // [SPRING]
 Optional<Market> market = marketRepository.findBySlug(slug);
 
 // [QUARKUS] Panache
 Optional<Market> market = Market.find("slug", slug).firstResultOptional();
 
-// PASS: Map/flatMap instead of get()
+// PASS: get()の代わりにMap/flatMapを使用
 return market
     .map(MarketResponse::from)
     .orElseThrow(() -> new EntityNotFoundException("Market not found"));
 ```
 
-## Streams Best Practices
+## ストリームのベストプラクティス
 
 ```java
-// PASS: Use streams for transformations, keep pipelines short
+// PASS: 変換にストリームを使用し、パイプラインを短く保つ
 List<String> names = markets.stream()
     .map(Market::name)
     .filter(Objects::nonNull)
     .toList();
 
-// FAIL: Avoid complex nested streams; prefer loops for clarity
+// FAIL: 複雑にネストしたストリームは避ける。明確さのためにループを優先する
 ```
 
-## Dependency Injection
+## 依存性注入
 
 ```java
-// PASS: [SPRING] Constructor injection (preferred over @Autowired on fields)
+// PASS: [SPRING] コンストラクター注入（フィールドへの@Autowiredより優先）
 @Service
 public class MarketService {
   private final MarketRepository marketRepository;
@@ -131,7 +129,7 @@ public class MarketService {
   }
 }
 
-// PASS: [QUARKUS] Constructor injection
+// PASS: [QUARKUS] コンストラクター注入
 @ApplicationScoped
 public class MarketService {
   private final MarketRepository marketRepository;
@@ -142,26 +140,26 @@ public class MarketService {
   }
 }
 
-// PASS: [QUARKUS] Package-private field injection (acceptable in Quarkus — avoids proxy issues)
+// PASS: [QUARKUS] パッケージプライベートフィールド注入（Quarkusでは許容 — プロキシの問題を回避）
 @ApplicationScoped
 public class MarketService {
   @Inject
   MarketRepository marketRepository;
 }
 
-// FAIL: [SPRING] Field injection with @Autowired
+// FAIL: [SPRING] @Autowiredによるフィールド注入
 @Autowired
-private MarketRepository marketRepository; // use constructor injection
+private MarketRepository marketRepository; // コンストラクター注入を使用
 
-// FAIL: [QUARKUS] @Singleton when interception or lazy init is needed
-@Singleton // non-proxyable — use @ApplicationScoped instead
+// FAIL: [QUARKUS] インターセプションや遅延初期化が必要な場合の@Singleton
+@Singleton // プロキシ不可 — 代わりに@ApplicationScopedを使用
 public class MarketService {}
 ```
 
-## Reactive Patterns [QUARKUS]
+## リアクティブパターン [QUARKUS]
 
 ```java
-// PASS: Return Uni/Multi from reactive endpoints
+// PASS: リアクティブエンドポイントからUni/Multiを返す
 @GET
 @Path("/{slug}")
 public Uni<Market> findBySlug(@PathParam("slug") String slug) {
@@ -170,36 +168,36 @@ public Uni<Market> findBySlug(@PathParam("slug") String slug) {
       .onItem().ifNull().failWith(() -> new MarketNotFoundException(slug));
 }
 
-// PASS: Non-blocking pipeline composition
+// PASS: ノンブロッキングなパイプラインの合成
 public Uni<OrderConfirmation> placeOrder(OrderRequest req) {
   return validateOrder(req)
       .chain(valid -> persistOrder(valid))
       .chain(order -> notifyFulfillment(order));
 }
 
-// FAIL: Blocking call inside a Uni/Multi pipeline
+// FAIL: Uni/Multiパイプライン内でのブロッキング呼び出し
 public Uni<Market> find(String slug) {
-  Market m = Market.find("slug", slug).firstResult(); // BLOCKING — breaks event loop
+  Market m = Market.find("slug", slug).firstResult(); // ブロッキング — イベントループを妨害
   return Uni.createFrom().item(m);
 }
 
-// FAIL: Subscribing more than once to a shared Uni
+// FAIL: 共有されたUniへの二重サブスクライブ
 Uni<Market> shared = fetchMarket(slug);
 shared.subscribe().with(m -> log(m));
-shared.subscribe().with(m -> cache(m)); // double subscribe — use Uni.memoize()
+shared.subscribe().with(m -> cache(m)); // 二重サブスクライブ — Uni.memoize()を使用
 ```
 
-## Exceptions
+## 例外
 
-- Use unchecked exceptions for domain errors; wrap technical exceptions with context
-- Create domain-specific exceptions (e.g., `MarketNotFoundException`)
-- Avoid broad `catch (Exception ex)` unless rethrowing/logging centrally
+- ドメインエラーには非検査例外を使用する。技術的な例外はコンテキストとともにラップする
+- ドメイン固有の例外を作成する（例: `MarketNotFoundException`）
+- 中央でリスロー/ロギングする場合を除き、広い `catch (Exception ex)` は避ける
 
 ```java
 throw new MarketNotFoundException(slug);
 ```
 
-### Centralised Exception Handling
+### 集中型例外ハンドリング
 
 ```java
 // [SPRING]
@@ -211,7 +209,7 @@ public class GlobalExceptionHandler {
   }
 }
 
-// [QUARKUS] Option A: ExceptionMapper
+// [QUARKUS] オプションA: ExceptionMapper
 @Provider
 public class MarketNotFoundMapper implements ExceptionMapper<MarketNotFoundException> {
   @Override
@@ -220,23 +218,23 @@ public class MarketNotFoundMapper implements ExceptionMapper<MarketNotFoundExcep
   }
 }
 
-// [QUARKUS] Option B: @ServerExceptionMapper (RESTEasy Reactive)
+// [QUARKUS] オプションB: @ServerExceptionMapper（RESTEasy Reactive）
 @ServerExceptionMapper
 public RestResponse<ErrorResponse> handle(MarketNotFoundException ex) {
   return RestResponse.status(Status.NOT_FOUND, ErrorResponse.from(ex));
 }
 ```
 
-## Generics and Type Safety
+## ジェネリクスと型安全性
 
-- Avoid raw types; declare generic parameters
-- Prefer bounded generics for reusable utilities
+- 生の型を避ける。ジェネリクスパラメーターを宣言する
+- 再利用可能なユーティリティには境界付きジェネリクスを優先する
 
 ```java
 public <T extends Identifiable> Map<Long, T> indexById(Collection<T> items) { ... }
 ```
 
-## Project Structure
+## プロジェクト構造
 
 ### [SPRING] Maven/Gradle
 
@@ -251,46 +249,46 @@ src/main/java/com/example/app/
   util/
 src/main/resources/
   application.yml
-src/test/java/... (mirrors main)
+src/test/java/... (mainを反映)
 ```
 
 ### [QUARKUS] Maven/Gradle
 
 ```
 src/main/java/com/example/app/
-  config/              # @ConfigMapping, @ConfigProperty beans, Producers
-  resource/            # JAX-RS resources (not "controller")
+  config/              # @ConfigMapping、@ConfigPropertyビーン、Producers
+  resource/            # JAX-RSリソース（"controller"ではない）
   service/
-  repository/          # PanacheRepository implementations (if not using active record)
-  domain/              # JPA/Panache entities, MongoDB entities
+  repository/          # PanacheRepositoryの実装（アクティブレコードを使用しない場合）
+  domain/              # JPA/Panacheエンティティ、MongoDBエンティティ
   dto/
   util/
-  mapper/              # MapStruct mappers (if used)
+  mapper/              # MapStructマッパー（使用する場合）
 src/main/resources/
-  application.properties   # Quarkus convention (YAML supported with quarkus-config-yaml)
-  import.sql               # Hibernate auto-import for dev/test
-src/test/java/... (mirrors main)
+  application.properties   # Quarkus規約（quarkus-config-yamlでYAMLをサポート）
+  import.sql               # 開発/テスト用Hibernateオートインポート
+src/test/java/... (mainを反映)
 ```
 
-## Formatting and Style
+## フォーマットとスタイル
 
-- Use 2 or 4 spaces consistently (project standard)
-- One public top-level type per file
-- Keep methods short and focused; extract helpers
-- Order members: constants, fields, constructors, public methods, protected, private
+- 2または4スペースを一貫して使用する（プロジェクト標準に従う）
+- ファイルにはpublicトップレベル型を1つ
+- メソッドを短く焦点を絞ったものに保つ。ヘルパーを抽出する
+- メンバーの順序: 定数、フィールド、コンストラクター、publicメソッド、protected、private
 
-## Code Smells to Avoid
+## 避けるべきコードの臭い
 
-- Long parameter lists → use DTO/builders
-- Deep nesting → early returns
-- Magic numbers → named constants
-- Static mutable state → prefer dependency injection
-- Silent catch blocks → log and act or rethrow
-- **[QUARKUS]**: `@Singleton` where `@ApplicationScoped` is intended — breaks proxying and interception
-- **[QUARKUS]**: Mixing `quarkus-resteasy-reactive` and `quarkus-resteasy` (classic) — pick one stack
-- **[QUARKUS]**: Panache active-record + repository pattern in the same bounded context — pick one
+- 長いパラメーターリスト → DTO/ビルダーを使用する
+- 深いネスト → 早期リターン
+- マジックナンバー → 名前付き定数
+- 静的な可変状態 → 依存性注入を優先する
+- サイレントcatchブロック → ログを記録して対応するか再スローする
+- **[QUARKUS]**: `@ApplicationScoped` が意図されている箇所での `@Singleton` — プロキシとインターセプションを破壊する
+- **[QUARKUS]**: `quarkus-resteasy-reactive` と `quarkus-resteasy`（クラシック）の混在 — 一方のスタックを選択する
+- **[QUARKUS]**: 同じ境界コンテキスト内でのPanacheアクティブレコード + リポジトリパターン — どちらか一方を選択する
 
-## Logging
+## ロギング
 
 ```java
 // [SPRING] SLF4J
@@ -298,69 +296,69 @@ private static final Logger log = LoggerFactory.getLogger(MarketService.class);
 log.info("fetch_market slug={}", slug);
 log.error("failed_fetch_market slug={}", slug, ex);
 
-// [QUARKUS] JBoss Logging (default, zero-cost at build time)
+// [QUARKUS] JBossロギング（デフォルト、ビルド時にゼロコスト）
 private static final Logger log = Logger.getLogger(MarketService.class);
 log.infof("fetch_market slug=%s", slug);
 log.errorf(ex, "failed_fetch_market slug=%s", slug);
 
-// [QUARKUS] Alternative: simplified logging with @Inject
+// [QUARKUS] 代替: @InjectによるシンプルなロギングGの
 @Inject
-Logger log; // CDI-injected, scoped to declaring class
+Logger log; // CDI注入、宣言クラスにスコープされる
 ```
 
-## Null Handling
+## Null処理
 
-- Accept `@Nullable` only when unavoidable; otherwise use `@NonNull`
-- Use Bean Validation (`@NotNull`, `@NotBlank`) on inputs
-- **[QUARKUS]**: Apply `@Valid` on `@BeanParam`, `@RestForm`, and request body parameters
+- やむを得ない場合のみ `@Nullable` を受け入れる。そうでなければ `@NonNull` を使用する
+- 入力にはBean Validation（`@NotNull`、`@NotBlank`）を使用する
+- **[QUARKUS]**: `@BeanParam`、`@RestForm`、およびリクエストボディパラメーターに `@Valid` を適用する
 
-## Configuration
+## 設定
 
 ```java
 // [SPRING] @ConfigurationProperties
 @ConfigurationProperties(prefix = "market")
 public record MarketProperties(int maxPageSize, Duration cacheTtl) {}
 
-// [QUARKUS] @ConfigMapping (type-safe, build-time validated)
+// [QUARKUS] @ConfigMapping（型安全、ビルド時に検証）
 @ConfigMapping(prefix = "market")
 public interface MarketConfig {
   int maxPageSize();
   Duration cacheTtl();
 }
 
-// [QUARKUS] Simple values with @ConfigProperty
+// [QUARKUS] @ConfigPropertyによるシンプルな値
 @ConfigProperty(name = "market.max-page-size", defaultValue = "100")
 int maxPageSize;
 ```
 
-## Testing Expectations
+## テストの期待値
 
-### Shared
-- JUnit 5 + AssertJ for fluent assertions
-- Mockito for mocking; avoid partial mocks where possible
-- Favor deterministic tests; no hidden sleeps
+### 共通
+- JUnit 5 + AssertJによる流暢なアサーション
+- モック用のMockito。可能な限り部分モックを避ける
+- 決定論的なテストを優先する。隠れたスリープは使わない
 
 ### [SPRING]
-- `@WebMvcTest` for controller slices, `@DataJpaTest` for repository slices
-- `@SpringBootTest` reserved for full integration tests
-- `@MockBean` for replacing beans in Spring context
+- コントローラーのスライステストには `@WebMvcTest`、リポジトリのスライステストには `@DataJpaTest`
+- `@SpringBootTest` は完全インテグレーションテストに限定
+- Springコンテキストのビーンを置き換えるには `@MockBean`
 
 ### [QUARKUS]
-- Plain JUnit 5 + Mockito for unit tests (no `@QuarkusTest`)
-- `@QuarkusTest` reserved for CDI integration tests
-- `@InjectMock` for replacing CDI beans in integration tests
-- Dev Services for database/Kafka/Redis — avoid manual Testcontainers setup when Dev Services suffice
-- `@QuarkusTestResource` for custom external service lifecycle
+- ユニットテストにはプレーンJUnit 5 + Mockito（`@QuarkusTest` なし）
+- `@QuarkusTest` はCDIインテグレーションテストに限定
+- インテグレーションテストでCDIビーンを置き換えるには `@InjectMock`
+- データベース/Kafka/Redis用のDev Services — Dev Servicesで十分な場合は手動Testcontainersの設定を避ける
+- カスタム外部サービスライフサイクルには `@QuarkusTestResource`
 
 ```java
-// [SPRING] Controller test
+// [SPRING] コントローラーテスト
 @WebMvcTest(MarketController.class)
 class MarketControllerTest {
   @Autowired MockMvc mockMvc;
   @MockBean MarketService marketService;
 }
 
-// [QUARKUS] Integration test
+// [QUARKUS] インテグレーションテスト
 @QuarkusTest
 class MarketResourceTest {
   @InjectMock
@@ -372,7 +370,7 @@ class MarketResourceTest {
   }
 }
 
-// [QUARKUS] Unit test (no CDI, no @QuarkusTest)
+// [QUARKUS] ユニットテスト（CDIなし、@QuarkusTestなし）
 @ExtendWith(MockitoExtension.class)
 class MarketServiceTest {
   @Mock MarketRepository marketRepository;
@@ -380,4 +378,4 @@ class MarketServiceTest {
 }
 ```
 
-**Remember**: Keep code intentional, typed, and observable. Optimize for maintainability over micro-optimizations unless proven necessary.
+**注意**: コードは意図的で型付けされ、観察可能に保つこと。証明されない限り、マイクロ最適化よりも保守性のために最適化すること。

@@ -1,27 +1,27 @@
 ---
 name: quarkus-patterns
-description: Quarkus 3.x LTS architecture patterns with Camel for messaging, RESTful API design, CDI services, data access with Panache, and async processing. Use for Java Quarkus backend work with event-driven architectures.
+description: Apache Camel を使ったメッセージング、RESTful API 設計、CDI サービス、Panache によるデータアクセス、非同期処理を含む Quarkus 3.x LTS アーキテクチャパターン。イベント駆動アーキテクチャを採用した Java Quarkus バックエンド開発に使用。
 origin: ECC
 ---
 
-# Quarkus Development Patterns
+# Quarkus 開発パターン
 
-Quarkus 3.x architecture and API patterns for cloud-native, event-driven services with Apache Camel.
+Apache Camel を用いたクラウドネイティブかつイベント駆動型サービスのための Quarkus 3.x アーキテクチャおよび API パターン。
 
-## When to Activate
+## いつ有効にするか
 
-- Building REST APIs with JAX-RS or RESTEasy Reactive
-- Structuring resource → service → repository layers
-- Implementing event-driven patterns with Apache Camel and RabbitMQ
-- Configuring Hibernate Panache, caching, or reactive streams
-- Adding validation, exception mapping, or pagination
-- Setting up profiles for dev/staging/production environments (YAML config)
-- Custom logging with LogContext and Logback/Logstash encoder
-- Working with CompletableFuture for async operations
-- Implementing conditional flow processing
-- Working with GraalVM native compilation
+- JAX-RS または RESTEasy Reactive を使った REST API の構築
+- リソース → サービス → リポジトリのレイヤー設計
+- Apache Camel と RabbitMQ を使ったイベント駆動パターンの実装
+- Hibernate Panache、キャッシュ、リアクティブストリームの設定
+- バリデーション、例外マッピング、ページネーションの追加
+- dev/staging/production 環境向けプロファイルのセットアップ（YAML 設定）
+- LogContext と Logback/Logstash エンコーダーを用いたカスタムロギング
+- 非同期処理のための CompletableFuture の活用
+- 条件付きフロー処理の実装
+- GraalVM ネイティブコンパイルとの連携
 
-## Service Layer with Multiple Dependencies
+## 複数の依存関係を持つサービスレイヤー
 
 ```java
 @Slf4j
@@ -57,15 +57,15 @@ public class OrderProcessingService {
 }
 ```
 
-**Key Patterns:**
-- `@RequiredArgsConstructor` for constructor injection via Lombok
-- `@Slf4j` for Logback logging
-- `@Transactional` on service methods that write through Panache or repositories
-- Validate input before persistence or message publication
-- Event tracking for success/error scenarios
-- Async Camel message publishing
+**主要パターン:**
+- Lombok によるコンストラクタインジェクションのための `@RequiredArgsConstructor`
+- Logback ロギングのための `@Slf4j`
+- Panache またはリポジトリを通じてデータを書き込むサービスメソッドへの `@Transactional`
+- 永続化やメッセージ発行の前に入力を検証する
+- 成功・エラー時のシナリオに応じたイベント追跡
+- Camel メッセージの非同期発行
 
-## Custom Logging Context Pattern (Logback)
+## カスタムロギングコンテキストパターン（Logback）
 
 ```java
 @ApplicationScoped
@@ -93,7 +93,7 @@ public class ProcessingService {
 }
 ```
 
-**Logback Configuration (logback.xml):**
+**Logback 設定（logback.xml）:**
 
 ```xml
 <configuration>
@@ -111,7 +111,7 @@ public class ProcessingService {
 </configuration>
 ```
 
-## Event Service Pattern
+## イベントサービスパターン
 
 ```java
 @Slf4j
@@ -159,7 +159,7 @@ public class EventService {
 }
 ```
 
-## Camel Message Publishing (RabbitMQ)
+## Camel メッセージ発行（RabbitMQ）
 
 ```java
 @Slf4j
@@ -177,7 +177,7 @@ public class BusinessRulesPublisher {
 }
 ```
 
-**Camel Route Configuration:**
+**Camel ルート設定:**
 
 ```java
 @ApplicationScoped
@@ -204,7 +204,7 @@ public class BusinessRulesRoute extends RouteBuilder {
 }
 ```
 
-## Camel Direct Routes (In-Memory)
+## Camel Direct ルート（インメモリ）
 
 ```java
 @ApplicationScoped
@@ -240,7 +240,7 @@ public class DocumentProcessingRoute extends RouteBuilder {
 }
 ```
 
-## Camel File Processing
+## Camel ファイル処理
 
 ```java
 @ApplicationScoped
@@ -270,7 +270,7 @@ public class FileMonitoringRoute extends RouteBuilder {
 }
 ```
 
-## Camel Bean Invocation
+## Camel Bean 呼び出し
 
 ```java
 @ApplicationScoped
@@ -290,7 +290,7 @@ public class InvoiceRoute extends RouteBuilder {
 }
 ```
 
-## REST API Structure
+## REST API 構造
 
 ```java
 @Path("/api/documents")
@@ -329,7 +329,7 @@ public class DocumentResource {
 }
 ```
 
-## Repository Pattern (Panache Repository)
+## リポジトリパターン（Panache リポジトリ）
 
 ```java
 @ApplicationScoped
@@ -351,7 +351,7 @@ public class DocumentRepository implements PanacheRepository<Document> {
 }
 ```
 
-## Service Layer with Transactions
+## トランザクション付きサービスレイヤー
 
 ```java
 @ApplicationScoped
@@ -387,7 +387,7 @@ public class DocumentService {
 }
 ```
 
-## DTOs and Validation
+## DTO とバリデーション
 
 ```java
 public record CreateDocumentRequest(
@@ -404,7 +404,7 @@ public record DocumentResponse(Long id, String referenceNumber, DocumentStatus s
 }
 ```
 
-## Exception Mapping
+## 例外マッピング
 
 ```java
 @Provider
@@ -435,7 +435,7 @@ public class GenericExceptionMapper implements ExceptionMapper<Exception> {
 }
 ```
 
-## CompletableFuture Async Operations
+## CompletableFuture 非同期処理
 
 ```java
 @Slf4j
@@ -478,7 +478,7 @@ public class FileStorageService {
 }
 ```
 
-## Caching
+## キャッシュ
 
 ```java
 @ApplicationScoped
@@ -499,7 +499,7 @@ public class DocumentCacheService {
 }
 ```
 
-## Configuration as YAML
+## YAML による設定
 
 ```yaml
 # application.yml
@@ -554,7 +554,7 @@ camel:
       invoice-processing: invoice-processing-queue
 ```
 
-## Health Checks
+## ヘルスチェック
 
 ```java
 @Readiness
@@ -592,7 +592,7 @@ public class CamelHealthCheck implements HealthCheck {
 }
 ```
 
-## Dependencies (Maven)
+## 依存関係（Maven）
 
 ```xml
 <properties>
@@ -667,56 +667,56 @@ public class CamelHealthCheck implements HealthCheck {
 </dependencies>
 ```
 
-## Best Practices
+## ベストプラクティス
 
-### Architecture
-- Use `@RequiredArgsConstructor` with Lombok for constructor injection
-- Keep service layer thin; delegate complex logic to specialized classes
-- Use Camel routes for message routing and integration patterns
-- Prefer Panache Repository pattern for data access
+### アーキテクチャ
+- Lombok によるコンストラクタインジェクションのために `@RequiredArgsConstructor` を使用する
+- サービスレイヤーを薄く保ち、複雑なロジックは専門クラスに委譲する
+- メッセージルーティングと統合パターンには Camel ルートを使用する
+- データアクセスには Panache リポジトリパターンを優先する
 
-### Event-Driven
-- Always track operations with EventService (success/error events)
-- Use Camel `direct:` endpoints for in-memory routing
-- Use `spring-rabbitmq` component for RabbitMQ integration
-- Implement async publishing with `ProducerTemplate.asyncSendBody()`
+### イベント駆動
+- 常に EventService で操作を追跡する（成功・エラーイベント）
+- インメモリルーティングには Camel の `direct:` エンドポイントを使用する
+- RabbitMQ 統合には `spring-rabbitmq` コンポーネントを使用する
+- `ProducerTemplate.asyncSendBody()` を使った非同期発行を実装する
 
-### Logging
-- Use Logback with Logstash encoder for structured logging
-- Propagate LogContext through service calls with `SafeAutoCloseable`
-- Add contextual information to LogContext for request tracing
-- Use `@Slf4j` instead of manual logger instantiation
+### ロギング
+- 構造化ロギングのために Logback と Logstash エンコーダーを使用する
+- `SafeAutoCloseable` を使ってサービス呼び出し全体で LogContext を伝播する
+- リクエストトレースのために LogContext にコンテキスト情報を追加する
+- 手動ロガー生成の代わりに `@Slf4j` を使用する
 
-### Async Operations
-- Use CompletableFuture for non-blocking I/O operations
-- Call `.join()` when you need to wait for completion
-- Handle exceptions from CompletableFuture properly
-- Pass LogContext to async operations for tracing
+### 非同期処理
+- ノンブロッキング I/O 処理には CompletableFuture を使用する
+- 完了を待つ必要がある場合は `.join()` を呼び出す
+- CompletableFuture の例外を適切に処理する
+- トレースのために非同期処理へ LogContext を渡す
 
-### Configuration
-- Use YAML configuration (`quarkus-config-yaml`)
-- Profile-aware configuration for dev/test/prod environments
-- Externalize sensitive configuration to environment variables
-- Use `@ConfigProperty` for type-safe config injection
+### 設定
+- YAML 設定（`quarkus-config-yaml`）を使用する
+- dev/test/prod 環境向けのプロファイル対応設定
+- 機密設定は環境変数に外部化する
+- 型安全な設定インジェクションのために `@ConfigProperty` を使用する
 
-### Validation
-- Validate at resource layer with `@Valid`
-- Use Bean Validation annotations on DTOs
-- Map exceptions to proper HTTP responses with `@Provider`
+### バリデーション
+- `@Valid` を使ってリソースレイヤーでバリデーションを行う
+- DTO には Bean Validation アノテーションを使用する
+- `@Provider` を使って例外を適切な HTTP レスポンスにマッピングする
 
-### Transactions
-- Use `@Transactional` on service methods that modify data
-- Keep transactions short and focused
-- Avoid calling async operations within transactions
+### トランザクション
+- データを変更するサービスメソッドには `@Transactional` を使用する
+- トランザクションを短く、目的に集中させる
+- トランザクション内で非同期処理を呼び出すことを避ける
 
-### Testing
-- Use `camel-quarkus-junit5` for route testing
-- Use AssertJ for assertions
-- Mock all external dependencies
-- Test conditional flow logic thoroughly
+### テスト
+- ルートテストには `camel-quarkus-junit5` を使用する
+- アサーションには AssertJ を使用する
+- 外部依存関係はすべてモックする
+- 条件付きフローロジックを徹底的にテストする
 
-### Quarkus-Specific
-- Stay on latest LTS version (3.x)
-- Use Quarkus dev mode for hot reload
-- Add health checks for production readiness
-- Test native compilation compatibility periodically
+### Quarkus 固有
+- 最新の LTS バージョン（3.x）を使い続ける
+- ホットリロードには Quarkus dev モードを使用する
+- 本番環境への対応のためにヘルスチェックを追加する
+- GraalVM ネイティブコンパイルの互換性を定期的にテストする

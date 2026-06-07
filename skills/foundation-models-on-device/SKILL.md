@@ -1,24 +1,24 @@
 ---
 name: foundation-models-on-device
-description: Apple FoundationModels framework for on-device LLM — text generation, guided generation with @Generable, tool calling, and snapshot streaming in iOS 26+.
+description: iOS 26+ 向けオンデバイス LLM 用 Apple FoundationModels フレームワーク — テキスト生成、@Generable を使ったガイド付き生成、ツール呼び出し、スナップショットストリーミング。
 ---
 
-# FoundationModels: On-Device LLM (iOS 26)
+# FoundationModels: オンデバイス LLM（iOS 26）
 
-Patterns for integrating Apple's on-device language model into apps using the FoundationModels framework. Covers text generation, structured output with `@Generable`, custom tool calling, and snapshot streaming — all running on-device for privacy and offline support.
+FoundationModels フレームワークを使って Apple のオンデバイス言語モデルをアプリに統合するためのパターン。テキスト生成、`@Generable` による構造化出力、カスタムツール呼び出し、スナップショットストリーミングを網羅 — すべてプライバシー保護とオフラインサポートのためにオンデバイスで動作する。
 
-## When to Activate
+## 有効にするタイミング
 
-- Building AI-powered features using Apple Intelligence on-device
-- Generating or summarizing text without cloud dependency
-- Extracting structured data from natural language input
-- Implementing custom tool calling for domain-specific AI actions
-- Streaming structured responses for real-time UI updates
-- Need privacy-preserving AI (no data leaves the device)
+- Apple Intelligence オンデバイスを使った AI 機能を構築するとき
+- クラウド依存なしにテキストを生成・要約するとき
+- 自然言語入力から構造化データを抽出するとき
+- ドメイン固有の AI アクション向けにカスタムツール呼び出しを実装するとき
+- リアルタイム UI 更新のために構造化レスポンスをストリーミングするとき
+- プライバシー保護 AI が必要なとき（デバイス外にデータが出ない）
 
-## Core Pattern — Availability Check
+## 基本パターン — 利用可能性チェック
 
-Always check model availability before creating a session:
+セッションを作成する前に常にモデルの利用可能性を確認する:
 
 ```swift
 struct GenerativeView: View {
@@ -41,15 +41,15 @@ struct GenerativeView: View {
 }
 ```
 
-## Core Pattern — Basic Session
+## 基本パターン — 基本セッション
 
 ```swift
-// Single-turn: create a new session each time
+// シングルターン: 毎回新しいセッションを作成
 let session = LanguageModelSession()
 let response = try await session.respond(to: "What's a good month to visit Paris?")
 print(response.content)
 
-// Multi-turn: reuse session for conversation context
+// マルチターン: 会話コンテキストのためにセッションを再利用
 let session = LanguageModelSession(instructions: """
     You are a cooking assistant.
     Provide recipe suggestions based on ingredients.
@@ -60,17 +60,17 @@ let first = try await session.respond(to: "I have chicken and rice")
 let followUp = try await session.respond(to: "What about a vegetarian option?")
 ```
 
-Key points for instructions:
-- Define the model's role ("You are a mentor")
-- Specify what to do ("Help extract calendar events")
-- Set style preferences ("Respond as briefly as possible")
-- Add safety measures ("Respond with 'I can't help with that' for dangerous requests")
+instructions のポイント:
+- モデルの役割を定義する（「あなたはメンターです」）
+- 行うべきことを指定する（「カレンダーイベントを抽出する手助けをしてください」）
+- スタイルの好みを設定する（「できるだけ簡潔に答えてください」）
+- 安全策を追加する（「危険なリクエストには『対応できません』と答えてください」）
 
-## Core Pattern — Guided Generation with @Generable
+## 基本パターン — @Generable を使ったガイド付き生成
 
-Generate structured Swift types instead of raw strings:
+生の文字列の代わりに構造化された Swift 型を生成する:
 
-### 1. Define a Generable Type
+### 1. Generable 型を定義する
 
 ```swift
 @Generable(description: "Basic profile information about a cat")
@@ -85,7 +85,7 @@ struct CatProfile {
 }
 ```
 
-### 2. Request Structured Output
+### 2. 構造化出力をリクエストする
 
 ```swift
 let response = try await session.respond(
@@ -93,23 +93,23 @@ let response = try await session.respond(
     generating: CatProfile.self
 )
 
-// Access structured fields directly
+// 構造化フィールドに直接アクセス
 print("Name: \(response.content.name)")
 print("Age: \(response.content.age)")
 print("Profile: \(response.content.profile)")
 ```
 
-### Supported @Guide Constraints
+### サポートされる @Guide 制約
 
-- `.range(0...20)` — numeric range
-- `.count(3)` — array element count
-- `description:` — semantic guidance for generation
+- `.range(0...20)` — 数値の範囲
+- `.count(3)` — 配列の要素数
+- `description:` — 生成のためのセマンティックガイダンス
 
-## Core Pattern — Tool Calling
+## 基本パターン — ツール呼び出し
 
-Let the model invoke custom code for domain-specific tasks:
+ドメイン固有のタスクのためにモデルがカスタムコードを呼び出せるようにする:
 
-### 1. Define a Tool
+### 1. ツールを定義する
 
 ```swift
 struct RecipeSearchTool: Tool {
@@ -132,14 +132,14 @@ struct RecipeSearchTool: Tool {
 }
 ```
 
-### 2. Create Session with Tools
+### 2. ツールを持つセッションを作成する
 
 ```swift
 let session = LanguageModelSession(tools: [RecipeSearchTool()])
 let response = try await session.respond(to: "Find me some pasta recipes")
 ```
 
-### 3. Handle Tool Errors
+### 3. ツールエラーを処理する
 
 ```swift
 do {
@@ -147,14 +147,14 @@ do {
 } catch let error as LanguageModelSession.ToolCallError {
     print(error.tool.name)
     if case .databaseIsEmpty = error.underlyingError as? RecipeSearchToolError {
-        // Handle specific tool error
+        // 特定のツールエラーを処理
     }
 }
 ```
 
-## Core Pattern — Snapshot Streaming
+## 基本パターン — スナップショットストリーミング
 
-Stream structured responses for real-time UI with `PartiallyGenerated` types:
+`PartiallyGenerated` 型を使ってリアルタイム UI のために構造化レスポンスをストリーミングする:
 
 ```swift
 @Generable
@@ -169,12 +169,12 @@ let stream = session.streamResponse(
 )
 
 for try await partial in stream {
-    // partial: TripIdeas.PartiallyGenerated (all properties Optional)
+    // partial: TripIdeas.PartiallyGenerated（すべてのプロパティが Optional）
     print(partial)
 }
 ```
 
-### SwiftUI Integration
+### SwiftUI との統合
 
 ```swift
 @State private var partialResult: TripIdeas.PartiallyGenerated?
@@ -202,42 +202,42 @@ var body: some View {
 }
 ```
 
-## Key Design Decisions
+## 主要な設計判断
 
-| Decision | Rationale |
+| 判断 | 根拠 |
 |----------|-----------|
-| On-device execution | Privacy — no data leaves the device; works offline |
-| 4,096 token limit | On-device model constraint; chunk large data across sessions |
-| Snapshot streaming (not deltas) | Structured output friendly; each snapshot is a complete partial state |
-| `@Generable` macro | Compile-time safety for structured generation; auto-generates `PartiallyGenerated` type |
-| Single request per session | `isResponding` prevents concurrent requests; create multiple sessions if needed |
-| `response.content` (not `.output`) | Correct API — always access results via `.content` property |
+| オンデバイス実行 | プライバシー — デバイス外にデータが出ない; オフライン動作 |
+| 4,096 トークン制限 | オンデバイスモデルの制約; 大きなデータはセッションを跨いでチャンク分割 |
+| スナップショットストリーミング（デルタではない） | 構造化出力に適している; 各スナップショットは完全な部分状態 |
+| `@Generable` マクロ | 構造化生成のコンパイル時安全性; `PartiallyGenerated` 型を自動生成 |
+| セッションあたり 1 リクエスト | `isResponding` が並行リクエストを防ぐ; 必要なら複数セッションを作成 |
+| `response.content`（`.output` ではない） | 正しい API — 常に `.content` プロパティを通じて結果にアクセス |
 
-## Best Practices
+## ベストプラクティス
 
-- **Always check `model.availability`** before creating a session — handle all unavailability cases
-- **Use `instructions`** to guide model behavior — they take priority over prompts
-- **Check `isResponding`** before sending a new request — sessions handle one request at a time
-- **Access `response.content`** for results — not `.output`
-- **Break large inputs into chunks** — 4,096 token limit applies to instructions + prompt + output combined
-- **Use `@Generable`** for structured output — stronger guarantees than parsing raw strings
-- **Use `GenerationOptions(temperature:)`** to tune creativity (higher = more creative)
-- **Monitor with Instruments** — use Xcode Instruments to profile request performance
+- **常に `model.availability` を確認する** — セッションを作成する前に; すべての利用不可ケースを処理する
+- **`instructions` を使う** — モデルの振る舞いをガイドする — プロンプトよりも優先される
+- **`isResponding` を確認する** — 新しいリクエストを送る前に — セッションは一度に 1 リクエストを処理する
+- **`response.content` にアクセスする** — 結果のために — `.output` ではない
+- **大きな入力をチャンクに分割する** — 4,096 トークン制限は instructions + プロンプト + 出力の合計に適用される
+- **`@Generable` を使う** — 構造化出力のために — 生の文字列を解析するより強力な保証
+- **`GenerationOptions(temperature:)`** を使って創造性を調整する（高いほど創造的）
+- **Instruments で監視する** — Xcode Instruments を使ってリクエストパフォーマンスをプロファイルする
 
-## Anti-Patterns to Avoid
+## 避けるべきアンチパターン
 
-- Creating sessions without checking `model.availability` first
-- Sending inputs exceeding the 4,096 token context window
-- Attempting concurrent requests on a single session
-- Using `.output` instead of `.content` to access response data
-- Parsing raw string responses when `@Generable` structured output would work
-- Building complex multi-step logic in a single prompt — break into multiple focused prompts
-- Assuming the model is always available — device eligibility and settings vary
+- `model.availability` を確認せずにセッションを作成する
+- 4,096 トークンのコンテキストウィンドウを超える入力を送る
+- 1 つのセッションで並行リクエストを試みる
+- レスポンスデータにアクセスするために `.content` の代わりに `.output` を使う
+- `@Generable` の構造化出力が使えるのに生の文字列レスポンスを解析する
+- 1 つのプロンプトに複雑なマルチステップロジックを構築する — 複数の焦点を絞ったプロンプトに分割する
+- モデルが常に利用可能と仮定する — デバイスの対象要件と設定は異なる
 
-## When to Use
+## 使用するタイミング
 
-- On-device text generation for privacy-sensitive apps
-- Structured data extraction from user input (forms, natural language commands)
-- AI-assisted features that must work offline
-- Streaming UI that progressively shows generated content
-- Domain-specific AI actions via tool calling (search, compute, lookup)
+- プライバシー重視のアプリ向けのオンデバイステキスト生成
+- ユーザー入力（フォーム、自然言語コマンド）からの構造化データ抽出
+- オフラインで動作しなければならない AI アシスト機能
+- 生成されたコンテンツを段階的に表示するストリーミング UI
+- ツール呼び出しによるドメイン固有の AI アクション（検索、計算、ルックアップ）

@@ -1,96 +1,96 @@
 ---
 name: git-workflow
-description: Git workflow patterns including branching strategies, commit conventions, merge vs rebase, conflict resolution, and collaborative development best practices for teams of all sizes.
+description: ブランチ戦略、コミット規約、マージとリベース、コンフリクト解消、あらゆる規模のチームのための共同開発ベストプラクティスを含むGitワークフローパターン。
 origin: ECC
 ---
 
-# Git Workflow Patterns
+# Git ワークフローパターン
 
-Best practices for Git version control, branching strategies, and collaborative development.
+Gitバージョン管理、ブランチ戦略、共同開発のためのベストプラクティス。
 
-## When to Activate
+## 有効化するタイミング
 
-- Setting up Git workflow for a new project
-- Deciding on branching strategy (GitFlow, trunk-based, GitHub flow)
-- Writing commit messages and PR descriptions
-- Resolving merge conflicts
-- Managing releases and version tags
-- Onboarding new team members to Git practices
+- 新プロジェクトのGitワークフローを設定するとき
+- ブランチ戦略（GitFlow、トランクベース、GitHubフロー）を決定するとき
+- コミットメッセージとPR説明を書くとき
+- マージコンフリクトを解消するとき
+- リリースとバージョンタグを管理するとき
+- 新チームメンバーにGitのプラクティスをオンボーディングするとき
 
-## Branching Strategies
+## ブランチ戦略
 
-### GitHub Flow (Simple, Recommended for Most)
+### GitHubフロー（シンプル、ほとんどのケースで推奨）
 
-Best for continuous deployment and small-to-medium teams.
+継続的なデプロイと小〜中規模チームに最適です。
 
 ```
-main (protected, always deployable)
+main (保護された、常にデプロイ可能)
   │
-  ├── feature/user-auth      → PR → merge to main
-  ├── feature/payment-flow   → PR → merge to main
-  └── fix/login-bug          → PR → merge to main
+  ├── feature/user-auth      → PR → mainにマージ
+  ├── feature/payment-flow   → PR → mainにマージ
+  └── fix/login-bug          → PR → mainにマージ
 ```
 
-**Rules:**
-- `main` is always deployable
-- Create feature branches from `main`
-- Open Pull Request when ready for review
-- After approval and CI passes, merge to `main`
-- Deploy immediately after merge
+**ルール:**
+- `main` は常にデプロイ可能
+- `main` からフィーチャーブランチを作成する
+- レビュー準備ができたらプルリクエストをオープンする
+- 承認とCIパス後、`main` にマージする
+- マージ後すぐにデプロイする
 
-### Trunk-Based Development (High-Velocity Teams)
+### トランクベース開発（高速チーム向け）
 
-Best for teams with strong CI/CD and feature flags.
+強力なCI/CDとフィーチャーフラグを持つチームに最適です。
 
 ```
-main (trunk)
+main (トランク)
   │
-  ├── short-lived feature (1-2 days max)
-  ├── short-lived feature
-  └── short-lived feature
+  ├── 短命フィーチャー（最大1〜2日）
+  ├── 短命フィーチャー
+  └── 短命フィーチャー
 ```
 
-**Rules:**
-- Everyone commits to `main` or very short-lived branches
-- Feature flags hide incomplete work
-- CI must pass before merge
-- Deploy multiple times per day
+**ルール:**
+- 全員が `main` または非常に短命なブランチにコミットする
+- フィーチャーフラグが未完成の作業を隠す
+- マージ前にCIがパスしなければならない
+- 1日に複数回デプロイする
 
-### GitFlow (Complex, Release-Cycle Driven)
+### GitFlow（複雑、リリースサイクル駆動）
 
-Best for scheduled releases and enterprise projects.
+スケジュールされたリリースとエンタープライズプロジェクトに最適です。
 
 ```
-main (production releases)
+main (プロダクションリリース)
   │
-  └── develop (integration branch)
+  └── develop (統合ブランチ)
         │
         ├── feature/user-auth
         ├── feature/payment
         │
-        ├── release/1.0.0    → merge to main and develop
+        ├── release/1.0.0    → mainとdevelopにマージ
         │
-        └── hotfix/critical  → merge to main and develop
+        └── hotfix/critical  → mainとdevelopにマージ
 ```
 
-**Rules:**
-- `main` contains production-ready code only
-- `develop` is the integration branch
-- Feature branches from `develop`, merge back to `develop`
-- Release branches from `develop`, merge to `main` and `develop`
-- Hotfix branches from `main`, merge to both `main` and `develop`
+**ルール:**
+- `main` はプロダクションレディなコードのみを含む
+- `develop` は統合ブランチ
+- フィーチャーブランチは `develop` から、`develop` にマージバック
+- リリースブランチは `develop` から、`main` と `develop` にマージ
+- ホットフィックスブランチは `main` から、`main` と `develop` 両方にマージ
 
-### When to Use Which
+### どれを使うか
 
-| Strategy | Team Size | Release Cadence | Best For |
+| 戦略 | チームサイズ | リリース頻度 | 最適な用途 |
 |----------|-----------|-----------------|----------|
-| GitHub Flow | Any | Continuous | SaaS, web apps, startups |
-| Trunk-Based | 5+ experienced | Multiple/day | High-velocity teams, feature flags |
-| GitFlow | 10+ | Scheduled | Enterprise, regulated industries |
+| GitHubフロー | 任意 | 継続的 | SaaS、Webアプリ、スタートアップ |
+| トランクベース | 5人以上（経験者） | 1日に複数回 | 高速チーム、フィーチャーフラグ |
+| GitFlow | 10人以上 | スケジュール | エンタープライズ、規制産業 |
 
-## Commit Messages
+## コミットメッセージ
 
-### Conventional Commits Format
+### Conventional Commits 形式
 
 ```
 <type>(<scope>): <subject>
@@ -100,30 +100,30 @@ main (production releases)
 [optional footer(s)]
 ```
 
-### Types
+### タイプ
 
-| Type | Use For | Example |
+| タイプ | 用途 | 例 |
 |------|---------|---------|
-| `feat` | New feature | `feat(auth): add OAuth2 login` |
-| `fix` | Bug fix | `fix(api): handle null response in user endpoint` |
-| `docs` | Documentation | `docs(readme): update installation instructions` |
-| `style` | Formatting, no code change | `style: fix indentation in login component` |
-| `refactor` | Code refactoring | `refactor(db): extract connection pool to module` |
-| `test` | Adding/updating tests | `test(auth): add unit tests for token validation` |
-| `chore` | Maintenance tasks | `chore(deps): update dependencies` |
-| `perf` | Performance improvement | `perf(query): add index to users table` |
-| `ci` | CI/CD changes | `ci: add PostgreSQL service to test workflow` |
-| `revert` | Revert previous commit | `revert: revert "feat(auth): add OAuth2 login"` |
+| `feat` | 新機能 | `feat(auth): add OAuth2 login` |
+| `fix` | バグ修正 | `fix(api): handle null response in user endpoint` |
+| `docs` | ドキュメント | `docs(readme): update installation instructions` |
+| `style` | フォーマット、コード変更なし | `style: fix indentation in login component` |
+| `refactor` | コードリファクタリング | `refactor(db): extract connection pool to module` |
+| `test` | テストの追加/更新 | `test(auth): add unit tests for token validation` |
+| `chore` | メンテナンスタスク | `chore(deps): update dependencies` |
+| `perf` | パフォーマンス改善 | `perf(query): add index to users table` |
+| `ci` | CI/CD変更 | `ci: add PostgreSQL service to test workflow` |
+| `revert` | 以前のコミットを元に戻す | `revert: revert "feat(auth): add OAuth2 login"` |
 
-### Good vs Bad Examples
+### 良い例と悪い例
 
 ```
-# BAD: Vague, no context
+# 悪い例: 曖昧で文脈なし
 git commit -m "fixed stuff"
 git commit -m "updates"
 git commit -m "WIP"
 
-# GOOD: Clear, specific, explains why
+# 良い例: 明確、具体的、理由が説明されている
 git commit -m "fix(api): retry requests on 503 Service Unavailable
 
 The external API occasionally returns 503 errors during peak hours.
@@ -132,9 +132,9 @@ Added exponential backoff retry logic with max 3 attempts.
 Closes #123"
 ```
 
-### Commit Message Template
+### コミットメッセージテンプレート
 
-Create `.gitmessage` in repo root:
+リポジトリルートに `.gitmessage` を作成します:
 
 ```
 # <type>(<scope>): <subject>
@@ -146,11 +146,11 @@ Create `.gitmessage` in repo root:
 # [optional footer] - Breaking changes, closes #issue
 ```
 
-Enable with: `git config commit.template .gitmessage`
+有効化: `git config commit.template .gitmessage`
 
-## Merge vs Rebase
+## マージとリベース
 
-### Merge (Preserves History)
+### マージ（履歴を保存）
 
 ```bash
 # Creates a merge commit
@@ -165,13 +165,13 @@ git merge feature/user-auth
 # * main commits
 ```
 
-**Use when:**
-- Merging feature branches into `main`
-- You want to preserve exact history
-- Multiple people worked on the branch
-- The branch has been pushed and others may have based work on it
+**使用する場合:**
+- フィーチャーブランチを `main` にマージするとき
+- 正確な履歴を保存したいとき
+- 複数の人がブランチで作業したとき
+- ブランチがプッシュされ、他の人がそれをベースに作業している可能性があるとき
 
-### Rebase (Linear History)
+### リベース（線形履歴）
 
 ```bash
 # Rewrites feature commits onto target branch
@@ -183,13 +183,13 @@ git rebase main
 # * main commits
 ```
 
-**Use when:**
-- Updating your local feature branch with latest `main`
-- You want a linear, clean history
-- The branch is local-only (not pushed)
-- You're the only one working on the branch
+**使用する場合:**
+- ローカルのフィーチャーブランチを最新の `main` で更新するとき
+- 線形でクリーンな履歴を望むとき
+- ブランチがローカルのみ（プッシュされていない）のとき
+- ブランチで作業しているのが自分だけのとき
 
-### Rebase Workflow
+### リベースワークフロー
 
 ```bash
 # Update feature branch with latest main (before PR)
@@ -204,91 +204,91 @@ git rebase origin/main
 git push --force-with-lease origin feature/user-auth
 ```
 
-### When NOT to Rebase
+### リベースをしてはいけない場合
 
 ```
-# NEVER rebase branches that:
-- Have been pushed to a shared repository
-- Other people have based work on
-- Are protected branches (main, develop)
-- Are already merged
+# 以下のブランチは絶対にリベースしない:
+- 共有リポジトリにプッシュされたブランチ
+- 他の人がベースにして作業しているブランチ
+- 保護されたブランチ（main、develop）
+- すでにマージされたブランチ
 
-# Why: Rebase rewrites history, breaking others' work
+# 理由: リベースは履歴を書き換え、他の人の作業を壊す
 ```
 
-## Pull Request Workflow
+## プルリクエストワークフロー
 
-### PR Title Format
+### PRタイトル形式
 
 ```
 <type>(<scope>): <description>
 
-Examples:
+例:
 feat(auth): add SSO support for enterprise users
 fix(api): resolve race condition in order processing
 docs(api): add OpenAPI specification for v2 endpoints
 ```
 
-### PR Description Template
+### PR説明テンプレート
 
 ```markdown
 ## What
 
-Brief description of what this PR does.
+このPRが何をするかの簡単な説明。
 
 ## Why
 
-Explain the motivation and context.
+動機とコンテキストを説明する。
 
 ## How
 
-Key implementation details worth highlighting.
+強調する価値のある主要な実装の詳細。
 
 ## Testing
 
-- [ ] Unit tests added/updated
-- [ ] Integration tests added/updated
-- [ ] Manual testing performed
+- [ ] ユニットテストを追加/更新した
+- [ ] 統合テストを追加/更新した
+- [ ] 手動テストを実施した
 
 ## Screenshots (if applicable)
 
-Before/after screenshots for UI changes.
+UIの変更は変更前/後のスクリーンショット。
 
 ## Checklist
 
-- [ ] Code follows project style guidelines
-- [ ] Self-review completed
-- [ ] Comments added for complex logic
-- [ ] Documentation updated
-- [ ] No new warnings introduced
-- [ ] Tests pass locally
-- [ ] Related issues linked
+- [ ] コードはプロジェクトのスタイルガイドラインに従っている
+- [ ] セルフレビューが完了した
+- [ ] 複雑なロジックにコメントを追加した
+- [ ] ドキュメントを更新した
+- [ ] 新しい警告が導入されていない
+- [ ] ローカルでテストがパスする
+- [ ] 関連するイシューがリンクされている
 
 Closes #123
 ```
 
-### Code Review Checklist
+### コードレビューチェックリスト
 
-**For Reviewers:**
+**レビュアー向け:**
 
-- [ ] Does the code solve the stated problem?
-- [ ] Are there any edge cases not handled?
-- [ ] Is the code readable and maintainable?
-- [ ] Are there sufficient tests?
-- [ ] Are there security concerns?
-- [ ] Is the commit history clean (squashed if needed)?
+- [ ] コードは記述された問題を解決しているか？
+- [ ] 処理されていないエッジケースはあるか？
+- [ ] コードは読みやすく保守しやすいか？
+- [ ] 十分なテストがあるか？
+- [ ] セキュリティの懸念はあるか？
+- [ ] コミット履歴はクリーンか（必要に応じてスカッシュされているか）？
 
-**For Authors:**
+**作者向け:**
 
-- [ ] Self-review completed before requesting review
-- [ ] CI passes (tests, lint, typecheck)
-- [ ] PR size is reasonable (<500 lines ideal)
-- [ ] Related to a single feature/fix
-- [ ] Description clearly explains the change
+- [ ] レビューを依頼する前にセルフレビューが完了した
+- [ ] CI がパスしている（テスト、リント、型チェック）
+- [ ] PR のサイズは適切か（理想は500行未満）
+- [ ] 単一のフィーチャー/修正に関連している
+- [ ] 説明が変更を明確に説明している
 
-## Conflict Resolution
+## コンフリクト解消
 
-### Identify Conflicts
+### コンフリクトの識別
 
 ```bash
 # Check for conflicts before merge
@@ -300,7 +300,7 @@ git merge feature/user-auth --no-commit --no-ff
 # Automatic merge failed; fix conflicts and then commit the result.
 ```
 
-### Resolve Conflicts
+### コンフリクトの解消
 
 ```bash
 # See conflicted files
@@ -328,47 +328,47 @@ git add src/auth/login.ts
 git commit
 ```
 
-### Conflict Prevention Strategies
+### コンフリクト防止戦略
 
 ```bash
-# 1. Keep feature branches small and short-lived
-# 2. Rebase frequently onto main
+# 1. フィーチャーブランチを小さく短命に保つ
+# 2. mainに頻繁にリベースする
 git checkout feature/user-auth
 git fetch origin
 git rebase origin/main
 
-# 3. Communicate with team about touching shared files
-# 4. Use feature flags instead of long-lived branches
-# 5. Review and merge PRs promptly
+# 3. 共有ファイルを触ることをチームに伝える
+# 4. 長命なブランチの代わりにフィーチャーフラグを使う
+# 5. PRを速やかにレビューしてマージする
 ```
 
-## Branch Management
+## ブランチ管理
 
-### Naming Conventions
+### 命名規約
 
 ```
-# Feature branches
+# フィーチャーブランチ
 feature/user-authentication
 feature/JIRA-123-payment-integration
 
-# Bug fixes
+# バグ修正
 fix/login-redirect-loop
 fix/456-null-pointer-exception
 
-# Hotfixes (production issues)
+# ホットフィックス（プロダクション問題）
 hotfix/critical-security-patch
 hotfix/database-connection-leak
 
-# Releases
+# リリース
 release/1.2.0
 release/2024-01-hotfix
 
-# Experiments/POCs
+# 実験/POC
 experiment/new-caching-strategy
 poc/graphql-migration
 ```
 
-### Branch Cleanup
+### ブランチのクリーンアップ
 
 ```bash
 # Delete local branches that are merged
@@ -385,7 +385,7 @@ git branch -D feature/user-auth  # Force delete
 git push origin --delete feature/user-auth
 ```
 
-### Stash Workflow
+### スタッシュワークフロー
 
 ```bash
 # Save work in progress
@@ -404,24 +404,24 @@ git stash apply stash@{2}
 git stash drop stash@{0}
 ```
 
-## Release Management
+## リリース管理
 
-### Semantic Versioning
+### セマンティックバージョニング
 
 ```
 MAJOR.MINOR.PATCH
 
-MAJOR: Breaking changes
-MINOR: New features, backward compatible
-PATCH: Bug fixes, backward compatible
+MAJOR: 破壊的変更
+MINOR: 後方互換性のある新機能
+PATCH: 後方互換性のあるバグ修正
 
-Examples:
-1.0.0 → 1.0.1 (patch: bug fix)
-1.0.1 → 1.1.0 (minor: new feature)
-1.1.0 → 2.0.0 (major: breaking change)
+例:
+1.0.0 → 1.0.1 (patch: バグ修正)
+1.0.1 → 1.1.0 (minor: 新機能)
+1.1.0 → 2.0.0 (major: 破壊的変更)
 ```
 
-### Creating Releases
+### リリースの作成
 
 ```bash
 # Create annotated tag
@@ -448,7 +448,7 @@ git tag -d v1.2.0
 git push origin --delete v1.2.0
 ```
 
-### Changelog Generation
+### 変更ログの生成
 
 ```bash
 # Generate changelog from commits
@@ -458,9 +458,9 @@ git log v1.1.0..v1.2.0 --oneline --no-merges
 npx conventional-changelog -i CHANGELOG.md -s
 ```
 
-## Git Configuration
+## Git設定
 
-### Essential Configs
+### 必須設定
 
 ```bash
 # User identity
@@ -486,7 +486,7 @@ git config --global diff.algorithm histogram
 git config --global color.ui auto
 ```
 
-### Useful Aliases
+### 便利なエイリアス
 
 ```bash
 # Add to ~/.gitconfig
@@ -504,7 +504,7 @@ git config --global color.ui auto
     contributors = shortlog -sn
 ```
 
-### Gitignore Patterns
+### Gitignoreパターン
 
 ```gitignore
 # Dependencies
@@ -544,9 +544,9 @@ coverage/
 *.tsbuildinfo
 ```
 
-## Common Workflows
+## 一般的なワークフロー
 
-### Starting a New Feature
+### 新しいフィーチャーの開始
 
 ```bash
 # 1. Update main branch
@@ -566,7 +566,7 @@ git push -u origin feature/user-auth
 # 5. Create Pull Request on GitHub/GitLab
 ```
 
-### Updating a PR with New Changes
+### PRに新しい変更を追加
 
 ```bash
 # 1. Make additional changes
@@ -577,7 +577,7 @@ git commit -m "feat(auth): add error handling"
 git push origin feature/user-auth
 ```
 
-### Syncing Fork with Upstream
+### フォークをアップストリームと同期
 
 ```bash
 # 1. Add upstream remote (once)
@@ -594,7 +594,7 @@ git merge upstream/main
 git push origin main
 ```
 
-### Undoing Mistakes
+### 間違いを元に戻す
 
 ```bash
 # Undo last commit (keep changes)
@@ -618,9 +618,9 @@ git add forgotten-file
 git commit --amend --no-edit
 ```
 
-## Git Hooks
+## Gitフック
 
-### Pre-Commit Hook
+### Pre-Commitフック
 
 ```bash
 #!/bin/bash
@@ -639,7 +639,7 @@ if git diff --cached | grep -E '(password|api_key|secret)'; then
 fi
 ```
 
-### Pre-Push Hook
+### Pre-Pushフック
 
 ```bash
 #!/bin/bash
@@ -655,61 +655,61 @@ if git diff origin/main | grep -E 'console\.log'; then
 fi
 ```
 
-## Anti-Patterns
+## アンチパターン
 
 ```
-# BAD: Committing directly to main
+# 悪い例: mainに直接コミットする
 git checkout main
 git commit -m "fix bug"
 
-# GOOD: Use feature branches and PRs
+# 良い例: フィーチャーブランチとPRを使う
 
-# BAD: Committing secrets
+# 悪い例: シークレットをコミットする
 git add .env  # Contains API keys
 
-# GOOD: Add to .gitignore, use environment variables
+# 良い例: .gitignoreに追加し、環境変数を使う
 
-# BAD: Giant PRs (1000+ lines)
-# GOOD: Break into smaller, focused PRs
+# 悪い例: 巨大なPR（1000行以上）
+# 良い例: 小さく集中したPRに分割する
 
-# BAD: "Update" commit messages
+# 悪い例: "Update" コミットメッセージ
 git commit -m "update"
 git commit -m "fix"
 
-# GOOD: Descriptive messages
+# 良い例: 説明的なメッセージ
 git commit -m "fix(auth): resolve redirect loop after login"
 
-# BAD: Rewriting public history
+# 悪い例: パブリック履歴を書き換える
 git push --force origin main
 
-# GOOD: Use revert for public branches
+# 良い例: パブリックブランチにはrevertを使う
 git revert HEAD
 
-# BAD: Long-lived feature branches (weeks/months)
-# GOOD: Keep branches short (days), rebase frequently
+# 悪い例: 長命なフィーチャーブランチ（数週間/数ヶ月）
+# 良い例: ブランチを短命（数日）に保ち、頻繁にリベースする
 
-# BAD: Committing generated files
+# 悪い例: 生成されたファイルをコミットする
 git add dist/
 git add node_modules/
 
-# GOOD: Add to .gitignore
+# 良い例: .gitignoreに追加する
 ```
 
-## Quick Reference
+## クイックリファレンス
 
-| Task | Command |
+| タスク | コマンド |
 |------|---------|
-| Create branch | `git checkout -b feature/name` |
-| Switch branch | `git checkout branch-name` |
-| Delete branch | `git branch -d branch-name` |
-| Merge branch | `git merge branch-name` |
-| Rebase branch | `git rebase main` |
-| View history | `git log --oneline --graph` |
-| View changes | `git diff` |
-| Stage changes | `git add .` or `git add -p` |
-| Commit | `git commit -m "message"` |
-| Push | `git push origin branch-name` |
-| Pull | `git pull origin branch-name` |
-| Stash | `git stash push -m "message"` |
-| Undo last commit | `git reset --soft HEAD~1` |
-| Revert commit | `git revert HEAD` |
+| ブランチ作成 | `git checkout -b feature/name` |
+| ブランチ切り替え | `git checkout branch-name` |
+| ブランチ削除 | `git branch -d branch-name` |
+| ブランチマージ | `git merge branch-name` |
+| ブランチリベース | `git rebase main` |
+| 履歴表示 | `git log --oneline --graph` |
+| 変更確認 | `git diff` |
+| 変更ステージ | `git add .` または `git add -p` |
+| コミット | `git commit -m "message"` |
+| プッシュ | `git push origin branch-name` |
+| プル | `git pull origin branch-name` |
+| スタッシュ | `git stash push -m "message"` |
+| 直前のコミットを元に戻す | `git reset --soft HEAD~1` |
+| コミットをリバート | `git revert HEAD` |

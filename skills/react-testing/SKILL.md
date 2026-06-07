@@ -1,76 +1,76 @@
 ---
 name: react-testing
-description: React component testing with React Testing Library, Vitest/Jest, MSW for network mocking, accessibility assertions with axe, and the decision boundary between component tests and Playwright/Cypress end-to-end runs. Use when writing or fixing tests for React components, hooks, or pages.
+description: React Testing Library・Vitest/Jest・ネットワークモック用MSW・axeによるアクセシビリティアサーション・コンポーネントテストとPlaywright/CypressのE2Eとの判断基準を使ったReactコンポーネントテスト。Reactコンポーネント・フック・ページのテストを書く・修正するときに使用する。
 origin: ECC
 ---
 
-# React Testing
+# Reactテスト
 
-Comprehensive React testing patterns for behavior-focused component tests, custom hook tests, accessibility assertions, and network-level mocking.
+振る舞いに焦点を当てたコンポーネントテスト、カスタムフックテスト、アクセシビリティアサーション、ネットワークレベルモックのための包括的なReactテストパターン集。
 
-## When to Activate
+## いつ起動するか
 
-- Writing tests for React components, custom hooks, or pages
-- Adding test coverage to legacy untested components
-- Migrating from Enzyme or class-component-era patterns to React Testing Library
-- Setting up Vitest or Jest for a new React project
-- Mocking HTTP requests in tests
-- Asserting accessibility violations
-- Deciding which tests belong in RTL vs Playwright Component Testing vs full E2E
+- Reactコンポーネント、カスタムフック、またはページのテストを書くとき
+- レガシーな未テストコンポーネントにテストカバレッジを追加するとき
+- EnzymeまたはクラスコンポーネントのパターンからReact Testing Libraryへ移行するとき
+- 新しいReactプロジェクトにVitestまたはJestをセットアップするとき
+- テスト内でHTTPリクエストをモックするとき
+- アクセシビリティ違反をアサートするとき
+- どのテストをRTL・Playwright Component Testing・フルE2Eに振り分けるかを判断するとき
 
-## Core Principle
+## コア原則
 
-Test what the user sees and does, not implementation details.
+ユーザーが見て行うことをテストし、実装の詳細はテストしない。
 
-A test should:
+テストが行うべきこと：
 
-- Render the component with the same providers it has in production
-- Interact with it via accessible queries (role, label) and `userEvent`
-- Assert visible output and observable side effects (callback fired, request sent)
+- 本番環境と同じプロバイダーでコンポーネントをレンダリングする
+- アクセシブルなクエリ（role、label）と `userEvent` でコンポーネントと対話する
+- 可視出力と観察可能な副作用（コールバックの呼び出し、リクエストの送信）をアサートする
 
-A test should NOT:
+テストが行うべきでないこと：
 
-- Inspect component state, props passed to children, or which hooks were called
-- Mock React itself or framework hooks
-- Assert on the number of renders or DOM structure beyond what affects users
+- コンポーネントの状態、子に渡されるprops、どのフックが呼ばれたかを検査する
+- React自体またはフレームワークのフックをモックする
+- ユーザーに影響するDOM構造を超えたレンダリング回数をアサートする
 
-## Library Choice
+## ライブラリの選択
 
-| Runner | When | Note |
+| ランナー | 使用場面 | 備考 |
 |---|---|---|
-| **Vitest** | Vite, Remix, modern setups | Faster, native ESM, Jest-compatible API |
-| **Jest** | Next.js, CRA, established repos | Default for many React projects |
-| **Playwright Component Testing** | Real browser engine needed | Use when JSDOM lacks the required feature |
-| **Cypress Component Testing** | Real browser, Cypress already in use | Alternative to Playwright CT |
+| **Vitest** | Vite・Remix・モダンなセットアップ | 高速・ネイティブESM・Jest互換API |
+| **Jest** | Next.js・CRA・既存リポジトリ | 多くのReactプロジェクトのデフォルト |
+| **Playwright Component Testing** | 実際のブラウザエンジンが必要なとき | JSDOMに必要な機能がないときに使用 |
+| **Cypress Component Testing** | 実際のブラウザ・Cypressが既に導入済みのとき | Playwright CTの代替 |
 
-Pick one. Do not run RTL + Vitest AND Playwright CT in the same repo unless you have a clear lane separation.
+ひとつを選ぶ。明確なレーン分離がない限り、同じリポジトリでRTL＋VitestとPlaywright CTを両方実行しない。
 
-## Query Priority
+## クエリの優先順位
 
-React Testing Library exposes queries in three tiers — use top-down:
+React Testing Libraryは3段階のクエリを提供します。上から順に使用します：
 
-1. **Accessible to everyone**: `getByRole`, `getByLabelText`, `getByPlaceholderText`, `getByText`, `getByDisplayValue`
-2. **Semantic**: `getByAltText`, `getByTitle`
-3. **Test IDs (escape hatch)**: `getByTestId`
+1. **誰にでもアクセス可能**: `getByRole`、`getByLabelText`、`getByPlaceholderText`、`getByText`、`getByDisplayValue`
+2. **セマンティック**: `getByAltText`、`getByTitle`
+3. **テストID（エスケープハッチ）**: `getByTestId`
 
 ```tsx
-// Best
+// 最善
 screen.getByRole("button", { name: /save/i });
 
-// OK for inputs
+// 入力フィールドには OK
 screen.getByLabelText("Email");
 
-// Last resort
+// 最終手段
 screen.getByTestId("save-btn");
 ```
 
-Variants:
+バリアント：
 
-- `getBy*` — throws if no match
-- `queryBy*` — returns `null` (use for "assert absence")
-- `findBy*` — async, returns a Promise (use for elements that appear after async work)
+- `getBy*` — 一致がない場合にスロー
+- `queryBy*` — `null` を返す（「不在をアサート」するのに使用）
+- `findBy*` — 非同期、Promiseを返す（非同期処理後に現れる要素に使用）
 
-## User Interaction with `userEvent`
+## `userEvent` を使ったユーザーインタラクション
 
 ```tsx
 import userEvent from "@testing-library/user-event";
@@ -87,30 +87,30 @@ test("submits the form", async () => {
 });
 ```
 
-- Always `await` userEvent calls
-- Call `userEvent.setup()` once per test, reuse the returned `user`
-- `userEvent` simulates a real browser sequence; `fireEvent` dispatches a single synthetic event — prefer `userEvent`
+- userEventの呼び出しは常に `await` する
+- テストごとに `userEvent.setup()` を一度だけ呼び出し、返された `user` を再利用する
+- `userEvent` は実際のブラウザシーケンスをシミュレートする。`fireEvent` は単一の合成イベントをディスパッチするだけなので、`userEvent` を優先する
 
-## Async Patterns
+## 非同期パターン
 
 ```tsx
-// Element that appears after async work
+// 非同期処理後に現れる要素
 expect(await screen.findByText("Loaded")).toBeInTheDocument();
 
-// Side effect assertion
+// 副作用のアサーション
 await waitFor(() => expect(saveSpy).toHaveBeenCalled());
 
-// Element that should disappear
+// 消えるべき要素
 await waitForElementToBeRemoved(() => screen.queryByText("Loading"));
 ```
 
-Never `setTimeout` + assertion — flaky. Use the matchers above.
+`setTimeout` + アサーションは不安定。上記マッチャーを使用すること。
 
-## Network Mocking with MSW
+## MSWを使ったネットワークモック
 
-Mock Service Worker mocks at the network layer. The component, hooks, and fetch library all behave exactly as in production.
+Mock Service Workerはネットワーク層でモックします。コンポーネント・フック・fetchライブラリはすべて本番環境と全く同じように動作します。
 
-### Setup
+### セットアップ
 
 ```ts
 // test/setup.ts
@@ -134,9 +134,9 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 ```
 
-Configure `onUnhandledRequest: "error"` so any unmocked request fails the test loudly — silent passes are worse than red.
+`onUnhandledRequest: "error"` を設定して、モックされていないリクエストが大声でテストを失敗させるようにする — サイレントなpassはredより悪い。
 
-### Per-test override
+### テストごとのオーバーライド
 
 ```tsx
 test("renders error on 500", async () => {
@@ -148,9 +148,9 @@ test("renders error on 500", async () => {
 });
 ```
 
-## Provider Wrapping
+## プロバイダーラッピング
 
-Wrap providers once in a `test-utils.tsx`:
+プロバイダーを一度 `test-utils.tsx` にまとめます：
 
 ```tsx
 // test-utils.tsx
@@ -178,9 +178,9 @@ export function renderWithProviders(
 export * from "@testing-library/react";
 ```
 
-Then `import { renderWithProviders, screen } from "test-utils"` in every test file.
+そして全テストファイルで `import { renderWithProviders, screen } from "test-utils"` と記述します。
 
-## Custom Hook Testing
+## カスタムフックのテスト
 
 ```tsx
 import { renderHook, act } from "@testing-library/react";
@@ -203,8 +203,8 @@ test("useCounter accepts initial value", () => {
 });
 
 test("useUser fetches user data", async () => {
-  // Instantiate QueryClient ONCE per test outside the wrapper so it survives re-renders.
-  // Creating it inside the wrapper closure resets cache state on every render, producing flaky tests.
+  // QueryClientをwrapperの外でテストごとに一度だけインスタンス化し、再レンダリング後も生存させる。
+  // wrapper クロージャの中で生成するとレンダリングごとにキャッシュ状態がリセットされ、不安定なテストになる。
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -219,14 +219,14 @@ test("useUser fetches user data", async () => {
 });
 ```
 
-- Wrap state-changing calls in `act`
-- Test through the hook's public API only
-- For hooks that use context, pass a `wrapper`
+- 状態を変更する呼び出しは `act` でラップする
+- フックのパブリックAPIのみを通じてテストする
+- コンテキストを使用するフックには `wrapper` を渡す
 
-## Accessibility Assertions
+## アクセシビリティアサーション
 
 ```tsx
-import { axe, toHaveNoViolations } from "jest-axe"; // or vitest-axe
+import { axe, toHaveNoViolations } from "jest-axe"; // または vitest-axe
 expect.extend(toHaveNoViolations);
 
 test("UserCard has no a11y violations", async () => {
@@ -235,60 +235,60 @@ test("UserCard has no a11y violations", async () => {
 });
 ```
 
-Run axe in component tests for every interactive component. Catches:
+すべてのインタラクティブコンポーネントのコンポーネントテストでaxeを実行します。以下を検出します：
 
-- Missing labels on form inputs
-- Invalid ARIA usage
-- Poor color contrast (limited — JSDOM has no real CSS engine, so this works for inline styles only; visual contrast belongs in Playwright)
-- Missing alt text on images
-- Heading order violations
+- フォーム入力のラベル欠落
+- 不正なARIA使用
+- 低コントラスト（限定的 — JSDOMには実際のCSSエンジンがないため、インラインスタイルのみ機能する。視覚的コントラストはPlaywrightで）
+- 画像のalt属性欠落
+- 見出しの順序違反
 
-Cross-link: [skills/accessibility/SKILL.md](../accessibility/SKILL.md) for the broader a11y testing playbook.
+クロスリンク：より広いa11yテストのプレイブックは [skills/accessibility/SKILL.md](../accessibility/SKILL.md) を参照。
 
-## When NOT to Use Snapshot Tests
+## スナップショットテストを使ってはいけないとき
 
-Snapshots of rendered output:
+レンダリング出力のスナップショットは：
 
-- Break on every styling change
-- Get rubber-stamped during review
-- Test implementation detail (DOM structure), not behavior
+- スタイルの変更のたびに壊れる
+- レビュー中にゴム印のように承認される
+- 振る舞いでなく実装の詳細（DOM構造）をテストする
 
-Acceptable snapshot uses:
+スナップショットの許容できる使用：
 
-- Pure data serialization functions (`formatInvoice(invoice)` -> stable string)
-- Generated config files (e.g., webpack config output)
+- 純粋なデータシリアライズ関数（`formatInvoice(invoice)` → 安定した文字列）
+- 生成された設定ファイル（webpack設定出力など）
 
-For visual regression on components, use Playwright/Cypress screenshots or Percy/Chromatic — actual visual diffs, not DOM strings.
+コンポーネントのビジュアルリグレッションには、Playwright/CypressのスクリーンショットやPercy/Chromaticを使用 — 実際の視覚的差分であり、DOM文字列ではない。
 
-## When to Reach for Playwright / Cypress
+## Playwright / Cypress を使うべきとき
 
-JSDOM (used by Vitest/Jest) cannot:
+JSDOM（Vitest/Jestが使用）ができないこと：
 
-- Render real layout (flexbox, grid, viewport queries)
-- Run native browser animation, CSS transitions
-- Test scrolling behavior, drag-and-drop, paste from clipboard
-- Handle iframes, popups, downloads, cross-origin flows
-- Run real network in a controlled environment with full DevTools support
+- 実際のレイアウトのレンダリング（flexbox、grid、viewportクエリ）
+- ネイティブブラウザのアニメーション、CSSトランジションの実行
+- スクロール動作、ドラッグアンドドロップ、クリップボードからの貼り付けのテスト
+- iframe、ポップアップ、ダウンロード、クロスオリジンフローの処理
+- 完全なDevToolsサポートを持つ制御された環境での実際のネットワーク実行
 
-For any of those, use Playwright Component Testing (component test in real browser) or full E2E. See [e2e-testing skill](../e2e-testing/SKILL.md).
+これらのいずれかが必要な場合は、Playwright Component Testing（実際のブラウザでのコンポーネントテスト）またはフルE2Eを使用します。[e2e-testing skill](../e2e-testing/SKILL.md) を参照。
 
-Decision boundary:
+判断基準：
 
-- A hook, a presentational component, a form with logic -> RTL
-- A component whose layout matters or that uses browser APIs not in JSDOM -> Playwright CT
-- A full user flow across multiple pages -> Playwright/Cypress E2E
+- フック、プレゼンテーショナルコンポーネント、ロジックを持つフォーム → RTL
+- レイアウトが重要または JSDOMにないブラウザAPIを使用するコンポーネント → Playwright CT
+- 複数ページにまたがる完全なユーザーフロー → Playwright/Cypress E2E
 
-## Coverage Targets
+## カバレッジ目標
 
-| Layer | Target |
+| レイヤー | 目標 |
 |---|---|
-| Pure utilities | >=90% |
-| Custom hooks | >=85% |
-| Presentational components | >=80% — behavior, not lines |
-| Container components | >=70% — golden paths + error states |
-| Pages | E2E covered separately; smoke test minimum |
+| 純粋なユーティリティ | 90%以上 |
+| カスタムフック | 85%以上 |
+| プレゼンテーショナルコンポーネント | 80%以上 — 行数ではなく振る舞い |
+| コンテナコンポーネント | 70%以上 — ゴールデンパス＋エラー状態 |
+| ページ | E2Eで別途カバー。最低限スモークテスト |
 
-Configure via `vitest.config.ts` / `jest.config.js`:
+`vitest.config.ts` / `jest.config.js` で設定：
 
 ```ts
 // vitest.config.ts
@@ -306,62 +306,62 @@ test: {
 }
 ```
 
-## Anti-Patterns
+## アンチパターン
 
-- `container.querySelector("...")` — bypasses accessibility queries, lets tests pass when real users would fail
-- Asserting on number of renders — implementation detail
-- `jest.mock("react", ...)` — never mock React. Refactor the component instead
-- Mocking child components by default — tests the integration, not isolation. Mock only when the child has heavy side effects
-- Ignoring `act()` warnings — they signal real bugs (state update after unmount, missing async wrapping)
-- Sharing mutable state across tests — flakes when test order changes
-- Tests that pass with `it.skip()` removed — your test does not actually assert what you think
+- `container.querySelector("...")` — アクセシビリティクエリをバイパスし、実際のユーザーは失敗するのにテストがpassになる
+- レンダリング回数のアサーション — 実装の詳細
+- `jest.mock("react", ...)` — Reactを絶対にモックしない。代わりにコンポーネントをリファクタリングする
+- デフォルトで子コンポーネントをモックする — 統合でなく分離をテストする。重い副作用を持つ子のみモックする
+- `act()` 警告を無視する — 実際のバグのシグナル（アンマウント後の状態更新、非同期ラッピングの欠如）
+- テスト間で可変状態を共有する — テスト順序が変わるとフレーキーになる
+- `it.skip()` を削除してもpassするテスト — テストが実際に期待することをアサートしていない
 
-## TDD Workflow
+## TDDワークフロー
 
 ```
-RED     -> Write failing test for the next requirement
-GREEN   -> Write minimal component code to pass
-REFACTOR -> Improve the component, tests stay green
-REPEAT  -> Next requirement
+RED     -> 次の要件のための失敗するテストを書く
+GREEN   -> テストをpassさせる最小限のコンポーネントコードを書く
+REFACTOR -> コンポーネントを改善し、テストはグリーンのまま
+REPEAT  -> 次の要件へ
 ```
 
-For new components:
+新しいコンポーネントの場合：
 
-1. Define the component's prop type and signature
-2. Write the first test for the simplest case
-3. Verify it fails for the right reason
-4. Implement just enough to pass
-5. Add the next test case
-6. Refactor when the third similar test reveals a pattern
+1. コンポーネントのpropタイプとシグネチャを定義する
+2. 最もシンプルなケースの最初のテストを書く
+3. 正しい理由で失敗することを確認する
+4. passするのに十分な最小限の実装をする
+5. 次のテストケースを追加する
+6. 3つ目の類似テストがパターンを明らかにしたらリファクタリングする
 
-## Test Commands
+## テストコマンド
 
 ```bash
 # Vitest
-vitest                            # watch
-vitest run                        # one-shot
-vitest run --coverage             # with coverage
-vitest run path/to/file.test.tsx  # single file
+vitest                            # ウォッチモード
+vitest run                        # ワンショット
+vitest run --coverage             # カバレッジ付き
+vitest run path/to/file.test.tsx  # 単一ファイル
 
 # Jest
 jest --watch
 jest --coverage
 jest path/to/file.test.tsx
 
-# CI mode
+# CIモード
 CI=true vitest run --coverage
 ```
 
-## Related
+## 関連
 
-- Rules: [rules/react/testing.md](../../rules/react/testing.md)
-- Skills: [react-patterns](../react-patterns/SKILL.md), [accessibility](../accessibility/SKILL.md), [e2e-testing](../e2e-testing/SKILL.md), [tdd-workflow](../tdd-workflow/SKILL.md)
-- Agents: `react-reviewer` (reviews test quality during code review), `tdd-guide` (enforces TDD process)
-- Commands: `/react-test`, `/react-review`
+- ルール: [rules/react/testing.md](../../rules/react/testing.md)
+- スキル: [react-patterns](../react-patterns/SKILL.md)、[accessibility](../accessibility/SKILL.md)、[e2e-testing](../e2e-testing/SKILL.md)、[tdd-workflow](../tdd-workflow/SKILL.md)
+- エージェント: `react-reviewer`（コードレビュー中のテスト品質をレビュー）、`tdd-guide`（TDDプロセスを強制）
+- コマンド: `/react-test`、`/react-review`
 
-## Examples
+## 例
 
-### Form submission with MSW and userEvent
+### MSWとuserEventを使ったフォーム送信
 
 ```tsx
 test("submits user form and shows success", async () => {
@@ -382,7 +382,7 @@ test("submits user form and shows success", async () => {
 });
 ```
 
-### Testing an error boundary
+### エラーバウンダリのテスト
 
 ```tsx
 function Broken() {
@@ -390,8 +390,8 @@ function Broken() {
 }
 
 test("error boundary renders fallback", () => {
-  // Suppress React's console.error noise for the expected throw, then restore so
-  // the spy does not leak across tests and hide real errors elsewhere.
+  // 予期されたthrowに対するReactのconsole.errorのノイズを抑制し、その後復元する。
+  // spyが他のテストにリークして実際のエラーを隠さないようにする。
   const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   try {
     render(
@@ -407,7 +407,7 @@ test("error boundary renders fallback", () => {
 });
 ```
 
-### Testing a Suspense boundary
+### Suspenseバウンダリのテスト
 
 ```tsx
 test("shows loading then content", async () => {

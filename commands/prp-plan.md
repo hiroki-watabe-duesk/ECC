@@ -1,168 +1,168 @@
 ---
-description: Create comprehensive feature implementation plan with codebase analysis and pattern extraction
+description: コードベース分析とパターン抽出を行う包括的な機能実装計画の作成
 argument-hint: <feature description | path/to/prd.md>
 ---
 
-> Adapted from PRPs-agentic-eng by Wirasm. Part of the PRP workflow series.
+> Wirasm による PRPs-agentic-eng から適応。PRP ワークフローシリーズの一部。
 
-# PRP Plan
+# PRP プラン
 
-Create a detailed, self-contained implementation plan that captures all codebase patterns, conventions, and context needed to implement a feature in a single pass.
+コードベースのパターン、規約、コンテキストをすべて網羅した、一回のパスで機能を実装するために必要な詳細かつ自己完結型の実装計画を作成します。
 
-**Core Philosophy**: A great plan contains everything needed to implement without asking further questions. Every pattern, every convention, every gotcha — captured once, referenced throughout.
+**中核哲学**: 優れた計画には、追加の質問なしに実装するために必要なすべてが含まれています。すべてのパターン、すべての規約、すべての落とし穴 — 一度キャプチャし、全体を通じて参照します。
 
-**Golden Rule**: If you would need to search the codebase during implementation, capture that knowledge NOW in the plan.
+**黄金律**: 実装中にコードベースを検索する必要があると思われる場合は、その知識を今すぐ計画に取り込んでください。
 
 ---
 
-## Phase 0 — DETECT
+## フェーズ 0 — 検出
 
-Determine input type from `$ARGUMENTS`:
+`$ARGUMENTS` から入力タイプを判定します:
 
-| Input Pattern | Detection | Action |
+| 入力パターン | 検出 | アクション |
 |---|---|---|
-| Path ending in `.prd.md` | File path to PRD | Parse PRD, find next pending phase |
-| Path to `.md` with "Implementation Phases" | PRD-like document | Parse phases, find next pending |
-| Path to any other file | Reference file | Read file for context, treat as free-form |
-| Free-form text | Feature description | Proceed directly to Phase 1 |
-| Empty / blank | No input | Ask user what feature to plan |
+| `.prd.md` で終わるパス | PRD へのファイルパス | PRD を解析し、次の保留中フェーズを検索 |
+| "Implementation Phases" を含む `.md` へのパス | PRD 類似ドキュメント | フェーズを解析し、次の保留中を検索 |
+| その他のファイルへのパス | 参照ファイル | コンテキストのためにファイルを読み込み、フリーフォームとして扱う |
+| フリーフォームテキスト | 機能説明 | フェーズ 1 に直接進む |
+| 空 / 空白 | 入力なし | ユーザーに計画する機能を確認 |
 
-### PRD Parsing (when input is a PRD)
+### PRD の解析（入力が PRD の場合）
 
-1. Read the PRD file with `cat "$PRD_PATH"`
-2. Parse the **Implementation Phases** section
-3. Find phases by status:
-   - Look for `pending` phases
-   - Check dependency chains (a phase may depend on prior phases being `complete`)
-   - Select the **next eligible pending phase**
-4. Extract from the selected phase:
-   - Phase name and description
-   - Acceptance criteria
-   - Dependencies on prior phases
-   - Any scope notes or constraints
-5. Use the phase description as the feature to plan
+1. `cat "$PRD_PATH"` で PRD ファイルを読み込む
+2. **実装フェーズ** セクションを解析する
+3. ステータスでフェーズを検索:
+   - `pending` フェーズを探す
+   - 依存関係チェーンを確認（フェーズが以前のフェーズの `complete` に依存する場合がある）
+   - **次の対象となる保留中フェーズ**を選択する
+4. 選択したフェーズから以下を抽出:
+   - フェーズ名と説明
+   - 受入基準
+   - 以前のフェーズへの依存関係
+   - スコープメモまたは制約
+5. フェーズ説明を計画する機能として使用する
 
-If no pending phases remain, report that all phases are complete.
+保留中のフェーズが残っていない場合は、すべてのフェーズが完了していることを報告します。
 
 ---
 
-## Phase 1 — PARSE
+## フェーズ 1 — 解析
 
-Extract and clarify the feature requirements.
+機能要件を抽出し明確化します。
 
-### Feature Understanding
+### 機能の理解
 
-From the input (PRD phase or free-form description), identify:
+入力（PRD フェーズまたはフリーフォーム説明）から以下を特定します:
 
-- **What** is being built (concrete deliverable)
-- **Why** it matters (user value)
-- **Who** uses it (target user/system)
-- **Where** it fits (which part of the codebase)
+- **何を**構築するか（具体的な成果物）
+- **なぜ**重要か（ユーザー価値）
+- **誰が**使うか（対象ユーザー/システム）
+- **どこに**適合するか（コードベースのどの部分か）
 
-### User Story
+### ユーザーストーリー
 
-Format as:
+以下の形式でフォーマット:
 ```
 As a [type of user],
 I want [capability],
 So that [benefit].
 ```
 
-### Complexity Assessment
+### 複雑さの評価
 
-| Level | Indicators | Typical Scope |
+| レベル | 指標 | 典型的なスコープ |
 |---|---|---|
-| **Small** | Single file, isolated change, no new dependencies | 1-3 files, <100 lines |
-| **Medium** | Multiple files, follows existing patterns, minor new concepts | 3-10 files, 100-500 lines |
-| **Large** | Cross-cutting concerns, new patterns, external integrations | 10+ files, 500+ lines |
-| **XL** | Architectural changes, new subsystems, migration needed | 20+ files, consider splitting |
+| **小規模** | 単一ファイル、孤立した変更、新しい依存関係なし | 1〜3 ファイル、100 行未満 |
+| **中規模** | 複数ファイル、既存パターンに従う、軽微な新概念 | 3〜10 ファイル、100〜500 行 |
+| **大規模** | 横断的な懸念事項、新しいパターン、外部統合 | 10+ ファイル、500+ 行 |
+| **超大規模** | アーキテクチャ変更、新しいサブシステム、移行が必要 | 20+ ファイル、分割を検討 |
 
-### Ambiguity Gate
+### あいまいさゲート
 
-If any of these are unclear, **STOP and ask the user** before proceeding:
+以下のいずれかが不明確な場合は、進める前に**ユーザーに確認してください**:
 
-- The core deliverable is vague
-- Success criteria are undefined
-- There are multiple valid interpretations
-- Technical approach has major unknowns
+- 中核的な成果物があいまい
+- 成功基準が未定義
+- 複数の有効な解釈が存在する
+- 技術的アプローチに大きな未知事項がある
 
-Do NOT guess. Ask. A plan built on assumptions fails during implementation.
+推測しないでください。質問してください。前提に基づいた計画は実装中に失敗します。
 
 ---
 
-## Phase 2 — EXPLORE
+## フェーズ 2 — 探索
 
-Gather deep codebase intelligence. Search the codebase directly for each category below.
+詳細なコードベースの情報を収集します。以下の各カテゴリについてコードベースを直接検索してください。
 
-### Codebase Search (8 Categories)
+### コードベース検索（8 カテゴリ）
 
-For each category, search using grep, find, and file reading:
+各カテゴリについて、grep、find、ファイル読み込みを使用して検索します:
 
-1. **Similar Implementations** — Find existing features that resemble the planned one. Look for analogous patterns, endpoints, components, or modules.
+1. **類似実装** — 計画中のものに似た既存機能を検索。類似パターン、エンドポイント、コンポーネント、またはモジュールを探す。
 
-2. **Naming Conventions** — Identify how files, functions, variables, classes, and exports are named in the relevant area of the codebase.
+2. **命名規約** — コードベースの関連領域でファイル、関数、変数、クラス、エクスポートがどのように命名されているかを特定する。
 
-3. **Error Handling** — Find how errors are caught, propagated, logged, and returned to users in similar code paths.
+3. **エラーハンドリング** — 類似コードパスでエラーがどのようにキャッチ、伝播、ログ記録、ユーザーへの返却されているかを検索する。
 
-4. **Logging Patterns** — Identify what gets logged, at what level, and in what format.
+4. **ログパターン** — 何がログに記録され、どのレベルで、どのような形式で記録されているかを特定する。
 
-5. **Type Definitions** — Find relevant types, interfaces, schemas, and how they're organized.
+5. **型定義** — 関連する型、インターフェース、スキーマ、それらの整理方法を検索する。
 
-6. **Test Patterns** — Find how similar features are tested. Note test file locations, naming, setup/teardown patterns, and assertion styles.
+6. **テストパターン** — 類似機能がどのようにテストされているかを検索。テストファイルの場所、命名、セットアップ/ティアダウンパターン、アサーションスタイルを確認する。
 
-7. **Configuration** — Find relevant config files, environment variables, and feature flags.
+7. **設定** — 関連する設定ファイル、環境変数、機能フラグを検索する。
 
-8. **Dependencies** — Identify packages, imports, and internal modules used by similar features.
+8. **依存関係** — 類似機能で使用されているパッケージ、インポート、内部モジュールを特定する。
 
-### Codebase Analysis (5 Traces)
+### コードベース分析（5 トレース）
 
-Read relevant files to trace:
+関連ファイルを読んでトレースします:
 
-1. **Entry Points** — How does a request/action enter the system and reach the area you're modifying?
-2. **Data Flow** — How does data move through the relevant code paths?
-3. **State Changes** — What state is modified and where?
-4. **Contracts** — What interfaces, APIs, or protocols must be honored?
-5. **Patterns** — What architectural patterns are used (repository, service, controller, etc.)?
+1. **エントリーポイント** — リクエスト/アクションはどのようにシステムに入り、変更する領域に到達するか？
+2. **データフロー** — データは関連するコードパスをどのように移動するか？
+3. **状態変更** — どの状態がどこで変更されるか？
+4. **コントラクト** — どのインターフェース、API、プロトコルを守る必要があるか？
+5. **パターン** — どのアーキテクチャパターンが使用されているか（リポジトリ、サービス、コントローラーなど）？
 
-### Unified Discovery Table
+### 統合発見テーブル
 
-Compile findings into a single reference:
+発見事項を単一の参照としてまとめます:
 
-| Category | File:Lines | Pattern | Key Snippet |
+| カテゴリ | ファイル:行 | パターン | キースニペット |
 |---|---|---|---|
-| Naming | `src/services/userService.ts:1-5` | camelCase services, PascalCase types | `export class UserService` |
-| Error | `src/middleware/errorHandler.ts:10-25` | Custom AppError class | `throw new AppError(...)` |
+| 命名 | `src/services/userService.ts:1-5` | camelCase サービス、PascalCase 型 | `export class UserService` |
+| エラー | `src/middleware/errorHandler.ts:10-25` | カスタム AppError クラス | `throw new AppError(...)` |
 | ... | ... | ... | ... |
 
 ---
 
-## Phase 3 — RESEARCH
+## フェーズ 3 — 調査
 
-If the feature involves external libraries, APIs, or unfamiliar technology:
+機能が外部ライブラリ、API、または不慣れな技術を含む場合:
 
-1. Search the web for official documentation
-2. Find usage examples and best practices
-3. Identify version-specific gotchas
+1. 公式ドキュメントを Web で検索する
+2. 使用例とベストプラクティスを検索する
+3. バージョン固有の注意事項を特定する
 
-Format each finding as:
+各発見事項を以下の形式でフォーマット:
 
 ```
-KEY_INSIGHT: [what you learned]
-APPLIES_TO: [which part of the plan this affects]
-GOTCHA: [any warnings or version-specific issues]
+KEY_INSIGHT: [学んだこと]
+APPLIES_TO: [これが影響する計画の部分]
+GOTCHA: [警告またはバージョン固有の問題]
 ```
 
-If the feature uses only well-understood internal patterns, skip this phase and note: "No external research needed — feature uses established internal patterns."
+機能が確立された内部パターンのみを使用する場合は、このフェーズをスキップし、次のように記録してください: "外部調査不要 — 機能は確立された内部パターンを使用"
 
 ---
 
-## Phase 4 — DESIGN
+## フェーズ 4 — 設計
 
-### UX Transformation (if applicable)
+### UX 変換（該当する場合）
 
-Document the before/after user experience:
+ビフォー/アフターのユーザーエクスペリエンスをドキュメント化します:
 
-**Before:**
+**ビフォー:**
 ```
 ┌─────────────────────────────┐
 │  [Current user experience]  │
@@ -171,7 +171,7 @@ Document the before/after user experience:
 └─────────────────────────────┘
 ```
 
-**After:**
+**アフター:**
 ```
 ┌─────────────────────────────┐
 │  [New user experience]      │
@@ -180,147 +180,147 @@ Document the before/after user experience:
 └─────────────────────────────┘
 ```
 
-### Interaction Changes
+### インタラクション変更
 
-| Touchpoint | Before | After | Notes |
+| タッチポイント | ビフォー | アフター | 備考 |
 |---|---|---|---|
 | ... | ... | ... | ... |
 
-If the feature is purely backend/internal with no UX change, note: "Internal change — no user-facing UX transformation."
+機能が純粋にバックエンド/内部で UX 変更がない場合は次のように記録してください: "内部変更 — ユーザー向けの UX 変換なし"
 
 ---
 
-## Phase 5 — ARCHITECT
+## フェーズ 5 — アーキテクト
 
-### Strategic Design
+### 戦略的設計
 
-Define the implementation approach:
+実装アプローチを定義します:
 
-- **Approach**: High-level strategy (e.g., "Add new service layer following existing repository pattern")
-- **Alternatives Considered**: What other approaches were evaluated and why they were rejected
-- **Scope**: Concrete boundaries of what WILL be built
-- **NOT Building**: Explicit list of what is OUT OF SCOPE (prevents scope creep during implementation)
+- **アプローチ**: 高レベルの戦略（例: "既存のリポジトリパターンに従って新しいサービス層を追加"）
+- **検討した代替案**: 評価された他のアプローチとその却下理由
+- **スコープ**: 何を構築するかの具体的な境界
+- **構築しないもの**: スコープ外の明示的なリスト（実装中のスコープクリープを防ぐ）
 
 ---
 
-## Phase 6 — GENERATE
+## フェーズ 6 — 生成
 
-Write the full plan document using the template below. Save to `.claude/PRPs/plans/{kebab-case-feature-name}.plan.md`.
+以下のテンプレートを使用して完全な計画書を作成します。`.claude/PRPs/plans/{kebab-case-feature-name}.plan.md` に保存してください。
 
-Create the directory if it doesn't exist:
+ディレクトリが存在しない場合は作成します:
 ```bash
 mkdir -p .claude/PRPs/plans
 ```
 
-### Plan Template
+### 計画テンプレート
 
 ````markdown
-# Plan: [Feature Name]
+# 計画: [機能名]
 
-## Summary
-[2-3 sentence overview]
+## 概要
+[2〜3 文の概要]
 
-## User Story
+## ユーザーストーリー
 As a [user], I want [capability], so that [benefit].
 
-## Problem → Solution
-[Current state] → [Desired state]
+## 問題 → 解決策
+[現在の状態] → [望ましい状態]
 
-## Metadata
-- **Complexity**: [Small | Medium | Large | XL]
-- **Source PRD**: [path or "N/A"]
-- **PRD Phase**: [phase name or "N/A"]
-- **Estimated Files**: [count]
+## メタデータ
+- **複雑さ**: [Small | Medium | Large | XL]
+- **ソース PRD**: [パスまたは "N/A"]
+- **PRD フェーズ**: [フェーズ名または "N/A"]
+- **推定ファイル数**: [数]
 
 ---
 
-## UX Design
+## UX 設計
 
-### Before
-[ASCII diagram or "N/A — internal change"]
+### ビフォー
+[ASCII ダイアグラムまたは "N/A — 内部変更"]
 
-### After
-[ASCII diagram or "N/A — internal change"]
+### アフター
+[ASCII ダイアグラムまたは "N/A — 内部変更"]
 
-### Interaction Changes
-| Touchpoint | Before | After | Notes |
+### インタラクション変更
+| タッチポイント | ビフォー | アフター | 備考 |
 |---|---|---|---|
 
 ---
 
-## Mandatory Reading
+## 必須読み込み
 
-Files that MUST be read before implementing:
+実装前に必ず読むべきファイル:
 
-| Priority | File | Lines | Why |
+| 優先度 | ファイル | 行 | 理由 |
 |---|---|---|---|
-| P0 (critical) | `path/to/file` | 1-50 | Core pattern to follow |
-| P1 (important) | `path/to/file` | 10-30 | Related types |
-| P2 (reference) | `path/to/file` | all | Similar implementation |
+| P0 (重要) | `path/to/file` | 1-50 | 従うべきコアパターン |
+| P1 (重要) | `path/to/file` | 10-30 | 関連する型 |
+| P2 (参照) | `path/to/file` | 全体 | 類似実装 |
 
-## External Documentation
+## 外部ドキュメント
 
-| Topic | Source | Key Takeaway |
+| トピック | ソース | 主要なポイント |
 |---|---|---|
 | ... | ... | ... |
 
 ---
 
-## Patterns to Mirror
+## ミラーするパターン
 
-Code patterns discovered in the codebase. Follow these exactly.
+コードベースで発見したコードパターン。これらに正確に従ってください。
 
 ### NAMING_CONVENTION
 // SOURCE: [file:lines]
-[actual code snippet showing the naming pattern]
+[命名パターンを示す実際のコードスニペット]
 
 ### ERROR_HANDLING
 // SOURCE: [file:lines]
-[actual code snippet showing error handling]
+[エラーハンドリングを示す実際のコードスニペット]
 
 ### LOGGING_PATTERN
 // SOURCE: [file:lines]
-[actual code snippet showing logging]
+[ログ記録を示す実際のコードスニペット]
 
 ### REPOSITORY_PATTERN
 // SOURCE: [file:lines]
-[actual code snippet showing data access]
+[データアクセスを示す実際のコードスニペット]
 
 ### SERVICE_PATTERN
 // SOURCE: [file:lines]
-[actual code snippet showing service layer]
+[サービス層を示す実際のコードスニペット]
 
 ### TEST_STRUCTURE
 // SOURCE: [file:lines]
-[actual code snippet showing test setup]
+[テストセットアップを示す実際のコードスニペット]
 
 ---
 
-## Files to Change
+## 変更するファイル
 
-| File | Action | Justification |
+| ファイル | アクション | 根拠 |
 |---|---|---|
-| `path/to/file.ts` | CREATE | New service for feature |
-| `path/to/existing.ts` | UPDATE | Add new method |
+| `path/to/file.ts` | 作成 | 機能の新しいサービス |
+| `path/to/existing.ts` | 更新 | 新しいメソッドを追加 |
 
-## NOT Building
+## 構築しないもの
 
-- [Explicit item 1 that is out of scope]
-- [Explicit item 2 that is out of scope]
+- [スコープ外の明示的な項目 1]
+- [スコープ外の明示的な項目 2]
 
 ---
 
-## Step-by-Step Tasks
+## ステップバイステップのタスク
 
-### Task 1: [Name]
-- **ACTION**: [What to do]
-- **IMPLEMENT**: [Specific code/logic to write]
-- **MIRROR**: [Pattern from Patterns to Mirror section to follow]
-- **IMPORTS**: [Required imports]
-- **GOTCHA**: [Known pitfall to avoid]
-- **VALIDATE**: [How to verify this task is correct]
+### タスク 1: [名前]
+- **ACTION**: [何をするか]
+- **IMPLEMENT**: [書く具体的なコード/ロジック]
+- **MIRROR**: [「ミラーするパターン」セクションの従うべきパターン]
+- **IMPORTS**: [必要なインポート]
+- **GOTCHA**: [避けるべき既知の落とし穴]
+- **VALIDATE**: [このタスクが正しいことを確認する方法]
 
-### Task 2: [Name]
+### タスク 2: [名前]
 - **ACTION**: ...
 - **IMPLEMENT**: ...
 - **MIRROR**: ...
@@ -328,175 +328,175 @@ Code patterns discovered in the codebase. Follow these exactly.
 - **GOTCHA**: ...
 - **VALIDATE**: ...
 
-[Continue for all tasks...]
+[すべてのタスクについて続ける...]
 
 ---
 
-## Testing Strategy
+## テスト戦略
 
-### Unit Tests
+### ユニットテスト
 
-| Test | Input | Expected Output | Edge Case? |
+| テスト | 入力 | 期待される出力 | エッジケース? |
 |---|---|---|---|
 | ... | ... | ... | ... |
 
-### Edge Cases Checklist
-- [ ] Empty input
-- [ ] Maximum size input
-- [ ] Invalid types
-- [ ] Concurrent access
-- [ ] Network failure (if applicable)
-- [ ] Permission denied
+### エッジケースチェックリスト
+- [ ] 空の入力
+- [ ] 最大サイズの入力
+- [ ] 無効な型
+- [ ] 同時アクセス
+- [ ] ネットワーク障害（該当する場合）
+- [ ] 権限拒否
 
 ---
 
-## Validation Commands
+## 検証コマンド
 
-### Static Analysis
+### 静的解析
 ```bash
-# Run type checker
-[project-specific type check command]
+# 型チェックを実行
+[プロジェクト固有の型チェックコマンド]
 ```
-EXPECT: Zero type errors
+期待: 型エラーゼロ
 
-### Unit Tests
+### ユニットテスト
 ```bash
-# Run tests for affected area
-[project-specific test command]
+# 影響を受ける領域のテストを実行
+[プロジェクト固有のテストコマンド]
 ```
-EXPECT: All tests pass
+期待: すべてのテストがパス
 
-### Full Test Suite
+### フルテストスイート
 ```bash
-# Run complete test suite
-[project-specific full test command]
+# 完全なテストスイートを実行
+[プロジェクト固有のフルテストコマンド]
 ```
-EXPECT: No regressions
+期待: 回帰なし
 
-### Database Validation (if applicable)
+### データベース検証（該当する場合）
 ```bash
-# Verify schema/migrations
-[project-specific db command]
+# スキーマ/マイグレーションを確認
+[プロジェクト固有の db コマンド]
 ```
-EXPECT: Schema up to date
+期待: スキーマが最新
 
-### Browser Validation (if applicable)
+### ブラウザ検証（該当する場合）
 ```bash
-# Start dev server and verify
-[project-specific dev server command]
+# 開発サーバーを起動して確認
+[プロジェクト固有の開発サーバーコマンド]
 ```
-EXPECT: Feature works as designed
+期待: 機能が設計通りに動作
 
-### Manual Validation
-- [ ] [Step-by-step manual verification checklist]
+### 手動検証
+- [ ] [ステップバイステップの手動確認チェックリスト]
 
 ---
 
-## Acceptance Criteria
-- [ ] All tasks completed
-- [ ] All validation commands pass
-- [ ] Tests written and passing
-- [ ] No type errors
-- [ ] No lint errors
-- [ ] Matches UX design (if applicable)
+## 受入基準
+- [ ] すべてのタスクが完了
+- [ ] すべての検証コマンドがパス
+- [ ] テストが書かれ、パスしている
+- [ ] 型エラーなし
+- [ ] リントエラーなし
+- [ ] UX 設計に一致（該当する場合）
 
-## Completion Checklist
-- [ ] Code follows discovered patterns
-- [ ] Error handling matches codebase style
-- [ ] Logging follows codebase conventions
-- [ ] Tests follow test patterns
-- [ ] No hardcoded values
-- [ ] Documentation updated (if needed)
-- [ ] No unnecessary scope additions
-- [ ] Self-contained — no questions needed during implementation
+## 完了チェックリスト
+- [ ] コードが発見されたパターンに従っている
+- [ ] エラーハンドリングがコードベースのスタイルに一致
+- [ ] ログ記録がコードベースの規約に従っている
+- [ ] テストがテストパターンに従っている
+- [ ] ハードコードされた値なし
+- [ ] ドキュメントが更新されている（必要な場合）
+- [ ] 不必要なスコープの追加なし
+- [ ] 自己完結型 — 実装中に質問不要
 
-## Risks
-| Risk | Likelihood | Impact | Mitigation |
+## リスク
+| リスク | 可能性 | 影響 | 軽減策 |
 |---|---|---|---|
 | ... | ... | ... | ... |
 
-## Notes
-[Any additional context, decisions, or observations]
+## 備考
+[追加のコンテキスト、決定、または観察事項]
 ```
 
 ---
 
-## Output
+## 出力
 
-### Save the Plan
+### 計画の保存
 
-Write the generated plan to:
+生成された計画を以下に書き込みます:
 ```
 .claude/PRPs/plans/{kebab-case-feature-name}.plan.md
 ```
 
-### Update PRD (if input was a PRD)
+### PRD の更新（入力が PRD だった場合）
 
-If this plan was generated from a PRD phase:
-1. Update the phase status from `pending` to `in-progress`
-2. Add the plan file path as a reference in the phase
+この計画が PRD フェーズから生成された場合:
+1. フェーズのステータスを `pending` から `in-progress` に更新する
+2. 計画ファイルのパスをフェーズの参照として追加する
 
-### Report to User
+### ユーザーへの報告
 
 ```
-## Plan Created
+## 計画作成完了
 
-- **File**: .claude/PRPs/plans/{kebab-case-feature-name}.plan.md
-- **Source PRD**: [path or "N/A"]
-- **Phase**: [phase name or "standalone"]
-- **Complexity**: [level]
-- **Scope**: [N files, M tasks]
-- **Key Patterns**: [top 3 discovered patterns]
-- **External Research**: [topics researched or "none needed"]
-- **Risks**: [top risk or "none identified"]
-- **Confidence Score**: [1-10] — likelihood of single-pass implementation
+- **ファイル**: .claude/PRPs/plans/{kebab-case-feature-name}.plan.md
+- **ソース PRD**: [パスまたは "N/A"]
+- **フェーズ**: [フェーズ名または "standalone"]
+- **複雑さ**: [レベル]
+- **スコープ**: [N ファイル、M タスク]
+- **主要パターン**: [発見されたトップ 3 パターン]
+- **外部調査**: [調査されたトピックまたは "不要"]
+- **リスク**: [最上位リスクまたは "なし"]
+- **信頼スコア**: [1〜10] — 一回のパスでの実装可能性
 
-> Next step: Run `/prp-implement .claude/PRPs/plans/{name}.plan.md` to execute this plan.
+> 次のステップ: `/prp-implement .claude/PRPs/plans/{name}.plan.md` を実行してこの計画を実行してください。
 ```
 
 ---
 
-## Verification
+## 検証
 
-Before finalizing, verify the plan against these checklists:
+最終化する前に、以下のチェックリストに対して計画を検証します:
 
-### Context Completeness
-- [ ] All relevant files discovered and documented
-- [ ] Naming conventions captured with examples
-- [ ] Error handling patterns documented
-- [ ] Test patterns identified
-- [ ] Dependencies listed
+### コンテキストの完全性
+- [ ] すべての関連ファイルが発見されドキュメント化されている
+- [ ] 例を含む命名規約がキャプチャされている
+- [ ] エラーハンドリングパターンがドキュメント化されている
+- [ ] テストパターンが特定されている
+- [ ] 依存関係がリストされている
 
-### Implementation Readiness
-- [ ] Every task has ACTION, IMPLEMENT, MIRROR, and VALIDATE
-- [ ] No task requires additional codebase searching
-- [ ] Import paths are specified
-- [ ] GOTCHAs documented where applicable
+### 実装の準備状況
+- [ ] すべてのタスクに ACTION、IMPLEMENT、MIRROR、VALIDATE がある
+- [ ] どのタスクも追加のコードベース検索を必要としない
+- [ ] インポートパスが指定されている
+- [ ] 該当する場合 GOTCHA がドキュメント化されている
 
-### Pattern Faithfulness
-- [ ] Code snippets are actual codebase examples (not invented)
-- [ ] SOURCE references point to real files and line numbers
-- [ ] Patterns cover naming, errors, logging, data access, and tests
-- [ ] New code will be indistinguishable from existing code
+### パターンの忠実性
+- [ ] コードスニペットが実際のコードベースの例である（発明されたものでない）
+- [ ] SOURCE 参照が実際のファイルと行番号を指している
+- [ ] パターンが命名、エラー、ログ記録、データアクセス、テストをカバーしている
+- [ ] 新しいコードが既存のコードと区別できない
 
-### Validation Coverage
-- [ ] Static analysis commands specified
-- [ ] Test commands specified
-- [ ] Build verification included
+### 検証カバレッジ
+- [ ] 静的解析コマンドが指定されている
+- [ ] テストコマンドが指定されている
+- [ ] ビルド検証が含まれている
 
-### UX Clarity
-- [ ] Before/after states documented (or marked N/A)
-- [ ] Interaction changes listed
-- [ ] Edge cases for UX identified
+### UX の明確さ
+- [ ] ビフォー/アフター状態がドキュメント化されている（またはN/Aとマーク）
+- [ ] インタラクション変更がリストされている
+- [ ] UX のエッジケースが特定されている
 
-### No Prior Knowledge Test
-A developer unfamiliar with this codebase should be able to implement the feature using ONLY this plan, without searching the codebase or asking questions. If not, add the missing context.
+### 事前知識なしテスト
+このコードベースに不慣れな開発者が、コードベースを検索したり質問したりすることなく、この計画だけを使用して機能を実装できる必要があります。できない場合は、欠けているコンテキストを追加してください。
 
 ---
 
-## Next Steps
+## 次のステップ
 
-- Run `/prp-implement <plan-path>` to execute this plan
-- Run `/plan` for quick conversational planning without artifacts
-- Run `/prp-prd` to create a PRD first if scope is unclear
+- この計画を実行するには `/prp-implement <plan-path>` を実行してください
+- アーティファクトなしの簡単な会話型計画には `/plan` を実行してください
+- スコープが不明な場合は先に PRD を作成するには `/prp-prd` を実行してください
 ````

@@ -1,182 +1,182 @@
 ---
 name: rules-distill
-description: "Scan skills to extract cross-cutting principles and distill them into rules — append, revise, or create new rule files"
+description: "スキルをスキャンして横断的な原則を抽出し、ルールファイルに追記・改訂・新規作成として蒸留する"
 origin: ECC
 ---
 
-# Rules Distill
+# ルール蒸留
 
-Scan installed skills, extract cross-cutting principles that appear in multiple skills, and distill them into rules — appending to existing rule files, revising outdated content, or creating new rule files.
+インストール済みのスキルをスキャンし、複数のスキルに現れる横断的な原則を抽出して、ルールに蒸留する――既存のルールファイルへの追記・古い内容の改訂・新しいルールファイルの作成のいずれかの形で。
 
-Applies the "deterministic collection + LLM judgment" principle: scripts collect facts exhaustively, then an LLM cross-reads the full context and produces verdicts.
+「確定的な収集 + LLM判断」の原則を適用する: スクリプトが事実を網羅的に収集し、LLMが全コンテキストを読み込んで判定を下す。
 
-## When to Use
+## 使用するタイミング
 
-- Periodic rules maintenance (monthly or after installing new skills)
-- After a skill-stocktake reveals patterns that should be rules
-- When rules feel incomplete relative to the skills being used
+- 定期的なルールメンテナンス（月次、または新しいスキルをインストールした後）
+- スキル棚卸しでルール化すべきパターンが見つかった後
+- 使用しているスキルに対してルールが不完全だと感じるとき
 
-## How It Works
+## 動作方法
 
-The rules distillation process follows three phases:
+ルール蒸留プロセスは3つのフェーズに従う:
 
-### Phase 1: Inventory (Deterministic Collection)
+### フェーズ1: インベントリ（確定的な収集）
 
-#### 1a. Collect skill inventory
+#### 1a. スキルインベントリの収集
 
 ```bash
 bash ~/.claude/skills/rules-distill/scripts/scan-skills.sh
 ```
 
-#### 1b. Collect rules index
+#### 1b. ルールインデックスの収集
 
 ```bash
 bash ~/.claude/skills/rules-distill/scripts/scan-rules.sh
 ```
 
-#### 1c. Present to user
+#### 1c. ユーザーへの提示
 
 ```
-Rules Distillation — Phase 1: Inventory
+ルール蒸留――フェーズ1: インベントリ
 ────────────────────────────────────────
-Skills: {N} files scanned
-Rules:  {M} files ({K} headings indexed)
+スキル: {N}ファイルをスキャン
+ルール: {M}ファイル（{K}見出しをインデックス済み）
 
-Proceeding to cross-read analysis...
+クロスリード分析を開始します...
 ```
 
-### Phase 2: Cross-read, Match & Verdict (LLM Judgment)
+### フェーズ2: クロスリード・マッチング・判定（LLMの判断）
 
-Extraction and matching are unified in a single pass. Rules files are small enough (~800 lines total) that the full text can be provided to the LLM — no grep pre-filtering needed.
+抽出とマッチングは1回のパスで統合される。ルールファイルは合計約800行と小さいため、LLMに全文を提供できる――grepによる事前フィルタリングは不要。
 
-#### Batching
+#### バッチ処理
 
-Group skills into **thematic clusters** based on their descriptions. Analyze each cluster in a subagent with the full rules text.
+スキルを説明文に基づいて**テーマクラスター**にグループ化する。各クラスターをサブエージェントで全ルールテキストとともに分析する。
 
-#### Cross-batch Merge
+#### バッチ間のマージ
 
-After all batches complete, merge candidates across batches:
-- Deduplicate candidates with the same or overlapping principles
-- Re-check the "2+ skills" requirement using evidence from **all** batches combined — a principle found in 1 skill per batch but 2+ skills total is valid
+すべてのバッチが完了したら、バッチ間で候補をマージする:
+- 同じまたは重複する原則を持つ候補を重複排除する
+- すべてのバッチを合わせた証拠を使って「2つ以上のスキル」要件を再確認する――バッチごとに1スキルでも合計2スキル以上なら有効
 
-#### Subagent Prompt
+#### サブエージェントプロンプト
 
-Launch a general-purpose Agent with the following prompt:
+以下のプロンプトで汎用エージェントを起動する:
 
 ````
-You are an analyst who cross-reads skills to extract principles that should be promoted to rules.
+あなたはスキルをクロスリードして、ルールに昇格させるべき原則を抽出するアナリストです。
 
-## Input
-- Skills: {full text of skills in this batch}
-- Existing rules: {full text of all rule files}
+## 入力
+- スキル: {このバッチのスキルの全文}
+- 既存のルール: {すべてのルールファイルの全文}
 
-## Extraction Criteria
+## 抽出基準
 
-Include a candidate ONLY if ALL of these are true:
+以下のすべてが真の場合のみ候補に含める:
 
-1. **Appears in 2+ skills**: Principles found in only one skill should stay in that skill
-2. **Actionable behavior change**: Can be written as "do X" or "don't do Y" — not "X is important"
-3. **Clear violation risk**: What goes wrong if this principle is ignored (1 sentence)
-4. **Not already in rules**: Check the full rules text — including concepts expressed in different words
+1. **2つ以上のスキルに登場する**: 1つのスキルにしか見られない原則はそのスキルに留まるべき
+2. **行動の変化をもたらす**: 「XをすべきだったY」ではなく「Xを行う」または「Yを行わない」として書ける
+3. **違反リスクが明確**: この原則を無視するとどうなるか（1文）
+4. **ルールにまだない**: 全ルールテキストを確認する――異なる言葉で表現されている概念も含む
 
-## Matching & Verdict
+## マッチングと判定
 
-For each candidate, compare against the full rules text and assign a verdict:
+各候補について全ルールテキストと比較し、判定を割り当てる:
 
-- **Append**: Add to an existing section of an existing rule file
-- **Revise**: Existing rule content is inaccurate or insufficient — propose a correction
-- **New Section**: Add a new section to an existing rule file
-- **New File**: Create a new rule file
-- **Already Covered**: Sufficiently covered in existing rules (even if worded differently)
-- **Too Specific**: Should remain at the skill level
+- **Append（追記）**: 既存ルールファイルの既存セクションに追加する
+- **Revise（改訂）**: 既存のルール内容が不正確または不十分――修正案を提示する
+- **New Section（新規セクション）**: 既存のルールファイルに新しいセクションを追加する
+- **New File（新規ファイル）**: 新しいルールファイルを作成する
+- **Already Covered（既に対応済み）**: 既存のルールで十分カバーされている（言葉が異なっていても）
+- **Too Specific（詳細すぎる）**: スキルレベルに留まるべき
 
-## Output Format (per candidate)
+## 出力フォーマット（候補ごと）
 
 ```json
 {
-  "principle": "1-2 sentences in 'do X' / 'don't do Y' form",
-  "evidence": ["skill-name: §Section", "skill-name: §Section"],
-  "violation_risk": "1 sentence",
+  "principle": "「Xを行う」/「Yを行わない」の形で1〜2文",
+  "evidence": ["スキル名: §セクション", "スキル名: §セクション"],
+  "violation_risk": "1文",
   "verdict": "Append / Revise / New Section / New File / Already Covered / Too Specific",
-  "target_rule": "filename §Section, or 'new'",
+  "target_rule": "ファイル名 §セクション、または 'new'",
   "confidence": "high / medium / low",
-  "draft": "Draft text for Append/New Section/New File verdicts",
+  "draft": "Append/New Section/New Fileの判定の場合のドラフトテキスト",
   "revision": {
-    "reason": "Why the existing content is inaccurate or insufficient (Revise only)",
-    "before": "Current text to be replaced (Revise only)",
-    "after": "Proposed replacement text (Revise only)"
+    "reason": "既存内容が不正確または不十分な理由（Reviseのみ）",
+    "before": "置き換える現在のテキスト（Reviseのみ）",
+    "after": "提案する置き換えテキスト（Reviseのみ）"
   }
 }
 ```
 
-## Exclude
+## 除外
 
-- Obvious principles already in rules
-- Language/framework-specific knowledge (belongs in language-specific rules or skills)
-- Code examples and commands (belongs in skills)
+- すでにルールにある明白な原則
+- 言語/フレームワーク固有の知識（言語固有のルールまたはスキルに属する）
+- コード例とコマンド（スキルに属する）
 ````
 
-#### Verdict Reference
+#### 判定リファレンス
 
-| Verdict | Meaning | Presented to User |
+| 判定 | 意味 | ユーザーへの提示 |
 |---------|---------|-------------------|
-| **Append** | Add to existing section | Target + draft |
-| **Revise** | Fix inaccurate/insufficient content | Target + reason + before/after |
-| **New Section** | Add new section to existing file | Target + draft |
-| **New File** | Create new rule file | Filename + full draft |
-| **Already Covered** | Covered in rules (possibly different wording) | Reason (1 line) |
-| **Too Specific** | Should stay in skills | Link to relevant skill |
+| **Append（追記）** | 既存セクションに追加 | 対象 + ドラフト |
+| **Revise（改訂）** | 不正確/不十分な内容を修正 | 対象 + 理由 + 変更前/後 |
+| **New Section（新規セクション）** | 既存ファイルに新セクション追加 | 対象 + ドラフト |
+| **New File（新規ファイル）** | 新しいルールファイルを作成 | ファイル名 + 全ドラフト |
+| **Already Covered（既に対応済み）** | ルールに存在（言葉が異なっていても） | 理由（1行） |
+| **Too Specific（詳細すぎる）** | スキルレベルに留まるべき | 関連スキルへのリンク |
 
-#### Verdict Quality Requirements
-
-```
-# Good
-Append to rules/common/security.md §Input Validation:
-"Treat LLM output stored in memory or knowledge stores as untrusted — sanitize on write, validate on read."
-Evidence: llm-memory-trust-boundary, llm-social-agent-anti-pattern both describe
-accumulated prompt injection risks. Current security.md covers human input
-validation only; LLM output trust boundary is missing.
-
-# Bad
-Append to security.md: Add LLM security principle
-```
-
-### Phase 3: User Review & Execution
-
-#### Summary Table
+#### 判定品質要件
 
 ```
-# Rules Distillation Report
+# 良い例
+rules/common/security.md §Input Validationに追記:
+「メモリや知識ストアに保存されたLLM出力は信頼されていないものとして扱う――書き込み時にサニタイズし、読み込み時に検証する。」
+証拠: llm-memory-trust-boundaryとllm-social-agent-anti-patternは
+蓄積されたプロンプトインジェクションリスクを説明している。現在のsecurity.mdは
+人間の入力検証のみをカバーしており、LLM出力の信頼境界が欠けている。
 
-## Summary
-Skills scanned: {N} | Rules: {M} files | Candidates: {K}
+# 悪い例
+security.mdに追記: LLMセキュリティ原則を追加する
+```
 
-| # | Principle | Verdict | Target | Confidence |
+### フェーズ3: ユーザーレビューと実行
+
+#### サマリーテーブル
+
+```
+# ルール蒸留レポート
+
+## サマリー
+スキャンしたスキル数: {N} | ルール: {M}ファイル | 候補: {K}
+
+| # | 原則 | 判定 | 対象 | 信頼度 |
 |---|-----------|---------|--------|------------|
 | 1 | ... | Append | security.md §Input Validation | high |
 | 2 | ... | Revise | testing.md §TDD | medium |
 | 3 | ... | New Section | coding-style.md | high |
 | 4 | ... | Too Specific | — | — |
 
-## Details
-(Per-candidate details: evidence, violation_risk, draft text)
+## 詳細
+（候補ごとの詳細: 証拠・違反リスク・ドラフトテキスト）
 ```
 
-#### User Actions
+#### ユーザーアクション
 
-User responds with numbers to:
-- **Approve**: Apply draft to rules as-is
-- **Modify**: Edit draft before applying
-- **Skip**: Do not apply this candidate
+ユーザーは番号で次の操作を行う:
+- **承認**: ドラフトをそのままルールに適用する
+- **修正**: 適用前にドラフトを編集する
+- **スキップ**: この候補を適用しない
 
-**Never modify rules automatically. Always require user approval.**
+**ルールを自動的に変更しない。常にユーザーの承認を求める。**
 
-#### Save Results
+#### 結果の保存
 
-Store results in the skill directory (`results.json`):
+スキルディレクトリに結果を保存する（`results.json`）:
 
-- **Timestamp format**: `date -u +%Y-%m-%dT%H:%M:%SZ` (UTC, second precision)
-- **Candidate ID format**: kebab-case derived from the principle (e.g., `llm-output-trust-boundary`)
+- **タイムスタンプ形式**: `date -u +%Y-%m-%dT%H:%M:%SZ`（UTC・秒精度）
+- **候補IDの形式**: 原則から派生したケバブケース（例: `llm-output-trust-boundary`）
 
 ```json
 {
@@ -185,14 +185,14 @@ Store results in the skill directory (`results.json`):
   "rules_scanned": 22,
   "candidates": {
     "llm-output-trust-boundary": {
-      "principle": "Treat LLM output as untrusted when stored or re-injected",
+      "principle": "保存または再注入される場合はLLM出力を信頼されていないものとして扱う",
       "verdict": "Append",
       "target": "rules/common/security.md",
       "evidence": ["llm-memory-trust-boundary", "llm-social-agent-anti-pattern"],
       "status": "applied"
     },
     "iteration-bounds": {
-      "principle": "Define explicit stop conditions for all iteration loops",
+      "principle": "すべての反復ループに明示的な停止条件を定義する",
       "verdict": "New Section",
       "target": "rules/common/coding-style.md",
       "evidence": ["iterative-retrieval", "continuous-agent-loop", "agent-harness-construction"],
@@ -202,63 +202,63 @@ Store results in the skill directory (`results.json`):
 }
 ```
 
-## Example
+## 例
 
-### End-to-end run
+### エンドツーエンドの実行
 
 ```
 $ /rules-distill
 
-Rules Distillation — Phase 1: Inventory
+ルール蒸留――フェーズ1: インベントリ
 ────────────────────────────────────────
-Skills: 56 files scanned
-Rules:  22 files (75 headings indexed)
+スキル: 56ファイルをスキャン
+ルール: 22ファイル（75見出しをインデックス済み）
 
-Proceeding to cross-read analysis...
+クロスリード分析を開始します...
 
-[Subagent analysis: Batch 1 (agent/meta skills) ...]
-[Subagent analysis: Batch 2 (coding/pattern skills) ...]
-[Cross-batch merge: 2 duplicates removed, 1 cross-batch candidate promoted]
+[サブエージェント分析: バッチ1（エージェント/メタスキル）...]
+[サブエージェント分析: バッチ2（コーディング/パターンスキル）...]
+[バッチ間マージ: 2件の重複を削除、1件のバッチ間候補を昇格]
 
-# Rules Distillation Report
+# ルール蒸留レポート
 
-## Summary
-Skills scanned: 56 | Rules: 22 files | Candidates: 4
+## サマリー
+スキャンしたスキル数: 56 | ルール: 22ファイル | 候補: 4
 
-| # | Principle | Verdict | Target | Confidence |
+| # | 原則 | 判定 | 対象 | 信頼度 |
 |---|-----------|---------|--------|------------|
-| 1 | LLM output: normalize, type-check, sanitize before reuse | New Section | coding-style.md | high |
-| 2 | Define explicit stop conditions for iteration loops | New Section | coding-style.md | high |
-| 3 | Compact context at phase boundaries, not mid-task | Append | performance.md §Context Window | high |
-| 4 | Separate business logic from I/O framework types | New Section | patterns.md | high |
+| 1 | LLM出力: 再利用前に正規化・型チェック・サニタイズを行う | New Section | coding-style.md | high |
+| 2 | 反復ループに明示的な停止条件を定義する | New Section | coding-style.md | high |
+| 3 | タスク中盤ではなくフェーズ境界でコンテキストをコンパクト化する | Append | performance.md §Context Window | high |
+| 4 | ビジネスロジックをI/Oフレームワークの型から分離する | New Section | patterns.md | high |
 
-## Details
+## 詳細
 
-### 1. LLM Output Validation
-Verdict: New Section in coding-style.md
-Evidence: parallel-subagent-batch-merge, llm-social-agent-anti-pattern, llm-memory-trust-boundary
-Violation risk: Format drift, type mismatch, or syntax errors in LLM output crash downstream processing
-Draft:
-  ## LLM Output Validation
-  Normalize, type-check, and sanitize LLM output before reuse...
-  See skill: parallel-subagent-batch-merge, llm-memory-trust-boundary
+### 1. LLM出力のバリデーション
+判定: coding-style.mdに新規セクション
+証拠: parallel-subagent-batch-merge・llm-social-agent-anti-pattern・llm-memory-trust-boundary
+違反リスク: LLM出力のフォーマットドリフト・型不一致・構文エラーがダウンストリーム処理をクラッシュさせる
+ドラフト:
+  ## LLM出力のバリデーション
+  再利用前にLLM出力を正規化・型チェック・サニタイズする...
+  スキル参照: parallel-subagent-batch-merge、llm-memory-trust-boundary
 
-[... details for candidates 2-4 ...]
+[...候補2〜4の詳細...]
 
-Approve, modify, or skip each candidate by number:
-> User: Approve 1, 3. Skip 2, 4.
+各候補を番号で承認・修正・スキップ:
+> ユーザー: 1と3を承認。2と4をスキップ。
 
-✓ Applied: coding-style.md §LLM Output Validation
-✓ Applied: performance.md §Context Window Management
-✗ Skipped: Iteration Bounds
-✗ Skipped: Boundary Type Conversion
+✓ 適用済み: coding-style.md §LLM Output Validation
+✓ 適用済み: performance.md §Context Window Management
+✗ スキップ: Iteration Bounds
+✗ スキップ: Boundary Type Conversion
 
-Results saved to results.json
+結果をresults.jsonに保存しました
 ```
 
-## Design Principles
+## 設計原則
 
-- **What, not How**: Extract principles (rules territory) only. Code examples and commands stay in skills.
-- **Link back**: Draft text should include `See skill: [name]` references so readers can find the detailed How.
-- **Deterministic collection, LLM judgment**: Scripts guarantee exhaustiveness; the LLM guarantees contextual understanding.
-- **Anti-abstraction safeguard**: The 3-layer filter (2+ skills evidence, actionable behavior test, violation risk) prevents overly abstract principles from entering rules.
+- **何を、どのようにではなく**: 原則（ルール領域）のみを抽出する。コード例とコマンドはスキルに留まる。
+- **参照を張る**: ドラフトテキストには読者が詳細な「どのように」を見つけられるよう`See skill: [名前]`参照を含める。
+- **確定的な収集、LLMの判断**: スクリプトが網羅性を保証し、LLMがコンテキスト的な理解を保証する。
+- **抽象化防止策**: 3層フィルター（2+スキルの証拠・行動可能性テスト・違反リスク）が抽象すぎる原則がルールに入り込むのを防ぐ。

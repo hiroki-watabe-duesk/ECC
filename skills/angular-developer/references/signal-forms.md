@@ -1,39 +1,39 @@
 # Signal Forms
 
-Signal Forms are recommended for new forms when the target Angular version supports them. They provide a reactive, type-safe, and model-driven way to manage form state using Angular Signals.
+Signal Formsは、対象とするAngularバージョンがサポートしている場合、新規フォームの推奨実装方法です。Angular Signalsを使用して、リアクティブで型安全かつモデル駆動なフォーム状態管理を提供します。
 
-When using Signal Forms, do not use `null` as a value or type of any fields.
+Signal Formsを使用する際は、フィールドの値や型に `null` を使用しないでください。
 
-## Imports
+## インポート
 
-You can import the following from `@angular/forms/signals`:
+`@angular/forms/signals` から以下をインポートできます。
 
 ```ts
 import {
   form,
   FormField,
   submit,
-  // Rules for field state
+  // フィールド状態のルール
   disabled,
   hidden,
   readonly,
   debounce,
-  // Schema helpers
+  // スキーマヘルパー
   applyWhen,
   applyEach,
   schema,
-  // Custom validation
+  // カスタムバリデーション
   validate,
   validateHttp,
   validateStandardSchema,
-  // Metadata
+  // メタデータ
   metadata,
 } from '@angular/forms/signals';
 ```
 
-## Creating a Form
+## フォームの作成
 
-Use the `form()` function with a Signal model. The structure of the form is derived directly from the model.
+Signalモデルとともに `form()` 関数を使用します。フォームの構造はモデルから直接導出されます。
 
 ```ts
 import {Component, signal} from '@angular/core';
@@ -44,137 +44,137 @@ import {form, FormField} from '@angular/forms/signals';
   imports: [FormField],
 })
 export class Example {
-  // 1. Define your model with initial values (avoid undefined)
+  // 1. 初期値を持つモデルを定義する（undefinedは避ける）
   userModel = signal({
-    name: '', // CRITICAL: NEVER use null or undefined as initial values
+    name: '', // 重要: 初期値に null や undefined を絶対に使用しない
     email: '',
-    age: 0, // Use 0 for numbers, NOT null
+    age: 0, // 数値には 0 を使用し、null は使わない
     address: {
       street: '',
       city: '',
     },
-    hobbies: [] as string[], // Use [] for arrays, NOT null
+    hobbies: [] as string[], // 配列には [] を使用し、null は使わない
   });
 
-  // WRONG - DO NOT DO THIS:
+  // 間違い — これを行わないこと:
   // badModel = signal({
-  //   name: null,      // ERROR: use '' instead
-  //   age: null,       // ERROR: use 0 instead
-  //   items: null      // ERROR: use [] instead
+  //   name: null,      // エラー: '' を使用すること
+  //   age: null,       // エラー: 0 を使用すること
+  //   items: null      // エラー: [] を使用すること
   // });
 
-  // 2. Create the form
+  // 2. フォームを作成する
   userForm = form(this.userModel);
 }
 ```
 
-## Validation
+## バリデーション
 
-Import validators from `@angular/forms/signals`.
+`@angular/forms/signals` からバリデーターをインポートします。
 
 ```ts
 import {required, email, min, max, minLength, maxLength, pattern} from '@angular/forms/signals';
 ```
 
-Use them in the schema function passed to `form()`:
+`form()` に渡すschema関数の中で使用します。
 
 ```ts
 userForm = form(this.userModel, (schemaPath) => {
-  // Required
+  // required（必須）
   required(schemaPath.name, {message: 'Name is required'});
 
-  // Conditional required.
+  // 条件付きrequired
   required(schemaPath.name, {
     when({valueOf}) {
       return valueOf(schemaPath.age) > 10;
     },
   });
-  // when is only available for required
-  // Do NOT do this: pattern(p.name, /xxx/, {when /* ERROR */)
+  // when は required にのみ使用可能
+  // これを行わないこと: pattern(p.name, /xxx/, {when /* エラー */)
 
-  // Email
+  // email（メール形式）
   email(schemaPath.email, {message: 'Invalid email'});
 
-  // Min/Max for numbers
+  // 数値のMin/Max
   min(schemaPath.age, 18);
   max(schemaPath.age, 100);
 
-  // MinLength/MaxLength for strings/arrays
+  // 文字列・配列のMinLength/MaxLength
   minLength(schemaPath.password, 8);
   maxLength(schemaPath.description, 500);
 
-  // Pattern (Regex)
+  // Pattern（正規表現）
   pattern(schemaPath.zipCode, /^\d{5}$/);
 });
 ```
 
-## FieldState vs FormField: The Parental Requirement
+## FieldState と FormField：親となる要件
 
-It's important to understand the difference between **FormField** (the structure) and **FieldState** (the actual data/signals).
+**FormField**（構造）と **FieldState**（実際のデータ/Signal）の違いを理解することが重要です。
 
-**RULE**: You must **CALL** a field as a function to access its state signals (valid, touched, dirty, hidden, etc.).
+**ルール**: 状態Signalにアクセスするには、フィールドを関数として**呼び出す**必要があります（valid、touched、dirty、hidden など）。
 
 ```ts
-// f is a FormField (structural)
+// f は FormField（構造的）
 const f = form(signal({cat: {name: 'pirojok-the-cat', age: 5}}));
 
-f.cat.name; // FormField: You can't get flags from here!
-f.cat.name.touched(); // ERROR: touched() does not exist on FormField
+f.cat.name; // FormField: ここからフラグを取得できません！
+f.cat.name.touched(); // エラー: touched() は FormField に存在しない
 
-f.cat.name(); // FieldState: Calling it gives you access to signals
-f.cat.name().touched(); // VALID: Accessing the signal
-f.cat().name.touched(); // ERROR: f.cat() is state, it doesn't have children!
+f.cat.name(); // FieldState: 呼び出すことでSignalにアクセスできる
+f.cat.name().touched(); // 有効: Signalにアクセスしている
+f.cat().name.touched(); // エラー: f.cat() は状態であり、子要素を持たない！
 ```
 
-Similarly in a template:
+テンプレートでも同様:
 
 ```html
-<!-- WRONG: Property 'hidden' does not exist on type 'FormField' -->
+<!-- 間違い: 'hidden' プロパティは 'FormField' 型に存在しない -->
 @if (bookingForm.hotelDetails.hidden()) { ... }
 
-<!-- RIGHT: Call it first -->
+<!-- 正しい: 先に呼び出す -->
 @if (bookingForm.hotelDetails().hidden()) { ... }
 ```
 
 ## Disabled / Readonly / Hidden
 
-Control field status using rules in the schema.
+スキーマ内のルールを使用してフィールドの状態を制御します。
 
 ```ts
 import {disabled, readonly, hidden} from '@angular/forms/signals';
 
 userForm = form(this.userModel, (schemaPath) => {
-  // Conditionally disabled
+  // 条件付きdisabled
   disabled(schemaPath.password, ({valueOf}) => !valueOf(schemaPath.createAccount));
 
-  // Conditionally hidden (does NOT remove from model, just marks as hidden)
+  // 条件付きhidden（モデルからは削除されず、hiddenとしてマークされるだけ）
   hidden(schemaPath.shippingAddress, ({valueOf}) => valueOf(schemaPath.sameAsBilling));
 
-  // Readonly
+  // readonly
   readonly(schemaPath.username);
 });
 ```
 
-## Binding
+## バインディング
 
-Import `FormField` and use the `[formField]` directive.
+`FormField` をインポートして `[formField]` ディレクティブを使用します。
 
 ```ts
 import {FormField} from '@angular/forms/signals';
 ```
 
-All props on state, such as `disabled`, `hidden`, `readonly` and `name` are bound automatically.
-Do _NOT_ bind the `name` field.
+`disabled`、`hidden`、`readonly`、`name` などの状態の全プロパティは自動的にバインドされます。
+`name` フィールドを手動でバインドしないでください。
 
-**CRITICAL: FORBIDDEN ATTRIBUTES**
-When using `[formField]`, you MUST NOT set the following attributes in the template (either static or bound):
+**重要: 禁止属性**
+`[formField]` 使用時は、テンプレートで以下の属性を設定してはなりません（静的・バインド問わず）:
 
-- `min`, `max` (Use validators in the schema instead)
-- `value`, `[value]`, `[attr.value]` (Already handled by `[formField]`)
-- `[attr.min]`, `[attr.max]`
-- `[disabled]`, `[readonly]` (Already handled by `[formField]`)
+- `min`、`max`（代わりにスキーマ内のバリデーターを使用する）
+- `value`、`[value]`、`[attr.value]`（`[formField]` によって処理済み）
+- `[attr.min]`、`[attr.max]`
+- `[disabled]`、`[readonly]`（`[formField]` によって処理済み）
 
-Do NOT do this: `<input min="1" [formField]>` or `<input [value]="val" [formField]>`.
+これを行わないこと: `<input min="1" [formField]>` または `<input [value]="val" [formField]>`。
 
 ```html
 <!-- Input -->
@@ -188,43 +188,43 @@ Do NOT do this: `<input min="1" [formField]>` or `<input [value]="val" [formFiel
   <option value="us">US</option>
 </select>
 
-<!-- userForm.name can NOT be nullable, because input does not accept null-->
+<!-- userForm.name は nullable にできない。inputはnullを受け付けないため -->
 <input [formField]="userForm.name" />
 ```
 
-## Reactive Forms
+## リアクティブフォーム
 
-**Do NOT import** `FormControl`, `FormGroup`, `FormArray`, or `FormBuilder` from `@angular/forms`. Signal Forms replace these concepts entirely.
-Signal forms does NOT have a builder.
+`@angular/forms` から `FormControl`、`FormGroup`、`FormArray`、`FormBuilder` を**インポートしないでください**。Signal Formsがこれらの概念を完全に置き換えます。
+Signal Formsにはbuilderがありません。
 
-## Accessing State
+## 状態へのアクセス
 
-Each field in the form is a function that returns its state.
+フォーム内の各フィールドは状態を返す関数です。
 
 ```ts
-// Access the field by calling it
+// フィールドを呼び出してアクセスする
 const emailState = this.userForm.email();
 
-// Value (WritableSignal)
+// 値（WritableSignal）
 const value = this.userForm().value();
 
-// Validation State (Signals)
+// バリデーション状態（Signals）
 const isValid = this.userForm().valid();
 const isInvalid = this.userForm().invalid();
-const errors = this.userForm().errors(); // Array of errors
-const isPending = this.userForm().pending(); // Async validation pending
+const errors = this.userForm().errors(); // エラーの配列
+const isPending = this.userForm().pending(); // 非同期バリデーション待ち
 
-// Interaction State (Signals)
+// インタラクション状態（Signals）
 const isTouched = this.userForm().touched();
 const isDirty = this.userForm().dirty();
 
-// Availability State (Signals)
+// 有効性状態（Signals）
 const isDisabled = this.userForm().disabled();
 const isHidden = this.userForm().hidden();
 const isReadonly = this.userForm().readonly();
 ```
 
-IMPORTANT!: Make sure to call the field to get it state.
+重要：状態を取得するには必ずフィールドを呼び出すこと。
 
 ```ts
 form().invalid()
@@ -234,43 +234,43 @@ form.a.b.c.d().value()
 form.address.ssn().pending()
 form().reset()
 
-// The only exception is length:
+// 唯一の例外はlength:
 form.children.length
-form.length // NOTE: no parenthesis!
-form.client.addresses.length  // No "()"
+form.length // 注意: 括弧なし！
+form.client.addresses.length  // "()" なし
 
 @for (income of form.addresses; track $index) {/**/}
 ```
 
-## Submitting
+## 送信
 
-Use the `submit()` function. It automatically marks all fields as touched before running the action.
+`submit()` 関数を使用します。アクションを実行する前に、全フィールドにtouchedを自動的に付与します。
 
-**CRITICAL**: The callback to `submit()` MUST be `async` and MUST return a Promise.
+**重要**: `submit()` へのコールバックは `async` でなければならず、Promiseを返す必要があります。
 
 ```ts
 import { submit } from '@angular/forms/signals';
 
-// CORRECT - async callback
+// 正しい — asyncコールバック
 onSubmit() {
   submit(this.userForm, async () => {
-    // This only runs if the form is valid
+    // フォームが有効な場合のみ実行される
     await this.apiService.save(this.userModel());
     console.log('Saved!');
   });
 }
 
-// WRONG - missing async keyword
+// 間違い — asyncキーワードが欠けている
 onSubmit() {
-  submit(this.userForm, () => {  // ERROR: must be async
+  submit(this.userForm, () => {  // エラー: asyncでなければならない
     console.log('Saved!');
   });
 }
 ```
 
-## Handling Errors
+## エラーの処理
 
-`field().errors()` returns the errors array of ValidationError:
+`field().errors()` はValidationErrorの配列を返します。
 
 ```ts
 interface ValidationError {
@@ -279,26 +279,26 @@ interface ValidationError {
 }
 ```
 
-Do _NOT_ return null from validators.
-When there are no errors, return undefined
+バリデーターからnullを返さないでください。
+エラーがない場合はundefinedを返します。
 
-### Context
+### コンテキスト
 
-Functions passed to rules like `validate()`, `disabled()`, `applyWhen` take a context object. It is **CRITICAL** to understand its structure:
+`validate()`、`disabled()`、`applyWhen` などのルールに渡される関数はコンテキストオブジェクトを受け取ります。その構造を理解することが**重要**です。
 
 ```ts
 validate(
   schemaPath.username,
   ({
-    value, // Signal<T>: Writable current value of the field
-    fieldTree, // FieldTree<T>: Sub-fields (if it's a group/array)
-    state, // FieldState<T>: Access flags like state.valid(), state.dirty()
-    valueOf, // (path) => T: Read values of OTHER fields (tracking dependencies), e.g. valueOf(schemaPath.password)
-    stateOf, // (path) => FieldState: Access state (valid/dirty) of OTHER fields, e.g. stateOf(schemaPath.password).valid()
-    pathKeys, // Signal<string[]>: Path from root to this field
+    value, // Signal<T>: フィールドの現在値を示す書き込み可能なSignal
+    fieldTree, // FieldTree<T>: サブフィールド（グループ・配列の場合）
+    state, // FieldState<T>: state.valid()、state.dirty() などのフラグにアクセス
+    valueOf, // (path) => T: 他のフィールドの値を読み取る（依存関係を追跡）例: valueOf(schemaPath.password)
+    stateOf, // (path) => FieldState: 他のフィールドの状態（valid/dirty）にアクセス 例: stateOf(schemaPath.password).valid()
+    pathKeys, // Signal<string[]>: ルートからこのフィールドへのパス
   }) => {
-    // WRONG: if (touched()) ... (touched is not in context)
-    // RIGHT: if (state.touched()) ...
+    // 間違い: if (touched()) ... (touched はコンテキストにない)
+    // 正しい: if (state.touched()) ...
 
     if (value() === 'admin') {
       return {kind: 'reserved', message: 'Username admin is reserved'};
@@ -307,81 +307,81 @@ validate(
 );
 ```
 
-### IMPORTANT: Paths are NOT Signals
+### 重要: パスはSignalではない
 
-Inside the `form()` callback, `schemaPath` and its children (e.g., `schemaPath.user.name`) are **NOT** signals and are **NOT** callable.
+`form()` コールバック内で、`schemaPath` およびその子要素（例: `schemaPath.user.name`）は **Signal ではなく**、**呼び出し可能でもありません**。
 
 ```ts
-// WRONG - This will throw an error:
+// 間違い — エラーが発生します:
 applyWhen(p.ssn, () => p.ssn().touched(), (ssnField) => { ... });
 
-// RIGHT - Use stateOf() to get the state of a path:
+// 正しい — stateOf() を使用してパスの状態を取得する:
 applyWhen(p.ssn, ({ stateOf }) => stateOf(p.ssn).touched(), (ssnField) => { ... });
 
-// RIGHT - Use valueOf() to get the value of a path:
+// 正しい — valueOf() を使用してパスの値を取得する:
 applyWhen(p.ssn, ({ valueOf }) => valueOf(p.ssn) !== '', (ssnField) => { ... });
 ```
 
-### Multiple Items
+### 複数アイテム
 
-- Use `applyEach` for applying rules per item.
-- **CRITICAL**: `applyEach` callback takes ONLY ONE argument (the item path), NOT two:
+- アイテムごとにルールを適用するには `applyEach` を使用する。
+- **重要**: `applyEach` のコールバックが受け取る引数は**1つだけ**（アイテムのパス）であり、2つではありません。
 
 ```ts
-// CORRECT - single argument
+// 正しい — 引数1つ
 applyEach(s.items, (item) => {
   required(item.name);
 });
 
-// WRONG - do NOT pass index
+// 間違い — インデックスを渡さないこと
 applyEach(s.items, (item, index) => {
-  // ERROR: callback takes 1 argument
+  // エラー: コールバックの引数は1つ
   required(item.name);
 });
 ```
 
-- In the template use `@for` to iterate over the items.
-- To remove an item from an array, just remove appropriate item from the array in the data.
-- **`select` binding**: You CAN bind to `<select [formField]="form.country">`. Ensure options have `value` attributes.
+- テンプレートではアイテムの反復に `@for` を使用する。
+- 配列からアイテムを削除するには、データ内の対応するアイテムを配列から取り除くだけです。
+- **`select` バインディング**: `<select [formField]="form.country">` へのバインドは可能。optionに `value` 属性があることを確認すること。
 
-### Nested @for Loops
+### ネストした @for ループ
 
-**CRITICAL**: Angular does NOT have `$parent`. In nested loops, store outer index in a variable:
+**重要**: Angularには `$parent` が存在しません。ネストしたループでは、外側のインデックスを変数に格納してください。
 
 ```html
-<!-- WRONG - $parent does not exist -->
+<!-- 間違い — $parent は存在しない -->
 @for (item of form.items; track $index) { @for (option of item.options; track $index) {
 <button (click)="removeOption($parent.$index, $index)">Remove</button>
-<!-- ERROR -->
+<!-- エラー -->
 } }
 
-<!-- CORRECT - use let to store outer index -->
+<!-- 正しい — let を使用して外側のインデックスを格納する -->
 @for (item of form.items; track $index; let outerIndex = $index) { @for (option of item.options;
 track $index) {
 <button (click)="removeOption(outerIndex, $index)">Remove</button>
 } }
 ```
 
-### Disabling Form Button
+### フォームボタンの無効化
 
 ```html
 <button [disabled]="form().invalid() || form().pending()" />
-<!-- Or -->
+<!-- または -->
 <button [disabled]="taxForm.invalid()" />
 ```
 
-Do NOT use `[disabled]` on an input. `[formField]` will do this.
-Do NOT use `[readonly]` on an input. `[formField]` will do this.
-If you need to disable or readonly a field, use `disabled()` or `readonly()` rules in the schema.
+inputに `[disabled]` を使用しないでください。`[formField]` がこれを処理します。
+inputに `[readonly]` を使用しないでください。`[formField]` がこれを処理します。
+フィールドをdisabledまたはreadonlyにする必要がある場合は、スキーマ内で `disabled()` または `readonly()` ルールを使用してください。
 
-### Async Validation
+### 非同期バリデーション
 
-Do not use `validate()` for async, instead use `validateAsync()`:
+非同期には `validate()` を使用せず、`validateAsync()` を使用してください。
 
-**CRITICAL**:
+**重要**:
 
-1. The `params` option MUST be a function that returns the value to validate.
-2. The `onError` handler is **REQUIRED** - it is NOT optional!
+1. `params` オプションは、バリデートする値を返す関数でなければなりません。
+2. `onError` ハンドラーは**必須**です。省略できません！
 
 ```ts
 import {resource} from '@angular/core';
@@ -389,39 +389,39 @@ import {validateAsync} from '@angular/forms/signals';
 
 userForm = form(this.userModel, (s) => {
   validateAsync(s.username, {
-    // 1. MUST be a function - params takes context and returns the value
+    // 1. 関数でなければならない — paramsはコンテキストを受け取り値を返す
     params: ({value}) => value(),
 
-    // 2. Create the resource - factory receives a Signal
+    // 2. リソースを作成する — ファクトリーはSignalを受け取る
     factory: (username) =>
       resource({
-        params: username, // Use 'params' in resource()
+        params: username, // resource() では 'params' を使用する
         loader: async ({params: value}) => {
           await new Promise((resolve) => setTimeout(resolve, 1000));
           return value === 'taken';
         },
       }),
 
-    // 3. Map success to errors
+    // 3. 成功結果をエラーにマッピングする
     onSuccess: (isTaken) =>
       isTaken ? {kind: 'taken', message: 'Username is already taken'} : undefined,
 
-    // 4. Handle errors - THIS IS REQUIRED!
+    // 4. エラーを処理する — これは必須！
     onError: () => ({kind: 'error', message: 'Validation failed'}),
   });
 });
 ```
 
-**WRONG Examples:**
+**間違いの例:**
 
 ```ts
-// WRONG - params must be a function
+// 間違い — params は関数でなければならない
 validateAsync(s.username, {
-  params: s.username, // ERROR: must be ({ value }) => value()
+  params: s.username, // エラー: ({ value }) => value() でなければならない
   // ...
 });
 
-// WRONG - missing onError (it's required!)
+// 間違い — onError が欠けている（必須！）
 validateAsync(s.username, {
   params: ({value}) => value(),
   factory: (username) =>
@@ -429,16 +429,16 @@ validateAsync(s.username, {
       /* ... */
     }),
   onSuccess: (result) => (result ? {kind: 'error'} : undefined),
-  // ERROR: 'onError' is missing but required!
+  // エラー: 'onError' が欠けているが必須！
 });
 ```
 
-### Using Resource
+### resource の使用
 
-**CRITICAL**: In Angular's `resource()`, use `params` for the input signal.
+**重要**: Angularの `resource()` では、入力Signalに `params` を使用します。
 
 ```ts
-// CORRECT
+// 正しい
 resource({
   params: mySignal,
   loader: async ({params: value}) => {
@@ -446,27 +446,27 @@ resource({
   },
 });
 
-// WRONG
+// 間違い
 resource({
-  request: mySignal, // ERROR: should be 'params'
+  request: mySignal, // エラー: 'params' を使うべき
   loader: async ({request}) => {
     /* ... */
   },
 });
 ```
 
-Use `debounce()` to delay synchronization between the UI and the model.
+UIとモデルの同期を遅延させるには `debounce()` を使用します。
 
 ```ts
 import {debounce} from '@angular/forms/signals';
 
 userForm = form(this.userModel, (s) => {
-  // Delay model updates by 300ms
+  // モデルの更新を300ms遅延させる
   debounce(s.username, 300);
 });
 ```
 
-### Conditional Validation
+### 条件付きバリデーション
 
 ```ts
 form(
@@ -485,8 +485,8 @@ form(
 );
 ```
 
-`applyWhen` passes the path mapped to the first argument.
-If you need parent field, just pass it to `applyWhen`:
+`applyWhen` は第1引数にマッピングされたパスを渡します。
+親フィールドが必要な場合は、`applyWhen` に渡すだけです。
 
 ```ts
 form(
@@ -504,36 +504,36 @@ form(
 );
 ```
 
-## Common Pitfalls (DO NOT DO THESE)
+## よくある落とし穴（これを行わないこと）
 
-| Error Scenario         | WRONG (Common Mistake)                        | RIGHT (Correct Way)                                         |
+| エラーシナリオ | 間違い（よくあるミス） | 正しい（正しい方法） |
 | :--------------------- | :-------------------------------------------- | :---------------------------------------------------------- |
-| **Accessing Flags**    | `form.field.valid()`                          | `form.field().valid()`                                      |
-| **Accessing value**    | `form.field.value()`                          | `form.field().value()`                                      |
-| **Setting value**      | `form.field.set(x)`                           | Update model signal: `this.model.update(...)`               |
-| **Form root flags**    | `form.invalid()`                              | `form().invalid()`                                          |
-| **Double-calling**     | `form.field()()`                              | `form.field().value()`                                      |
-| **Rules Context**      | `({ touched }) => touched()`                  | `({ state }) => state.touched()`                            |
-| **Calling Paths**      | `applyWhen(p.foo, () => p.foo() === 'x')`     | `applyWhen(p.foo, ({ valueOf }) => valueOf(p.foo) === 'x')` |
-| **applyWhen args**     | `applyWhen(condition, () => {...})`           | `applyWhen(path, condition, schemaFn)` - needs 3 args       |
-| **Array length**       | `form.items().length`                         | `form.items.length` (structural)                            |
-| **Multi-select array** | `<select [formField]="form.tags">` (string[]) | Use checkboxes for array fields                             |
-| **readonly attribute** | `<input readonly [formField]>`                | Use `readonly()` rule in schema                             |
-| **min/max attributes** | `<input min="1" max="10">`                    | Use `min()` and `max()` rules in schema                     |
-| **value binding**      | `<input [value]="val">`                       | Do NOT use `[value]` with `[formField]`                     |
-| **when option**        | `pattern(p.x, /.../, {when: ...})`            | `when` only works with `required()`                         |
-| **Submit callback**    | `submit(form, () => { ... })`                 | `submit(form, async () => { ... })`                         |
-| **Async params**       | `params: s.field`                             | `params: ({ value }) => value()`                            |
-| **Async onError**      | Omitting `onError`                            | `onError` is REQUIRED in `validateAsync`                    |
-| **resource() API**     | `request: signal`                             | `params: signal`                                            |
-| **applyEach args**     | `applyEach(s.items, (item, index) => ...)`    | `applyEach(s.items, (item) => ...)`                         |
-| **Nested @for**        | `$parent.$index`                              | Use `let outerIndex = $index`                               |
-| **FormState import**   | `import { FormState }`                        | `FormState` does not exist, use `FieldState`                |
-| **Null in model**      | `signal({ name: null })`                      | `signal({ name: '' })` or `signal({ age: 0 })`              |
-| **Validate syntax**    | `validate(s.field, { value } => ...)`         | `validate(s.field, ({ value }) => ...)`                     |
-| **Checkbox Array**     | `[formField]="form.tags"` (string[])          | Checkboxes ONLY bind to `boolean`                           |
+| **フラグへのアクセス** | `form.field.valid()` | `form.field().valid()` |
+| **値へのアクセス** | `form.field.value()` | `form.field().value()` |
+| **値のセット** | `form.field.set(x)` | モデルSignalを更新: `this.model.update(...)` |
+| **フォームルートのフラグ** | `form.invalid()` | `form().invalid()` |
+| **二重呼び出し** | `form.field()()` | `form.field().value()` |
+| **ルールのコンテキスト** | `({ touched }) => touched()` | `({ state }) => state.touched()` |
+| **パスの呼び出し** | `applyWhen(p.foo, () => p.foo() === 'x')` | `applyWhen(p.foo, ({ valueOf }) => valueOf(p.foo) === 'x')` |
+| **applyWhenの引数** | `applyWhen(condition, () => {...})` | `applyWhen(path, condition, schemaFn)` — 3つの引数が必要 |
+| **配列のlength** | `form.items().length` | `form.items.length`（構造的） |
+| **複数選択配列** | `<select [formField]="form.tags">` (string[]) | 配列フィールドにはcheckboxを使用 |
+| **readonly属性** | `<input readonly [formField]>` | スキーマで `readonly()` ルールを使用 |
+| **min/max属性** | `<input min="1" max="10">` | スキーマで `min()`、`max()` ルールを使用 |
+| **valueバインディング** | `<input [value]="val">` | `[formField]` と `[value]` を同時に使用しない |
+| **whenオプション** | `pattern(p.x, /.../, {when: ...})` | `when` は `required()` にのみ機能する |
+| **送信コールバック** | `submit(form, () => { ... })` | `submit(form, async () => { ... })` |
+| **非同期params** | `params: s.field` | `params: ({ value }) => value()` |
+| **非同期onError** | `onError` を省略 | `validateAsync` では `onError` は必須 |
+| **resource() API** | `request: signal` | `params: signal` |
+| **applyEachの引数** | `applyEach(s.items, (item, index) => ...)` | `applyEach(s.items, (item) => ...)` |
+| **ネストした @for** | `$parent.$index` | `let outerIndex = $index` を使用 |
+| **FormStateのインポート** | `import { FormState }` | `FormState` は存在しない。`FieldState` を使用 |
+| **モデルのnull** | `signal({ name: null })` | `signal({ name: '' })` または `signal({ age: 0 })` |
+| **validateの構文** | `validate(s.field, { value } => ...)` | `validate(s.field, ({ value }) => ...)` |
+| **チェックボックス配列** | `[formField]="form.tags"` (string[]) | チェックボックスは `boolean` にのみバインドできる |
 
-## Big Form Example
+## 大規模フォームの例
 
 ### `src/app/app.ts`
 
@@ -597,7 +597,7 @@ export class App {
       return undefined;
     });
 
-    // valueOf is used to access values of other fields in rules
+    // valueOf は他のフィールドの値をルール内でアクセスするために使用する
     hidden(s.package.extras, ({valueOf}) => valueOf(s.package.tier) === 'economy');
 
     applyEach(s.companions, (companion) => {
@@ -621,10 +621,10 @@ export class App {
   }
 
   onSubmit() {
-    // CRITICAL: submit callback MUST be async
+    // 重要: 送信コールバックは必ずasyncにすること
     submit(this.bookingForm, async () => {
       console.log('Booking Confirmed:', this.model());
-      // If you need to do async work:
+      // 非同期処理が必要な場合:
       // await this.apiService.save(this.model());
     });
   }
@@ -718,7 +718,7 @@ export class App {
     @if (!bookingForm.package.extras().hidden()) {
     <div>
       <h3>Extras</h3>
-      <!-- Multi-select for arrays must use select multiple -->
+      <!-- 配列の複数選択にはselect multipleを使用すること -->
       <select multiple [formField]="bookingForm.package.extras">
         <option value="wifi">WiFi</option>
         <option value="gym">Gym</option>
@@ -752,43 +752,43 @@ export class App {
 </form>
 ```
 
-## Recovering from Build Errors
+## ビルドエラーからの回復
 
-If you encounter build errors, here are the most common fixes:
+ビルドエラーが発生した場合、以下がよくある修正方法です。
 
 ### `Property 'value' does not exist on type 'FieldTree'`
 
-**Problem**: Accessing `.value()` directly on a field without calling it first.
+**問題**: 最初に呼び出さずにフィールドから直接 `.value()` にアクセスしている。
 
 ```ts
-// WRONG
+// 間違い
 const val = this.form.field.value();
-// RIGHT
+// 正しい
 const val = this.form.field().value();
 ```
 
 ### `Property 'set' does not exist on type 'FieldTree'`
 
-**Problem**: Trying to set values on the form tree. Signal Forms are model-driven.
+**問題**: フォームツリーに値をセットしようとしている。Signal Formsはモデル駆動です。
 
 ```ts
-// WRONG
+// 間違い
 this.form.address.street.set('Main St');
-// RIGHT - update the model signal instead
+// 正しい — 代わりにモデルSignalを更新する
 this.model.update((m) => ({...m, address: {...m.address, street: 'Main St'}}));
 ```
 
 ### `Type 'string[]' is not assignable to type 'string'`
 
-**Problem**: Binding `[formField]` to an array field with a single-value `<select>`.
+**問題**: 配列フィールドを単一値の `<select>` に `[formField]` でバインドしている。
 
 ```html
-<!-- WRONG - assignees is string[], select expects string -->
+<!-- 間違い — assignees は string[] だが、selectはstringを期待する -->
 <select [formField]="form.assignees">
   ...
 </select>
 
-<!-- RIGHT - Use select multiple for array fields -->
+<!-- 正しい — 配列フィールドには select multiple を使用する -->
 <select multiple [formField]="form.assignees">
   <option value="us">US</option>
 </select>

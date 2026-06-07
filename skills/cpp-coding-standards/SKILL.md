@@ -1,60 +1,60 @@
 ---
 name: cpp-coding-standards
-description: C++ coding standards based on the C++ Core Guidelines (isocpp.github.io). Use when writing, reviewing, or refactoring C++ code to enforce modern, safe, and idiomatic practices.
+description: C++ Core Guidelines（isocpp.github.io）に基づくC++コーディング標準。モダンで安全かつイディオマティックなプラクティスを適用するために、C++コードの作成、レビュー、またはリファクタリング時に使用する。
 origin: ECC
 ---
 
-# C++ Coding Standards (C++ Core Guidelines)
+# C++ コーディング標準（C++ Core Guidelines）
 
-Comprehensive coding standards for modern C++ (C++17/20/23) derived from the [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines). Enforces type safety, resource safety, immutability, and clarity.
+[C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines)から導出されたモダンC++（C++17/20/23）向けの包括的なコーディング標準。型安全性、リソース安全性、不変性、明確さを強制します。
 
-## When to Use
+## 使用タイミング
 
-- Writing new C++ code (classes, functions, templates)
-- Reviewing or refactoring existing C++ code
-- Making architectural decisions in C++ projects
-- Enforcing consistent style across a C++ codebase
-- Choosing between language features (e.g., `enum` vs `enum class`, raw pointer vs smart pointer)
+- 新しいC++コードの作成（クラス、関数、テンプレート）
+- 既存のC++コードのレビューまたはリファクタリング
+- C++プロジェクトでのアーキテクチャ上の決定
+- C++コードベース全体での一貫したスタイルの強制
+- 言語機能の選択（例：`enum` vs `enum class`、生ポインタ vs スマートポインタ）
 
-### When NOT to Use
+### 使用しない場合
 
-- Non-C++ projects
-- Legacy C codebases that cannot adopt modern C++ features
-- Embedded/bare-metal contexts where specific guidelines conflict with hardware constraints (adapt selectively)
+- C++以外のプロジェクト
+- モダンC++機能を採用できないレガシーCコードベース
+- 特定のガイドラインがハードウェア制約と衝突する組み込み/ベアメタルコンテキスト（選択的に適応）
 
-## Cross-Cutting Principles
+## 横断的原則
 
-These themes recur across the entire guidelines and form the foundation:
+これらのテーマはガイドライン全体を通じて繰り返し現れ、基盤を形成します。
 
-1. **RAII everywhere** (P.8, R.1, E.6, CP.20): Bind resource lifetime to object lifetime
-2. **Immutability by default** (P.10, Con.1-5, ES.25): Start with `const`/`constexpr`; mutability is the exception
-3. **Type safety** (P.4, I.4, ES.46-49, Enum.3): Use the type system to prevent errors at compile time
-4. **Express intent** (P.3, F.1, NL.1-2, T.10): Names, types, and concepts should communicate purpose
-5. **Minimize complexity** (F.2-3, ES.5, Per.4-5): Simple code is correct code
-6. **Value semantics over pointer semantics** (C.10, R.3-5, F.20, CP.31): Prefer returning by value and scoped objects
+1. **どこでもRAII**（P.8、R.1、E.6、CP.20）：リソースのライフタイムをオブジェクトのライフタイムに結びつける
+2. **デフォルトで不変**（P.10、Con.1-5、ES.25）：`const`/`constexpr` から始める。可変性は例外
+3. **型安全性**（P.4、I.4、ES.46-49、Enum.3）：型システムを使用してコンパイル時にエラーを防ぐ
+4. **意図を表現する**（P.3、F.1、NL.1-2、T.10）：名前、型、概念が目的を伝えるべき
+5. **複雑さを最小化する**（F.2-3、ES.5、Per.4-5）：シンプルなコードが正しいコード
+6. **ポインタセマンティクスより値セマンティクス**（C.10、R.3-5、F.20、CP.31）：値を返すこととスコープ付きオブジェクトを優先する
 
-## Philosophy & Interfaces (P.*, I.*)
+## 哲学とインターフェース（P.*、I.*）
 
-### Key Rules
+### 主要ルール
 
-| Rule | Summary |
+| ルール | 概要 |
 |------|---------|
-| **P.1** | Express ideas directly in code |
-| **P.3** | Express intent |
-| **P.4** | Ideally, a program should be statically type safe |
-| **P.5** | Prefer compile-time checking to run-time checking |
-| **P.8** | Don't leak any resources |
-| **P.10** | Prefer immutable data to mutable data |
-| **I.1** | Make interfaces explicit |
-| **I.2** | Avoid non-const global variables |
-| **I.4** | Make interfaces precisely and strongly typed |
-| **I.11** | Never transfer ownership by a raw pointer or reference |
-| **I.23** | Keep the number of function arguments low |
+| **P.1** | コードでアイデアを直接表現する |
+| **P.3** | 意図を表現する |
+| **P.4** | 理想的には、プログラムは静的に型安全であるべき |
+| **P.5** | ランタイムチェックよりコンパイル時チェックを優先する |
+| **P.8** | リソースをリークしない |
+| **P.10** | ミュータブルなデータより不変データを優先する |
+| **I.1** | インターフェースを明示的にする |
+| **I.2** | non-constのグローバル変数を避ける |
+| **I.4** | インターフェースを正確かつ強く型付けする |
+| **I.11** | 生ポインタや参照で所有権を転送しない |
+| **I.23** | 関数引数の数を少なくする |
 
 ### DO
 
 ```cpp
-// P.10 + I.4: Immutable, strongly typed interface
+// P.10 + I.4: 不変で強く型付けされたインターフェース
 struct Temperature {
     double kelvin;
 };
@@ -65,55 +65,55 @@ Temperature boil(const Temperature& water);
 ### DON'T
 
 ```cpp
-// Weak interface: unclear ownership, unclear units
+// 弱いインターフェース: 所有権が不明確、単位が不明確
 double boil(double* temp);
 
-// Non-const global variable
-int g_counter = 0;  // I.2 violation
+// non-constのグローバル変数
+int g_counter = 0;  // I.2 違反
 ```
 
-## Functions (F.*)
+## 関数（F.*）
 
-### Key Rules
+### 主要ルール
 
-| Rule | Summary |
+| ルール | 概要 |
 |------|---------|
-| **F.1** | Package meaningful operations as carefully named functions |
-| **F.2** | A function should perform a single logical operation |
-| **F.3** | Keep functions short and simple |
-| **F.4** | If a function might be evaluated at compile time, declare it `constexpr` |
-| **F.6** | If your function must not throw, declare it `noexcept` |
-| **F.8** | Prefer pure functions |
-| **F.16** | For "in" parameters, pass cheaply-copied types by value and others by `const&` |
-| **F.20** | For "out" values, prefer return values to output parameters |
-| **F.21** | To return multiple "out" values, prefer returning a struct |
-| **F.43** | Never return a pointer or reference to a local object |
+| **F.1** | 意味のある操作を慎重に命名した関数としてパッケージ化する |
+| **F.2** | 関数は単一の論理操作を実行すべき |
+| **F.3** | 関数を短くシンプルに保つ |
+| **F.4** | 関数がコンパイル時に評価される可能性がある場合、`constexpr` を宣言する |
+| **F.6** | 関数がスローしてはならない場合、`noexcept` を宣言する |
+| **F.8** | 純粋関数を優先する |
+| **F.16** | 「in」パラメーターには、安価にコピーできる型は値で、それ以外は `const&` で渡す |
+| **F.20** | 「out」値には、出力パラメーターより戻り値を優先する |
+| **F.21** | 複数の「out」値を返すには、structを返すことを優先する |
+| **F.43** | ローカルオブジェクトへのポインタや参照を返さない |
 
-### Parameter Passing
+### パラメーターの受け渡し
 
 ```cpp
-// F.16: Cheap types by value, others by const&
-void print(int x);                           // cheap: by value
-void analyze(const std::string& data);       // expensive: by const&
-void transform(std::string s);               // sink: by value (will move)
+// F.16: 安価な型は値で、それ以外はconst&で
+void print(int x);                           // 安価: 値で
+void analyze(const std::string& data);       // 高コスト: const&で
+void transform(std::string s);               // シンク: 値で（移動する）
 
-// F.20 + F.21: Return values, not output parameters
+// F.20 + F.21: 出力パラメーターではなく戻り値
 struct ParseResult {
     std::string token;
     int position;
 };
 
-ParseResult parse(std::string_view input);   // GOOD: return struct
+ParseResult parse(std::string_view input);   // GOOD: structを返す
 
-// BAD: output parameters
+// BAD: 出力パラメーター
 void parse(std::string_view input,
-           std::string& token, int& pos);    // avoid this
+           std::string& token, int& pos);    // これを避ける
 ```
 
-### Pure Functions and constexpr
+### 純粋関数とconstexpr
 
 ```cpp
-// F.4 + F.8: Pure, constexpr where possible
+// F.4 + F.8: 可能な場合は純粋でconstexpr
 constexpr int factorial(int n) noexcept {
     return (n <= 1) ? 1 : n * factorial(n - 1);
 }
@@ -121,45 +121,45 @@ constexpr int factorial(int n) noexcept {
 static_assert(factorial(5) == 120);
 ```
 
-### Anti-Patterns
+### アンチパターン
 
-- Returning `T&&` from functions (F.45)
-- Using `va_arg` / C-style variadics (F.55)
-- Capturing by reference in lambdas passed to other threads (F.53)
-- Returning `const T` which inhibits move semantics (F.49)
+- 関数から `T&&` を返す（F.45）
+- `va_arg` / Cスタイルの可変長引数の使用（F.55）
+- 他のスレッドに渡されるラムダで参照キャプチャ（F.53）
+- ムーブセマンティクスを抑制する `const T` の返却（F.49）
 
-## Classes & Class Hierarchies (C.*)
+## クラスとクラス階層（C.*）
 
-### Key Rules
+### 主要ルール
 
-| Rule | Summary |
+| ルール | 概要 |
 |------|---------|
-| **C.2** | Use `class` if invariant exists; `struct` if data members vary independently |
-| **C.9** | Minimize exposure of members |
-| **C.20** | If you can avoid defining default operations, do (Rule of Zero) |
-| **C.21** | If you define or `=delete` any copy/move/destructor, handle them all (Rule of Five) |
-| **C.35** | Base class destructor: public virtual or protected non-virtual |
-| **C.41** | A constructor should create a fully initialized object |
-| **C.46** | Declare single-argument constructors `explicit` |
-| **C.67** | A polymorphic class should suppress public copy/move |
-| **C.128** | Virtual functions: specify exactly one of `virtual`, `override`, or `final` |
+| **C.2** | 不変条件がある場合は `class` を使用。データメンバーが独立して変化する場合は `struct` |
+| **C.9** | メンバーの公開を最小化する |
+| **C.20** | デフォルト操作の定義を避けられる場合は避ける（ゼロの法則） |
+| **C.21** | コピー/ムーブ/デストラクタのいずれかを定義または `=delete` する場合、すべてを処理する（5の法則） |
+| **C.35** | 基底クラスのデストラクタ: パブリック仮想またはプロテクト非仮想 |
+| **C.41** | コンストラクタは完全に初期化されたオブジェクトを作成すべき |
+| **C.46** | 単一引数コンストラクタに `explicit` を宣言する |
+| **C.67** | ポリモーフィッククラスはパブリックのコピー/ムーブを抑制すべき |
+| **C.128** | 仮想関数: `virtual`、`override`、`final` のいずれか1つだけを指定する |
 
-### Rule of Zero
+### ゼロの法則
 
 ```cpp
-// C.20: Let the compiler generate special members
+// C.20: コンパイラに特殊メンバーを生成させる
 struct Employee {
     std::string name;
     std::string department;
     int id;
-    // No destructor, copy/move constructors, or assignment operators needed
+    // デストラクタ、コピー/ムーブコンストラクタ、代入演算子は不要
 };
 ```
 
-### Rule of Five
+### 5の法則
 
 ```cpp
-// C.21: If you must manage a resource, define all five
+// C.21: リソースを管理する必要がある場合、5つすべてを定義する
 class Buffer {
 public:
     explicit Buffer(std::size_t size)
@@ -191,14 +191,14 @@ private:
 };
 ```
 
-### Class Hierarchy
+### クラス階層
 
 ```cpp
-// C.35 + C.128: Virtual destructor, use override
+// C.35 + C.128: 仮想デストラクタ、overrideを使用
 class Shape {
 public:
     virtual ~Shape() = default;
-    virtual double area() const = 0;  // C.121: pure interface
+    virtual double area() const = 0;  // C.121: 純粋インターフェース
 };
 
 class Circle : public Shape {
@@ -211,47 +211,47 @@ private:
 };
 ```
 
-### Anti-Patterns
+### アンチパターン
 
-- Calling virtual functions in constructors/destructors (C.82)
-- Using `memset`/`memcpy` on non-trivial types (C.90)
-- Providing different default arguments for virtual function and overrider (C.140)
-- Making data members `const` or references, which suppresses move/copy (C.12)
+- コンストラクタ/デストラクタで仮想関数を呼び出す（C.82）
+- 非trivialな型に `memset`/`memcpy` を使用する（C.90）
+- 仮想関数とオーバーライドに異なるデフォルト引数を提供する（C.140）
+- ムーブ/コピーを抑制する `const` や参照のデータメンバーを作成する（C.12）
 
-## Resource Management (R.*)
+## リソース管理（R.*）
 
-### Key Rules
+### 主要ルール
 
-| Rule | Summary |
+| ルール | 概要 |
 |------|---------|
-| **R.1** | Manage resources automatically using RAII |
-| **R.3** | A raw pointer (`T*`) is non-owning |
-| **R.5** | Prefer scoped objects; don't heap-allocate unnecessarily |
-| **R.10** | Avoid `malloc()`/`free()` |
-| **R.11** | Avoid calling `new` and `delete` explicitly |
-| **R.20** | Use `unique_ptr` or `shared_ptr` to represent ownership |
-| **R.21** | Prefer `unique_ptr` over `shared_ptr` unless sharing ownership |
-| **R.22** | Use `make_shared()` to make `shared_ptr`s |
+| **R.1** | RAIIを使用してリソースを自動的に管理する |
+| **R.3** | 生ポインタ（`T*`）は非所有 |
+| **R.5** | スコープ付きオブジェクトを優先する。不必要にヒープ割り当てしない |
+| **R.10** | `malloc()`/`free()` を避ける |
+| **R.11** | `new` と `delete` を明示的に呼び出すことを避ける |
+| **R.20** | 所有権を表すために `unique_ptr` または `shared_ptr` を使用する |
+| **R.21** | 所有権を共有しない限り `shared_ptr` より `unique_ptr` を優先する |
+| **R.22** | `shared_ptr` を作成するために `make_shared()` を使用する |
 
-### Smart Pointer Usage
+### スマートポインタの使用
 
 ```cpp
-// R.11 + R.20 + R.21: RAII with smart pointers
-auto widget = std::make_unique<Widget>("config");  // unique ownership
-auto cache  = std::make_shared<Cache>(1024);        // shared ownership
+// R.11 + R.20 + R.21: スマートポインタによるRAII
+auto widget = std::make_unique<Widget>("config");  // 唯一の所有権
+auto cache  = std::make_shared<Cache>(1024);        // 共有所有権
 
-// R.3: Raw pointer = non-owning observer
-void render(const Widget* w) {  // does NOT own w
+// R.3: 生ポインタ = 非所有のオブザーバー
+void render(const Widget* w) {  // wを所有しない
     if (w) w->draw();
 }
 
 render(widget.get());
 ```
 
-### RAII Pattern
+### RAIIパターン
 
 ```cpp
-// R.1: Resource acquisition is initialization
+// R.1: リソース取得は初期化
 class FileHandle {
 public:
     explicit FileHandle(const std::string& path)
@@ -280,39 +280,39 @@ private:
 };
 ```
 
-### Anti-Patterns
+### アンチパターン
 
-- Naked `new`/`delete` (R.11)
-- `malloc()`/`free()` in C++ code (R.10)
-- Multiple resource allocations in a single expression (R.13 -- exception safety hazard)
-- `shared_ptr` where `unique_ptr` suffices (R.21)
+- 裸の `new`/`delete`（R.11）
+- C++コードでの `malloc()`/`free()`（R.10）
+- 単一の式での複数のリソース割り当て（R.13 -- 例外安全性の危険）
+- `unique_ptr` で十分な場所での `shared_ptr`（R.21）
 
-## Expressions & Statements (ES.*)
+## 式と文（ES.*）
 
-### Key Rules
+### 主要ルール
 
-| Rule | Summary |
+| ルール | 概要 |
 |------|---------|
-| **ES.5** | Keep scopes small |
-| **ES.20** | Always initialize an object |
-| **ES.23** | Prefer `{}` initializer syntax |
-| **ES.25** | Declare objects `const` or `constexpr` unless modification is intended |
-| **ES.28** | Use lambdas for complex initialization of `const` variables |
-| **ES.45** | Avoid magic constants; use symbolic constants |
-| **ES.46** | Avoid narrowing/lossy arithmetic conversions |
-| **ES.47** | Use `nullptr` rather than `0` or `NULL` |
-| **ES.48** | Avoid casts |
-| **ES.50** | Don't cast away `const` |
+| **ES.5** | スコープを小さく保つ |
+| **ES.20** | 常にオブジェクトを初期化する |
+| **ES.23** | `{}` 初期化構文を優先する |
+| **ES.25** | 変更が意図されない限り、オブジェクトを `const` または `constexpr` として宣言する |
+| **ES.28** | `const` 変数の複雑な初期化にラムダを使用する |
+| **ES.45** | マジック定数を避ける。シンボリック定数を使用する |
+| **ES.46** | ナローイング/損失のある算術変換を避ける |
+| **ES.47** | `0` や `NULL` の代わりに `nullptr` を使用する |
+| **ES.48** | キャストを避ける |
+| **ES.50** | `const` を外さない |
 
-### Initialization
+### 初期化
 
 ```cpp
-// ES.20 + ES.23 + ES.25: Always initialize, prefer {}, default to const
+// ES.20 + ES.23 + ES.25: 常に初期化し、{}を優先し、デフォルトでconst
 const int max_retries{3};
 const std::string name{"widget"};
 const std::vector<int> primes{2, 3, 5, 7, 11};
 
-// ES.28: Lambda for complex const initialization
+// ES.28: 複雑なconst初期化にラムダ
 const auto config = [&] {
     Config c;
     c.timeout = std::chrono::seconds{30};
@@ -322,35 +322,35 @@ const auto config = [&] {
 }();
 ```
 
-### Anti-Patterns
+### アンチパターン
 
-- Uninitialized variables (ES.20)
-- Using `0` or `NULL` as pointer (ES.47 -- use `nullptr`)
-- C-style casts (ES.48 -- use `static_cast`, `const_cast`, etc.)
-- Casting away `const` (ES.50)
-- Magic numbers without named constants (ES.45)
-- Mixing signed and unsigned arithmetic (ES.100)
-- Reusing names in nested scopes (ES.12)
+- 初期化されていない変数（ES.20）
+- ポインタとして `0` や `NULL` を使用する（ES.47 -- `nullptr` を使用する）
+- Cスタイルのキャスト（ES.48 -- `static_cast`、`const_cast` などを使用する）
+- `const` を外すキャスト（ES.50）
+- 名前付き定数のないマジックナンバー（ES.45）
+- 符号付きと符号なし算術の混合（ES.100）
+- ネストされたスコープで名前を再利用する（ES.12）
 
-## Error Handling (E.*)
+## エラー処理（E.*）
 
-### Key Rules
+### 主要ルール
 
-| Rule | Summary |
+| ルール | 概要 |
 |------|---------|
-| **E.1** | Develop an error-handling strategy early in a design |
-| **E.2** | Throw an exception to signal that a function can't perform its assigned task |
-| **E.6** | Use RAII to prevent leaks |
-| **E.12** | Use `noexcept` when throwing is impossible or unacceptable |
-| **E.14** | Use purpose-designed user-defined types as exceptions |
-| **E.15** | Throw by value, catch by reference |
-| **E.16** | Destructors, deallocation, and swap must never fail |
-| **E.17** | Don't try to catch every exception in every function |
+| **E.1** | 設計の早い段階でエラー処理戦略を開発する |
+| **E.2** | 関数が割り当てられたタスクを実行できないことを示すために例外をスローする |
+| **E.6** | リークを防ぐためにRAIIを使用する |
+| **E.12** | スローが不可能または許容できない場合に `noexcept` を使用する |
+| **E.14** | 例外として目的設計されたユーザー定義型を使用する |
+| **E.15** | 値でスロー、参照でキャッチ |
+| **E.16** | デストラクタ、解放、swapは絶対に失敗してはならない |
+| **E.17** | すべての関数ですべての例外をキャッチしようとしない |
 
-### Exception Hierarchy
+### 例外階層
 
 ```cpp
-// E.14 + E.15: Custom exception types, throw by value, catch by reference
+// E.14 + E.15: カスタム例外型、値でスロー、参照でキャッチ
 class AppError : public std::runtime_error {
 public:
     using std::runtime_error::runtime_error;
@@ -364,7 +364,7 @@ public:
 };
 
 void fetch_data(const std::string& url) {
-    // E.2: Throw to signal failure
+    // E.2: 失敗を示すためにスロー
     throw NetworkError("connection refused", 503);
 }
 
@@ -376,90 +376,90 @@ void run() {
     } catch (const AppError& e) {
         log_error(e.what());
     }
-    // E.17: Don't catch everything here -- let unexpected errors propagate
+    // E.17: ここですべてをキャッチしない -- 予期しないエラーは伝播させる
 }
 ```
 
-### Anti-Patterns
+### アンチパターン
 
-- Throwing built-in types like `int` or string literals (E.14)
-- Catching by value (slicing risk) (E.15)
-- Empty catch blocks that silently swallow errors
-- Using exceptions for flow control (E.3)
-- Error handling based on global state like `errno` (E.28)
+- `int` や文字列リテラルのようなビルトイン型をスローする（E.14）
+- 値でキャッチする（スライシングリスク）（E.15）
+- エラーをサイレントに飲み込む空のcatchブロック
+- フロー制御に例外を使用する（E.3）
+- `errno` のようなグローバル状態に基づくエラー処理（E.28）
 
-## Constants & Immutability (Con.*)
+## 定数と不変性（Con.*）
 
-### All Rules
+### 全ルール
 
-| Rule | Summary |
+| ルール | 概要 |
 |------|---------|
-| **Con.1** | By default, make objects immutable |
-| **Con.2** | By default, make member functions `const` |
-| **Con.3** | By default, pass pointers and references to `const` |
-| **Con.4** | Use `const` for values that don't change after construction |
-| **Con.5** | Use `constexpr` for values computable at compile time |
+| **Con.1** | デフォルトでオブジェクトを不変にする |
+| **Con.2** | デフォルトでメンバー関数を `const` にする |
+| **Con.3** | デフォルトで `const` へのポインタと参照を渡す |
+| **Con.4** | 構築後に変更されない値に `const` を使用する |
+| **Con.5** | コンパイル時に計算可能な値に `constexpr` を使用する |
 
 ```cpp
-// Con.1 through Con.5: Immutability by default
+// Con.1からCon.5: デフォルトで不変
 class Sensor {
 public:
     explicit Sensor(std::string id) : id_(std::move(id)) {}
 
-    // Con.2: const member functions by default
+    // Con.2: デフォルトでconstメンバー関数
     const std::string& id() const { return id_; }
     double last_reading() const { return reading_; }
 
-    // Only non-const when mutation is required
+    // 変更が必要な場合のみnon-const
     void record(double value) { reading_ = value; }
 
 private:
-    const std::string id_;  // Con.4: never changes after construction
+    const std::string id_;  // Con.4: 構築後に変更されない
     double reading_{0.0};
 };
 
-// Con.3: Pass by const reference
+// Con.3: const参照で渡す
 void display(const Sensor& s) {
     std::cout << s.id() << ": " << s.last_reading() << '\n';
 }
 
-// Con.5: Compile-time constants
+// Con.5: コンパイル時定数
 constexpr double PI = 3.14159265358979;
 constexpr int MAX_SENSORS = 256;
 ```
 
-## Concurrency & Parallelism (CP.*)
+## 並行性と並列性（CP.*）
 
-### Key Rules
+### 主要ルール
 
-| Rule | Summary |
+| ルール | 概要 |
 |------|---------|
-| **CP.2** | Avoid data races |
-| **CP.3** | Minimize explicit sharing of writable data |
-| **CP.4** | Think in terms of tasks, rather than threads |
-| **CP.8** | Don't use `volatile` for synchronization |
-| **CP.20** | Use RAII, never plain `lock()`/`unlock()` |
-| **CP.21** | Use `std::scoped_lock` to acquire multiple mutexes |
-| **CP.22** | Never call unknown code while holding a lock |
-| **CP.42** | Don't wait without a condition |
-| **CP.44** | Remember to name your `lock_guard`s and `unique_lock`s |
-| **CP.100** | Don't use lock-free programming unless you absolutely have to |
+| **CP.2** | データ競合を避ける |
+| **CP.3** | 書き込み可能なデータの明示的な共有を最小化する |
+| **CP.4** | スレッドではなくタスクの観点で考える |
+| **CP.8** | 同期に `volatile` を使用しない |
+| **CP.20** | RAIIを使用する。プレーンな `lock()`/`unlock()` は使用しない |
+| **CP.21** | 複数のmutexを取得するために `std::scoped_lock` を使用する |
+| **CP.22** | ロックを保持している間に未知のコードを呼び出さない |
+| **CP.42** | 条件なしに待機しない |
+| **CP.44** | `lock_guard` と `unique_lock` に名前を付けることを忘れない |
+| **CP.100** | 絶対に必要でない限りロックフリープログラミングを使用しない |
 
-### Safe Locking
+### 安全なロック
 
 ```cpp
-// CP.20 + CP.44: RAII locks, always named
+// CP.20 + CP.44: RAIIロック、常に名前付き
 class ThreadSafeQueue {
 public:
     void push(int value) {
-        std::lock_guard<std::mutex> lock(mutex_);  // CP.44: named!
+        std::lock_guard<std::mutex> lock(mutex_);  // CP.44: 名前付き!
         queue_.push(value);
         cv_.notify_one();
     }
 
     int pop() {
         std::unique_lock<std::mutex> lock(mutex_);
-        // CP.42: Always wait with a condition
+        // CP.42: 常に条件付きで待機
         cv_.wait(lock, [this] { return !queue_.empty(); });
         const int value = queue_.front();
         queue_.pop();
@@ -467,16 +467,16 @@ public:
     }
 
 private:
-    std::mutex mutex_;             // CP.50: mutex with its data
+    std::mutex mutex_;             // CP.50: mutexをデータと共に
     std::condition_variable cv_;
     std::queue<int> queue_;
 };
 ```
 
-### Multiple Mutexes
+### 複数のMutex
 
 ```cpp
-// CP.21: std::scoped_lock for multiple mutexes (deadlock-free)
+// CP.21: 複数のmutex向けのstd::scoped_lock（デッドロックフリー）
 void transfer(Account& from, Account& to, double amount) {
     std::scoped_lock lock(from.mutex_, to.mutex_);
     from.balance_ -= amount;
@@ -484,35 +484,35 @@ void transfer(Account& from, Account& to, double amount) {
 }
 ```
 
-### Anti-Patterns
+### アンチパターン
 
-- `volatile` for synchronization (CP.8 -- it's for hardware I/O only)
-- Detaching threads (CP.26 -- lifetime management becomes nearly impossible)
-- Unnamed lock guards: `std::lock_guard<std::mutex>(m);` destroys immediately (CP.44)
-- Holding locks while calling callbacks (CP.22 -- deadlock risk)
-- Lock-free programming without deep expertise (CP.100)
+- 同期に `volatile`（CP.8 -- ハードウェアI/O専用）
+- スレッドのデタッチ（CP.26 -- ライフタイム管理がほぼ不可能になる）
+- 無名のロックガード: `std::lock_guard<std::mutex>(m);` は即座に破壊される（CP.44）
+- コールバックを呼び出す際にロックを保持する（CP.22 -- デッドロックリスク）
+- 深い専門知識なしのロックフリープログラミング（CP.100）
 
-## Templates & Generic Programming (T.*)
+## テンプレートとジェネリックプログラミング（T.*）
 
-### Key Rules
+### 主要ルール
 
-| Rule | Summary |
+| ルール | 概要 |
 |------|---------|
-| **T.1** | Use templates to raise the level of abstraction |
-| **T.2** | Use templates to express algorithms for many argument types |
-| **T.10** | Specify concepts for all template arguments |
-| **T.11** | Use standard concepts whenever possible |
-| **T.13** | Prefer shorthand notation for simple concepts |
-| **T.43** | Prefer `using` over `typedef` |
-| **T.120** | Use template metaprogramming only when you really need to |
-| **T.144** | Don't specialize function templates (overload instead) |
+| **T.1** | テンプレートを使用して抽象化のレベルを上げる |
+| **T.2** | テンプレートを使用して多くの引数型のアルゴリズムを表現する |
+| **T.10** | すべてのテンプレート引数にコンセプトを指定する |
+| **T.11** | 可能な限り標準コンセプトを使用する |
+| **T.13** | シンプルなコンセプトには省略記法を優先する |
+| **T.43** | `typedef` より `using` を優先する |
+| **T.120** | 本当に必要な場合のみテンプレートメタプログラミングを使用する |
+| **T.144** | 関数テンプレートを特殊化しない（代わりにオーバーロード） |
 
-### Concepts (C++20)
+### コンセプト（C++20）
 
 ```cpp
 #include <concepts>
 
-// T.10 + T.11: Constrain templates with standard concepts
+// T.10 + T.11: 標準コンセプトでテンプレートを制約
 template<std::integral T>
 T gcd(T a, T b) {
     while (b != 0) {
@@ -521,12 +521,12 @@ T gcd(T a, T b) {
     return a;
 }
 
-// T.13: Shorthand concept syntax
+// T.13: 省略記法のコンセプト構文
 void sort(std::ranges::random_access_range auto& range) {
     std::ranges::sort(range);
 }
 
-// Custom concept for domain-specific constraints
+// ドメイン固有の制約のカスタムコンセプト
 template<typename T>
 concept Serializable = requires(const T& t) {
     { t.serialize() } -> std::convertible_to<std::string>;
@@ -536,85 +536,85 @@ template<Serializable T>
 void save(const T& obj, const std::string& path);
 ```
 
-### Anti-Patterns
+### アンチパターン
 
-- Unconstrained templates in visible namespaces (T.47)
-- Specializing function templates instead of overloading (T.144)
-- Template metaprogramming where `constexpr` suffices (T.120)
-- `typedef` instead of `using` (T.43)
+- 可視ネームスペースでの非制約テンプレート（T.47）
+- オーバーロードの代わりに関数テンプレートを特殊化する（T.144）
+- `constexpr` で十分な場所でのテンプレートメタプログラミング（T.120）
+- `using` の代わりに `typedef`（T.43）
 
-## Standard Library (SL.*)
+## 標準ライブラリ（SL.*）
 
-### Key Rules
+### 主要ルール
 
-| Rule | Summary |
+| ルール | 概要 |
 |------|---------|
-| **SL.1** | Use libraries wherever possible |
-| **SL.2** | Prefer the standard library to other libraries |
-| **SL.con.1** | Prefer `std::array` or `std::vector` over C arrays |
-| **SL.con.2** | Prefer `std::vector` by default |
-| **SL.str.1** | Use `std::string` to own character sequences |
-| **SL.str.2** | Use `std::string_view` to refer to character sequences |
-| **SL.io.50** | Avoid `endl` (use `'\n'` -- `endl` forces a flush) |
+| **SL.1** | 可能な限りライブラリを使用する |
+| **SL.2** | 他のライブラリより標準ライブラリを優先する |
+| **SL.con.1** | C配列より `std::array` または `std::vector` を優先する |
+| **SL.con.2** | デフォルトで `std::vector` を優先する |
+| **SL.str.1** | 文字シーケンスを所有するために `std::string` を使用する |
+| **SL.str.2** | 文字シーケンスを参照するために `std::string_view` を使用する |
+| **SL.io.50** | `endl` を避ける（`'\n'` を使用する -- `endl` はフラッシュを強制する） |
 
 ```cpp
-// SL.con.1 + SL.con.2: Prefer vector/array over C arrays
+// SL.con.1 + SL.con.2: C配列よりvector/arrayを優先
 const std::array<int, 4> fixed_data{1, 2, 3, 4};
 std::vector<std::string> dynamic_data;
 
-// SL.str.1 + SL.str.2: string owns, string_view observes
+// SL.str.1 + SL.str.2: stringが所有し、string_viewが参照する
 std::string build_greeting(std::string_view name) {
     return "Hello, " + std::string(name) + "!";
 }
 
-// SL.io.50: Use '\n' not endl
+// SL.io.50: endlではなく'\n'を使用
 std::cout << "result: " << value << '\n';
 ```
 
-## Enumerations (Enum.*)
+## 列挙型（Enum.*）
 
-### Key Rules
+### 主要ルール
 
-| Rule | Summary |
+| ルール | 概要 |
 |------|---------|
-| **Enum.1** | Prefer enumerations over macros |
-| **Enum.3** | Prefer `enum class` over plain `enum` |
-| **Enum.5** | Don't use ALL_CAPS for enumerators |
-| **Enum.6** | Avoid unnamed enumerations |
+| **Enum.1** | マクロより列挙型を優先する |
+| **Enum.3** | プレーンな `enum` より `enum class` を優先する |
+| **Enum.5** | 列挙子にALL_CAPSを使用しない |
+| **Enum.6** | 無名の列挙型を避ける |
 
 ```cpp
-// Enum.3 + Enum.5: Scoped enum, no ALL_CAPS
+// Enum.3 + Enum.5: スコープ付きenum、ALL_CAPSなし
 enum class Color { red, green, blue };
 enum class LogLevel { debug, info, warning, error };
 
-// BAD: plain enum leaks names, ALL_CAPS clashes with macros
-enum { RED, GREEN, BLUE };           // Enum.3 + Enum.5 + Enum.6 violation
-#define MAX_SIZE 100                  // Enum.1 violation -- use constexpr
+// BAD: プレーンなenumは名前をリーク、ALL_CAPSはマクロと衝突
+enum { RED, GREEN, BLUE };           // Enum.3 + Enum.5 + Enum.6 違反
+#define MAX_SIZE 100                  // Enum.1 違反 -- constexprを使用する
 ```
 
-## Source Files & Naming (SF.*, NL.*)
+## ソースファイルと命名（SF.*、NL.*）
 
-### Key Rules
+### 主要ルール
 
-| Rule | Summary |
+| ルール | 概要 |
 |------|---------|
-| **SF.1** | Use `.cpp` for code files and `.h` for interface files |
-| **SF.7** | Don't write `using namespace` at global scope in a header |
-| **SF.8** | Use `#include` guards for all `.h` files |
-| **SF.11** | Header files should be self-contained |
-| **NL.5** | Avoid encoding type information in names (no Hungarian notation) |
-| **NL.8** | Use a consistent naming style |
-| **NL.9** | Use ALL_CAPS for macro names only |
-| **NL.10** | Prefer `underscore_style` names |
+| **SF.1** | コードファイルに `.cpp`、インターフェースファイルに `.h` を使用する |
+| **SF.7** | グローバルスコープのヘッダーに `using namespace` を書かない |
+| **SF.8** | すべての `.h` ファイルに `#include` ガードを使用する |
+| **SF.11** | ヘッダーファイルは自己完結すべき |
+| **NL.5** | 名前に型情報をエンコードしない（ハンガリアン記法なし） |
+| **NL.8** | 一貫した命名スタイルを使用する |
+| **NL.9** | マクロ名にのみ ALL_CAPS を使用する |
+| **NL.10** | `underscore_style` の名前を優先する |
 
-### Header Guard
+### ヘッダーガード
 
 ```cpp
-// SF.8: Include guard (or #pragma once)
+// SF.8: インクルードガード（または#pragma once）
 #ifndef PROJECT_MODULE_WIDGET_H
 #define PROJECT_MODULE_WIDGET_H
 
-// SF.11: Self-contained -- include everything this header needs
+// SF.11: 自己完結 -- このヘッダーが必要とするものをすべてインクルードする
 #include <string>
 #include <vector>
 
@@ -634,52 +634,52 @@ private:
 #endif  // PROJECT_MODULE_WIDGET_H
 ```
 
-### Naming Conventions
+### 命名規則
 
 ```cpp
-// NL.8 + NL.10: Consistent underscore_style
+// NL.8 + NL.10: 一貫したunderscore_style
 namespace my_project {
 
-constexpr int max_buffer_size = 4096;  // NL.9: not ALL_CAPS (it's not a macro)
+constexpr int max_buffer_size = 4096;  // NL.9: ALL_CAPSではない（マクロではない）
 
-class tcp_connection {                 // underscore_style class
+class tcp_connection {                 // underscore_styleクラス
 public:
     void send_message(std::string_view msg);
     bool is_connected() const;
 
 private:
-    std::string host_;                 // trailing underscore for members
+    std::string host_;                 // メンバーには末尾アンダースコア
     int port_;
 };
 
 }  // namespace my_project
 ```
 
-### Anti-Patterns
+### アンチパターン
 
-- `using namespace std;` in a header at global scope (SF.7)
-- Headers that depend on inclusion order (SF.10, SF.11)
-- Hungarian notation like `strName`, `iCount` (NL.5)
-- ALL_CAPS for anything other than macros (NL.9)
+- グローバルスコープのヘッダーで `using namespace std;`（SF.7）
+- インクルード順序に依存するヘッダー（SF.10、SF.11）
+- `strName`、`iCount` のようなハンガリアン記法（NL.5）
+- マクロ以外のものにALL_CAPS（NL.9）
 
-## Performance (Per.*)
+## パフォーマンス（Per.*）
 
-### Key Rules
+### 主要ルール
 
-| Rule | Summary |
+| ルール | 概要 |
 |------|---------|
-| **Per.1** | Don't optimize without reason |
-| **Per.2** | Don't optimize prematurely |
-| **Per.6** | Don't make claims about performance without measurements |
-| **Per.7** | Design to enable optimization |
-| **Per.10** | Rely on the static type system |
-| **Per.11** | Move computation from run time to compile time |
-| **Per.19** | Access memory predictably |
+| **Per.1** | 理由なく最適化しない |
+| **Per.2** | 時期尚早に最適化しない |
+| **Per.6** | 計測なしにパフォーマンスについて主張しない |
+| **Per.7** | 最適化を可能にする設計をする |
+| **Per.10** | 静的型システムに依存する |
+| **Per.11** | 計算をランタイムからコンパイル時に移動する |
+| **Per.19** | メモリに予測可能にアクセスする |
 
-### Guidelines
+### ガイドライン
 
 ```cpp
-// Per.11: Compile-time computation where possible
+// Per.11: 可能な限りコンパイル時計算
 constexpr auto lookup_table = [] {
     std::array<int, 256> table{};
     for (int i = 0; i < 256; ++i) {
@@ -688,36 +688,36 @@ constexpr auto lookup_table = [] {
     return table;
 }();
 
-// Per.19: Prefer contiguous data for cache-friendliness
-std::vector<Point> points;           // GOOD: contiguous
-std::vector<std::unique_ptr<Point>> indirect_points; // BAD: pointer chasing
+// Per.19: キャッシュフレンドリーのために連続したデータを優先
+std::vector<Point> points;           // GOOD: 連続している
+std::vector<std::unique_ptr<Point>> indirect_points; // BAD: ポインタチェイス
 ```
 
-### Anti-Patterns
+### アンチパターン
 
-- Optimizing without profiling data (Per.1, Per.6)
-- Choosing "clever" low-level code over clear abstractions (Per.4, Per.5)
-- Ignoring data layout and cache behavior (Per.19)
+- プロファイリングデータなしに最適化する（Per.1、Per.6）
+- 明確な抽象化より「賢い」低レベルコードを選択する（Per.4、Per.5）
+- データレイアウトとキャッシュ動作を無視する（Per.19）
 
-## Quick Reference Checklist
+## クイックリファレンスチェックリスト
 
-Before marking C++ work complete:
+C++作業を完了とする前に:
 
-- [ ] No raw `new`/`delete` -- use smart pointers or RAII (R.11)
-- [ ] Objects initialized at declaration (ES.20)
-- [ ] Variables are `const`/`constexpr` by default (Con.1, ES.25)
-- [ ] Member functions are `const` where possible (Con.2)
-- [ ] `enum class` instead of plain `enum` (Enum.3)
-- [ ] `nullptr` instead of `0`/`NULL` (ES.47)
-- [ ] No narrowing conversions (ES.46)
-- [ ] No C-style casts (ES.48)
-- [ ] Single-argument constructors are `explicit` (C.46)
-- [ ] Rule of Zero or Rule of Five applied (C.20, C.21)
-- [ ] Base class destructors are public virtual or protected non-virtual (C.35)
-- [ ] Templates are constrained with concepts (T.10)
-- [ ] No `using namespace` in headers at global scope (SF.7)
-- [ ] Headers have include guards and are self-contained (SF.8, SF.11)
-- [ ] Locks use RAII (`scoped_lock`/`lock_guard`) (CP.20)
-- [ ] Exceptions are custom types, thrown by value, caught by reference (E.14, E.15)
-- [ ] `'\n'` instead of `std::endl` (SL.io.50)
-- [ ] No magic numbers (ES.45)
+- [ ] 生の `new`/`delete` なし -- スマートポインタかRAIIを使用（R.11）
+- [ ] 宣言時にオブジェクトを初期化している（ES.20）
+- [ ] 変数はデフォルトで `const`/`constexpr`（Con.1、ES.25）
+- [ ] メンバー関数は可能な限り `const`（Con.2）
+- [ ] プレーンな `enum` の代わりに `enum class`（Enum.3）
+- [ ] `0`/`NULL` の代わりに `nullptr`（ES.47）
+- [ ] ナローイング変換なし（ES.46）
+- [ ] Cスタイルのキャストなし（ES.48）
+- [ ] 単一引数コンストラクタが `explicit`（C.46）
+- [ ] ゼロの法則または5の法則が適用されている（C.20、C.21）
+- [ ] 基底クラスのデストラクタがパブリック仮想またはプロテクト非仮想（C.35）
+- [ ] テンプレートがコンセプトで制約されている（T.10）
+- [ ] グローバルスコープのヘッダーに `using namespace` なし（SF.7）
+- [ ] ヘッダーにインクルードガードがあり自己完結している（SF.8、SF.11）
+- [ ] ロックがRAIIを使用している（`scoped_lock`/`lock_guard`）（CP.20）
+- [ ] 例外はカスタム型で、値でスローし、参照でキャッチ（E.14、E.15）
+- [ ] `std::endl` の代わりに `'\n'`（SL.io.50）
+- [ ] マジックナンバーなし（ES.45）

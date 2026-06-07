@@ -1,36 +1,36 @@
 ---
 name: clickhouse-io
-description: ClickHouse database patterns, query optimization, analytics, and data engineering best practices for high-performance analytical workloads.
+description: 高パフォーマンスな分析ワークロード向けのClickHouseデータベースパターン、クエリ最適化、アナリティクス、データエンジニアリングのベストプラクティス。
 origin: ECC
 ---
 
-# ClickHouse Analytics Patterns
+# ClickHouse アナリティクスパターン
 
-ClickHouse-specific patterns for high-performance analytics and data engineering.
+高パフォーマンスな分析とデータエンジニアリングのためのClickHouse固有のパターン。
 
-## When to Activate
+## アクティベートするタイミング
 
-- Designing ClickHouse table schemas (MergeTree engine selection)
-- Writing analytical queries (aggregations, window functions, joins)
-- Optimizing query performance (partition pruning, projections, materialized views)
-- Ingesting large volumes of data (batch inserts, Kafka integration)
-- Migrating from PostgreSQL/MySQL to ClickHouse for analytics
-- Implementing real-time dashboards or time-series analytics
+- ClickHouseのテーブルスキーマを設計するとき（MergeTreeエンジンの選定）
+- 分析クエリを記述するとき（集計、ウィンドウ関数、結合）
+- クエリパフォーマンスを最適化するとき（パーティションプルーニング、プロジェクション、マテリアライズドビュー）
+- 大量データを取り込むとき（バッチインサート、Kafka統合）
+- PostgreSQL/MySQLからClickHouseへ分析用途で移行するとき
+- リアルタイムダッシュボードや時系列分析を実装するとき
 
-## Overview
+## 概要
 
-ClickHouse is a column-oriented database management system (DBMS) for online analytical processing (OLAP). It's optimized for fast analytical queries on large datasets.
+ClickHouseはオンライン分析処理（OLAP）のための列指向データベース管理システム（DBMS）である。大規模データセットに対する高速な分析クエリに最適化されている。
 
-**Key Features:**
-- Column-oriented storage
-- Data compression
-- Parallel query execution
-- Distributed queries
-- Real-time analytics
+**主な特徴:**
+- 列指向ストレージ
+- データ圧縮
+- 並列クエリ実行
+- 分散クエリ
+- リアルタイム分析
 
-## Table Design Patterns
+## テーブル設計パターン
 
-### MergeTree Engine (Most Common)
+### MergeTreeエンジン（最も一般的）
 
 ```sql
 CREATE TABLE markets_analytics (
@@ -48,10 +48,10 @@ ORDER BY (date, market_id)
 SETTINGS index_granularity = 8192;
 ```
 
-### ReplacingMergeTree (Deduplication)
+### ReplacingMergeTree（重複排除）
 
 ```sql
--- For data that may have duplicates (e.g., from multiple sources)
+-- 複数ソースからの重複が発生する可能性があるデータ向け
 CREATE TABLE user_events (
     event_id String,
     user_id String,
@@ -64,10 +64,10 @@ ORDER BY (user_id, event_id, timestamp)
 PRIMARY KEY (user_id, event_id);
 ```
 
-### AggregatingMergeTree (Pre-aggregation)
+### AggregatingMergeTree（事前集計）
 
 ```sql
--- For maintaining aggregated metrics
+-- 集計メトリクスを維持するため
 CREATE TABLE market_stats_hourly (
     hour DateTime,
     market_id String,
@@ -78,7 +78,7 @@ CREATE TABLE market_stats_hourly (
 PARTITION BY toYYYYMM(hour)
 ORDER BY (hour, market_id);
 
--- Query aggregated data
+-- 集計データをクエリ
 SELECT
     hour,
     market_id,
@@ -91,12 +91,12 @@ GROUP BY hour, market_id
 ORDER BY hour DESC;
 ```
 
-## Query Optimization Patterns
+## クエリ最適化パターン
 
-### Efficient Filtering
+### 効率的なフィルタリング
 
 ```sql
--- PASS: GOOD: Use indexed columns first
+-- PASS: 良い例: インデックス付き列を先に使用
 SELECT *
 FROM markets_analytics
 WHERE date >= '2025-01-01'
@@ -105,7 +105,7 @@ WHERE date >= '2025-01-01'
 ORDER BY date DESC
 LIMIT 100;
 
--- FAIL: BAD: Filter on non-indexed columns first
+-- FAIL: 悪い例: インデックスなしの列を先にフィルタリング
 SELECT *
 FROM markets_analytics
 WHERE volume > 1000
@@ -113,10 +113,10 @@ WHERE volume > 1000
   AND date >= '2025-01-01';
 ```
 
-### Aggregations
+### 集計
 
 ```sql
--- PASS: GOOD: Use ClickHouse-specific aggregation functions
+-- PASS: 良い例: ClickHouse固有の集計関数を使用
 SELECT
     toStartOfDay(created_at) AS day,
     market_id,
@@ -129,7 +129,7 @@ WHERE created_at >= today() - INTERVAL 7 DAY
 GROUP BY day, market_id
 ORDER BY day DESC, total_volume DESC;
 
--- PASS: Use quantile for percentiles (more efficient than percentile)
+-- PASS: パーセンタイルにはquantileを使用（percentileより効率的）
 SELECT
     quantile(0.50)(trade_size) AS median,
     quantile(0.95)(trade_size) AS p95,
@@ -138,10 +138,10 @@ FROM trades
 WHERE created_at >= now() - INTERVAL 1 HOUR;
 ```
 
-### Window Functions
+### ウィンドウ関数
 
 ```sql
--- Calculate running totals
+-- ランニング合計を計算
 SELECT
     date,
     market_id,
@@ -156,9 +156,9 @@ WHERE date >= today() - INTERVAL 30 DAY
 ORDER BY market_id, date;
 ```
 
-## Data Insertion Patterns
+## データ挿入パターン
 
-### Bulk Insert (Recommended)
+### バルクインサート（推奨）
 
 ```typescript
 import { ClickHouse } from 'clickhouse'
@@ -172,7 +172,7 @@ const clickhouse = new ClickHouse({
   }
 })
 
-// PASS: Batch insert (efficient)
+// PASS: バッチインサート（効率的）
 async function bulkInsertTrades(trades: Trade[]) {
   const values = trades.map(trade => `(
     '${trade.id}',
@@ -188,19 +188,19 @@ async function bulkInsertTrades(trades: Trade[]) {
   `).toPromise()
 }
 
-// FAIL: Individual inserts (slow)
+// FAIL: 個別インサート（低速）
 async function insertTrade(trade: Trade) {
-  // Don't do this in a loop!
+  // ループ内でこれを行わないこと！
   await clickhouse.query(`
     INSERT INTO trades VALUES ('${trade.id}', ...)
   `).toPromise()
 }
 ```
 
-### Streaming Insert
+### ストリーミングインサート
 
 ```typescript
-// For continuous data ingestion
+// 継続的なデータ取り込みに使用
 import { createWriteStream } from 'fs'
 import { pipeline } from 'stream/promises'
 
@@ -215,12 +215,12 @@ async function streamInserts() {
 }
 ```
 
-## Materialized Views
+## マテリアライズドビュー
 
-### Real-time Aggregations
+### リアルタイム集計
 
 ```sql
--- Create materialized view for hourly stats
+-- 時間単位の統計用マテリアライズドビューを作成
 CREATE MATERIALIZED VIEW market_stats_hourly_mv
 TO market_stats_hourly
 AS SELECT
@@ -232,7 +232,7 @@ AS SELECT
 FROM trades
 GROUP BY hour, market_id;
 
--- Query the materialized view
+-- マテリアライズドビューをクエリ
 SELECT
     hour,
     market_id,
@@ -244,12 +244,12 @@ WHERE hour >= now() - INTERVAL 24 HOUR
 GROUP BY hour, market_id;
 ```
 
-## Performance Monitoring
+## パフォーマンス監視
 
-### Query Performance
+### クエリパフォーマンス
 
 ```sql
--- Check slow queries
+-- スロークエリを確認
 SELECT
     query_id,
     user,
@@ -266,10 +266,10 @@ ORDER BY query_duration_ms DESC
 LIMIT 10;
 ```
 
-### Table Statistics
+### テーブル統計
 
 ```sql
--- Check table sizes
+-- テーブルサイズを確認
 SELECT
     database,
     table,
@@ -282,12 +282,12 @@ GROUP BY database, table
 ORDER BY sum(bytes) DESC;
 ```
 
-## Common Analytics Queries
+## 一般的な分析クエリ
 
-### Time Series Analysis
+### 時系列分析
 
 ```sql
--- Daily active users
+-- デイリーアクティブユーザー
 SELECT
     toDate(timestamp) AS date,
     uniq(user_id) AS daily_active_users
@@ -296,7 +296,7 @@ WHERE timestamp >= today() - INTERVAL 30 DAY
 GROUP BY date
 ORDER BY date;
 
--- Retention analysis
+-- リテンション分析
 SELECT
     signup_date,
     countIf(days_since_signup = 0) AS day_0,
@@ -316,10 +316,10 @@ GROUP BY signup_date
 ORDER BY signup_date DESC;
 ```
 
-### Funnel Analysis
+### ファネル分析
 
 ```sql
--- Conversion funnel
+-- コンバージョンファネル
 SELECT
     countIf(step = 'viewed_market') AS viewed,
     countIf(step = 'clicked_trade') AS clicked,
@@ -337,10 +337,10 @@ FROM (
 GROUP BY session_id;
 ```
 
-### Cohort Analysis
+### コホート分析
 
 ```sql
--- User cohorts by signup month
+-- サインアップ月別ユーザーコホート
 SELECT
     toStartOfMonth(signup_date) AS cohort,
     toStartOfMonth(activity_date) AS month,
@@ -357,17 +357,17 @@ GROUP BY cohort, month, months_since_signup
 ORDER BY cohort, months_since_signup;
 ```
 
-## Data Pipeline Patterns
+## データパイプラインパターン
 
-### ETL Pattern
+### ETLパターン
 
 ```typescript
-// Extract, Transform, Load
+// 抽出、変換、ロード
 async function etlPipeline() {
-  // 1. Extract from source
+  // 1. ソースから抽出
   const rawData = await extractFromPostgres()
 
-  // 2. Transform
+  // 2. 変換
   const transformed = rawData.map(row => ({
     date: new Date(row.created_at).toISOString().split('T')[0],
     market_id: row.market_slug,
@@ -375,18 +375,18 @@ async function etlPipeline() {
     trades: parseInt(row.trade_count)
   }))
 
-  // 3. Load to ClickHouse
+  // 3. ClickHouseへロード
   await bulkInsertToClickHouse(transformed)
 }
 
-// Run periodically
-setInterval(etlPipeline, 60 * 60 * 1000)  // Every hour
+// 定期的に実行
+setInterval(etlPipeline, 60 * 60 * 1000)  // 1時間ごと
 ```
 
-### Change Data Capture (CDC)
+### 変更データキャプチャ（CDC）
 
 ```typescript
-// Listen to PostgreSQL changes and sync to ClickHouse
+// PostgreSQLの変更を監視してClickHouseに同期
 import { Client } from 'pg'
 
 const pgClient = new Client({ connectionString: process.env.DATABASE_URL })
@@ -407,33 +407,33 @@ pgClient.on('notification', async (msg) => {
 })
 ```
 
-## Best Practices
+## ベストプラクティス
 
-### 1. Partitioning Strategy
-- Partition by time (usually month or day)
-- Avoid too many partitions (performance impact)
-- Use DATE type for partition key
+### 1. パーティション戦略
+- 時間でパーティション（通常は月または日）
+- パーティション数が多すぎないようにする（パフォーマンスへの影響）
+- パーティションキーにはDATE型を使用する
 
-### 2. Ordering Key
-- Put most frequently filtered columns first
-- Consider cardinality (high cardinality first)
-- Order impacts compression
+### 2. オーダリングキー
+- 最も頻繁にフィルタリングされる列を先頭に置く
+- カーディナリティを考慮する（高カーディナリティを先頭に）
+- 順序は圧縮に影響する
 
-### 3. Data Types
-- Use smallest appropriate type (UInt32 vs UInt64)
-- Use LowCardinality for repeated strings
-- Use Enum for categorical data
+### 3. データ型
+- 最小限の適切な型を使用する（UInt32 vs UInt64）
+- 繰り返される文字列にはLowCardinalityを使用する
+- カテゴリデータにはEnumを使用する
 
-### 4. Avoid
-- SELECT * (specify columns)
-- FINAL (merge data before query instead)
-- Too many JOINs (denormalize for analytics)
-- Small frequent inserts (batch instead)
+### 4. 避けるべき事項
+- SELECT *（列を指定する）
+- FINAL（クエリ前にデータをマージする代わりに）
+- JOINが多すぎる（分析用に非正規化する）
+- 小さい頻繁なインサート（バッチ処理を使用する）
 
-### 5. Monitoring
-- Track query performance
-- Monitor disk usage
-- Check merge operations
-- Review slow query log
+### 5. 監視
+- クエリパフォーマンスを追跡する
+- ディスク使用量を監視する
+- マージ操作を確認する
+- スロークエリログをレビューする
 
-**Remember**: ClickHouse excels at analytical workloads. Design tables for your query patterns, batch inserts, and leverage materialized views for real-time aggregations.
+**注意**: ClickHouseは分析ワークロードに優れている。クエリパターンに合わせてテーブルを設計し、インサートをバッチ処理し、リアルタイム集計のためにマテリアライズドビューを活用すること。

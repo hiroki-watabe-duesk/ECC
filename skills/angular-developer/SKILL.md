@@ -1,154 +1,154 @@
 ---
 name: angular-developer
-description: Generates Angular code and provides architectural guidance. Trigger when creating projects, components, or services, or for best practices on reactivity (signals, linkedSignal, resource), forms, dependency injection, routing, SSR, accessibility (ARIA), animations, styling (component styles, Tailwind CSS), testing, or CLI tooling.
+description: Angular コードを生成し、アーキテクチャのガイダンスを提供します。プロジェクト・コンポーネント・サービスの作成、またはリアクティビティ（シグナル、linkedSignal、resource）・フォーム・依存性注入・ルーティング・SSR・アクセシビリティ（ARIA）・アニメーション・スタイリング（コンポーネントスタイル、Tailwind CSS）・テスト・CLI ツールのベストプラクティスについてトリガーします。
 origin: ECC
 ---
 
-# Angular Developer Guidelines
+# Angular 開発者ガイドライン
 
-## When to Activate
+## アクティブにするタイミング
 
-- Working in any Angular project or codebase
-- Creating or scaffolding a new Angular project, application, or library
-- Generating components, services, directives, pipes, guards, or resolvers
-- Implementing reactivity with Angular Signals, `linkedSignal`, or `resource`
-- Working with Angular forms (signal forms, reactive forms, or template-driven)
-- Setting up dependency injection, routing, lazy loading, or route guards
-- Adding accessibility (ARIA), animations, or component styling
-- Writing or debugging Angular-specific tests (unit, component harness, E2E)
-- Configuring Angular CLI tooling or the Angular MCP server
+- Angular プロジェクトまたはコードベースで作業するとき
+- 新しい Angular プロジェクト、アプリケーション、またはライブラリを作成またはスキャフォールドするとき
+- コンポーネント、サービス、ディレクティブ、パイプ、ガード、またはリゾルバを生成するとき
+- Angular シグナル、`linkedSignal`、または `resource` でリアクティビティを実装するとき
+- Angular フォーム（シグナルフォーム、リアクティブフォーム、またはテンプレート駆動）を使用するとき
+- 依存性注入、ルーティング、遅延読み込み、またはルートガードを設定するとき
+- アクセシビリティ（ARIA）、アニメーション、またはコンポーネントスタイリングを追加するとき
+- Angular 固有のテストを書くまたはデバッグするとき（ユニット、コンポーネントハーネス、E2E）
+- Angular CLI ツールまたは Angular MCP サーバーを設定するとき
 
-1. Always analyze the project's Angular version before providing guidance, as best practices and available features can vary significantly between versions. If creating a new project with Angular CLI, do not specify a version unless prompted by the user.
+1. ベストプラクティスと利用可能な機能はバージョンによって大きく異なるため、ガイダンスを提供する前に必ずプロジェクトの Angular バージョンを分析する。Angular CLI で新規プロジェクトを作成する場合、ユーザーに促されない限りバージョンを指定しない。
 
-2. When generating code, follow Angular's style guide and best practices for maintainability and performance. Use the Angular CLI for scaffolding components, services, directives, pipes, and routes to ensure consistency.
+2. コードを生成する際は、保守性とパフォーマンスのために Angular のスタイルガイドとベストプラクティスに従う。コンポーネント、サービス、ディレクティブ、パイプ、ルートのスキャフォールドには Angular CLI を使用して一貫性を確保する。
 
-3. Once you finish generating code, run `ng build` to ensure there are no build errors. If there are errors, analyze the error messages and fix them before proceeding. Do not skip this step, as it is critical for ensuring the generated code is correct and functional.
+3. コードの生成が完了したら、`ng build` を実行してビルドエラーがないことを確認する。エラーがある場合は、エラーメッセージを分析して修正してから次に進む。生成されたコードが正しく機能することを保証するために、このステップをスキップしない。
 
-## Creating New Projects
+## 新規プロジェクトの作成
 
-If no guidelines are provided by the user, use these defaults when creating a new Angular project:
+ユーザーからガイドラインが提供されない場合、新しい Angular プロジェクトを作成する際はこれらのデフォルトを使用する:
 
-1. Use the latest stable version of Angular unless the user specifies otherwise.
-2. Prefer Signal Forms for new projects only when the target Angular version supports them. [Find out more](references/signal-forms.md).
+1. ユーザーが別途指定しない限り、最新の安定版 Angular を使用する。
+2. 対象の Angular バージョンがサポートしている場合のみ、新規プロジェクトにはシグナルフォームを優先する。[詳細はこちら](references/signal-forms.md)。
 
-**Execution Rules for `ng new`:**
-When asked to create a new Angular project, you must determine the correct execution command by following these strict steps:
+**`ng new` の実行ルール:**
+新しい Angular プロジェクトを作成するよう求められた場合、次の厳密なステップに従って正しい実行コマンドを決定する必要がある:
 
-**Step 1: Check for an explicit user version.**
+**ステップ 1: ユーザーが明示的なバージョンを指定しているか確認する。**
 
-- **IF** the user requests a specific version (e.g., Angular 15), bypass local installations and strictly use `npx`.
-- **Command:** `npx @angular/cli@<requested_version> new <project-name>`
+- **もし**ユーザーが特定のバージョン（例: Angular 15）を要求した場合、ローカルのインストールをバイパスして厳密に `npx` を使用する。
+- **コマンド:** `npx @angular/cli@<requested_version> new <project-name>`
 
-**Step 2: Check for an existing Angular installation.**
+**ステップ 2: 既存の Angular インストールを確認する。**
 
-- **IF** no specific version is requested, run `ng version` in the terminal to check if the Angular CLI is already installed on the system.
-- **IF** the command succeeds and returns an installed version, use the local/global installation directly.
-- **Command:** `ng new <project-name>`
+- **もし**特定のバージョンが要求されていない場合、ターミナルで `ng version` を実行して Angular CLI がシステムにインストールされているか確認する。
+- **もし**コマンドが成功してインストール済みバージョンが返ってきた場合、ローカル/グローバルインストールを直接使用する。
+- **コマンド:** `ng new <project-name>`
 
-**Step 3: Fallback to Latest.**
+**ステップ 3: 最新版へのフォールバック。**
 
-- **IF** no specific version is requested AND the `ng version` command fails (indicating no Angular installation exists), you must use `npx` to fetch the latest version.
-- **Command:** `npx @angular/cli@latest new <project-name>`
+- **もし**特定のバージョンが要求されておらず、かつ `ng version` コマンドが失敗した場合（Angular がインストールされていないことを示す）、`npx` を使用して最新版を取得する必要がある。
+- **コマンド:** `npx @angular/cli@latest new <project-name>`
 
-## Components
+## コンポーネント
 
-When working with Angular components, consult the following references based on the task:
+Angular コンポーネントを使用する際は、タスクに応じて以下のリファレンスを参照する:
 
-- **Fundamentals**: Anatomy, metadata, core concepts, and template control flow (@if, @for, @switch). Read [components.md](references/components.md)
-- **Inputs**: Signal-based inputs, transforms, and model inputs. Read [inputs.md](references/inputs.md)
-- **Outputs**: Signal-based outputs and custom event best practices. Read [outputs.md](references/outputs.md)
-- **Host Elements**: Host bindings and attribute injection. Read [host-elements.md](references/host-elements.md)
+- **基礎**: 構造、メタデータ、コアコンセプト、テンプレートの制御フロー（@if、@for、@switch）。[components.md](references/components.md) を参照
+- **インプット**: シグナルベースのインプット、変換、モデルインプット。[inputs.md](references/inputs.md) を参照
+- **アウトプット**: シグナルベースのアウトプットとカスタムイベントのベストプラクティス。[outputs.md](references/outputs.md) を参照
+- **ホスト要素**: ホストバインディングと属性インジェクション。[host-elements.md](references/host-elements.md) を参照
 
-If you require deeper documentation not found in the references above, read the documentation at `https://angular.dev/guide/components`.
+上記のリファレンスに深いドキュメントがない場合は、`https://angular.dev/guide/components` のドキュメントを参照する。
 
-## Reactivity and Data Management
+## リアクティビティとデータ管理
 
-When managing state and data reactivity, use Angular Signals and consult the following references:
+状態とデータのリアクティビティを管理する際は、Angular シグナルを使用して以下のリファレンスを参照する:
 
-- **Signals Overview**: Core signal concepts (`signal`, `computed`), reactive contexts, and `untracked`. Read [signals-overview.md](references/signals-overview.md)
-- **Dependent State (`linkedSignal`)**: Creating writable state linked to source signals. Read [linked-signal.md](references/linked-signal.md)
-- **Async Reactivity (`resource`)**: Fetching asynchronous data directly into signal state. Read [resource.md](references/resource.md)
-- **Side Effects (`effect`)**: Logging, third-party DOM manipulation (`afterRenderEffect`), and when NOT to use effects. Read [effects.md](references/effects.md)
+- **シグナルの概要**: コアシグナルのコンセプト（`signal`、`computed`）、リアクティブコンテキスト、`untracked`。[signals-overview.md](references/signals-overview.md) を参照
+- **依存状態（`linkedSignal`）**: ソースシグナルにリンクした書き込み可能な状態の作成。[linked-signal.md](references/linked-signal.md) を参照
+- **非同期リアクティビティ（`resource`）**: 非同期データをシグナル状態に直接取得する。[resource.md](references/resource.md) を参照
+- **副作用（`effect`）**: ログ記録、サードパーティ DOM 操作（`afterRenderEffect`）、エフェクトを使用すべきでない場合。[effects.md](references/effects.md) を参照
 
-## Forms
+## フォーム
 
-In most cases for new apps, **prefer signal forms**. When making a forms decision, analyze the project and consider the following guidelines:
+新しいアプリのほとんどの場合、**シグナルフォームを優先する**。フォームの決定を行う際は、プロジェクトを分析して以下のガイドラインを考慮する:
 
-- If the application version supports Signal Forms and this is a new form, **prefer signal forms**.
-- For older applications or existing forms, match the application's current form strategy.
+- アプリケーションバージョンがシグナルフォームをサポートしており、新しいフォームの場合は**シグナルフォームを優先する**。
+- 古いアプリケーションや既存のフォームの場合は、アプリケーションの現在のフォーム戦略に合わせる。
 
-- **Signal Forms**: Use signals for form state management. Read [signal-forms.md](references/signal-forms.md)
-- **Template-driven forms**: Use for simple forms. Read [template-driven-forms.md](references/template-driven-forms.md)
-- **Reactive forms**: Use for complex forms. Read [reactive-forms.md](references/reactive-forms.md)
+- **シグナルフォーム**: フォーム状態管理にシグナルを使用する。[signal-forms.md](references/signal-forms.md) を参照
+- **テンプレート駆動フォーム**: シンプルなフォームに使用する。[template-driven-forms.md](references/template-driven-forms.md) を参照
+- **リアクティブフォーム**: 複雑なフォームに使用する。[reactive-forms.md](references/reactive-forms.md) を参照
 
-## Dependency Injection
+## 依存性注入
 
-When implementing dependency injection in Angular, follow these guidelines:
+Angular での依存性注入を実装する際は、以下のガイドラインに従う:
 
-- **Fundamentals**: Overview of Dependency Injection, services, and the `inject()` function. Read [di-fundamentals.md](references/di-fundamentals.md)
-- **Creating and Using Services**: Creating services, the `providedIn: 'root'` option, and injecting into components or other services. Read [creating-services.md](references/creating-services.md)
-- **Defining Dependency Providers**: Automatic vs manual provision, `InjectionToken`, `useClass`, `useValue`, `useFactory`, and scopes. Read [defining-providers.md](references/defining-providers.md)
-- **Injection Context**: Where `inject()` is allowed, `runInInjectionContext`, and `assertInInjectionContext`. Read [injection-context.md](references/injection-context.md)
-- **Hierarchical Injectors**: The `EnvironmentInjector` vs `ElementInjector`, resolution rules, modifiers (`optional`, `skipSelf`), and `providers` vs `viewProviders`. Read [hierarchical-injectors.md](references/hierarchical-injectors.md)
+- **基礎**: 依存性注入、サービス、`inject()` 関数の概要。[di-fundamentals.md](references/di-fundamentals.md) を参照
+- **サービスの作成と使用**: サービスの作成、`providedIn: 'root'` オプション、コンポーネントや他のサービスへのインジェクション。[creating-services.md](references/creating-services.md) を参照
+- **依存関係プロバイダーの定義**: 自動 vs 手動プロビジョン、`InjectionToken`、`useClass`、`useValue`、`useFactory`、スコープ。[defining-providers.md](references/defining-providers.md) を参照
+- **インジェクションコンテキスト**: `inject()` が許可される場所、`runInInjectionContext`、`assertInInjectionContext`。[injection-context.md](references/injection-context.md) を参照
+- **階層インジェクター**: `EnvironmentInjector` vs `ElementInjector`、解決ルール、修飾子（`optional`、`skipSelf`）、`providers` vs `viewProviders`。[hierarchical-injectors.md](references/hierarchical-injectors.md) を参照
 
 ## Angular Aria
 
-When building accessible custom components for any of the following patterns: Accordion, Listbox, Combobox, Menu, Tabs, Toolbar, Tree, Grid, consult the following reference:
+次のいずれかのパターンでアクセシブルなカスタムコンポーネントを構築する場合: Accordion、Listbox、Combobox、Menu、Tabs、Toolbar、Tree、Grid、以下のリファレンスを参照する:
 
-- **Angular Aria Components**: Building headless, accessible components (Accordion, Listbox, Combobox, Menu, Tabs, Toolbar, Tree, Grid) and styling ARIA attributes. Read [angular-aria.md](references/angular-aria.md)
+- **Angular Aria コンポーネント**: ヘッドレスでアクセシブルなコンポーネント（Accordion、Listbox、Combobox、Menu、Tabs、Toolbar、Tree、Grid）の構築と ARIA 属性のスタイリング。[angular-aria.md](references/angular-aria.md) を参照
 
-## Routing
+## ルーティング
 
-When implementing navigation in Angular, consult the following references:
+Angular でのナビゲーションを実装する際は、以下のリファレンスを参照する:
 
-- **Define Routes**: URL paths, static vs dynamic segments, wildcards, and redirects. Read [define-routes.md](references/define-routes.md)
-- **Route Loading Strategies**: Eager vs lazy loading, and context-aware loading. Read [loading-strategies.md](references/loading-strategies.md)
-- **Show Routes with Outlets**: Using `<router-outlet>`, nested outlets, and named outlets. Read [show-routes-with-outlets.md](references/show-routes-with-outlets.md)
-- **Navigate to Routes**: Declarative navigation with `RouterLink` and programmatic navigation with `Router`. Read [navigate-to-routes.md](references/navigate-to-routes.md)
-- **Control Route Access with Guards**: Implementing `CanActivate`, `CanMatch`, and other guards for security. Read [route-guards.md](references/route-guards.md)
-- **Data Resolvers**: Pre-fetching data before route activation with `ResolveFn`. Read [data-resolvers.md](references/data-resolvers.md)
-- **Router Lifecycle and Events**: Chronological order of navigation events and debugging. Read [router-lifecycle.md](references/router-lifecycle.md)
-- **Rendering Strategies**: CSR, SSG (Prerendering), and SSR with hydration. Read [rendering-strategies.md](references/rendering-strategies.md)
-- **Route Transition Animations**: Enabling and customizing the View Transitions API. Read [route-animations.md](references/route-animations.md)
+- **ルートの定義**: URL パス、静的 vs 動的セグメント、ワイルドカード、リダイレクト。[define-routes.md](references/define-routes.md) を参照
+- **ルート読み込み戦略**: 積極的読み込み vs 遅延読み込み、コンテキスト対応読み込み。[loading-strategies.md](references/loading-strategies.md) を参照
+- **アウトレットでルートを表示する**: `<router-outlet>` の使用、ネストされたアウトレット、名前付きアウトレット。[show-routes-with-outlets.md](references/show-routes-with-outlets.md) を参照
+- **ルートへのナビゲート**: `RouterLink` による宣言的ナビゲーションと `Router` によるプログラム的ナビゲーション。[navigate-to-routes.md](references/navigate-to-routes.md) を参照
+- **ガードによるルートアクセス制御**: セキュリティのための `CanActivate`、`CanMatch`、その他のガードの実装。[route-guards.md](references/route-guards.md) を参照
+- **データリゾルバー**: `ResolveFn` によるルートアクティベーション前のデータのプリフェッチ。[data-resolvers.md](references/data-resolvers.md) を参照
+- **ルーターライフサイクルとイベント**: ナビゲーションイベントの時系列順とデバッグ。[router-lifecycle.md](references/router-lifecycle.md) を参照
+- **レンダリング戦略**: CSR、SSG（プリレンダリング）、ハイドレーションを使用した SSR。[rendering-strategies.md](references/rendering-strategies.md) を参照
+- **ルートトランジションアニメーション**: View Transitions API の有効化とカスタマイズ。[route-animations.md](references/route-animations.md) を参照
 
-If you require deeper documentation or more context, visit the [official Angular Routing guide](https://angular.dev/guide/routing).
+より深いドキュメントやコンテキストが必要な場合は、[Angular ルーティング公式ガイド](https://angular.dev/guide/routing) を参照する。
 
-## Styling and Animations
+## スタイリングとアニメーション
 
-When implementing styling and animations in Angular, consult the following references:
+Angular でスタイリングとアニメーションを実装する際は、以下のリファレンスを参照する:
 
-- **Using Tailwind CSS with Angular**: Integrating Tailwind CSS into Angular projects. Read [tailwind-css.md](references/tailwind-css.md)
-- **Angular Animations**: Using native CSS (recommended) or the legacy DSL for dynamic effects. Read [angular-animations.md](references/angular-animations.md)
-- **Styling components**: Best practices for component styles and encapsulation. Read [component-styling.md](references/component-styling.md)
+- **Angular で Tailwind CSS を使用する**: Angular プロジェクトへの Tailwind CSS の統合。[tailwind-css.md](references/tailwind-css.md) を参照
+- **Angular アニメーション**: 動的エフェクトにはネイティブ CSS（推奨）またはレガシー DSL を使用する。[angular-animations.md](references/angular-animations.md) を参照
+- **コンポーネントのスタイリング**: コンポーネントスタイルとカプセル化のベストプラクティス。[component-styling.md](references/component-styling.md) を参照
 
-## Testing
+## テスト
 
-When writing or updating tests, consult the following references based on the task:
+テストを書くまたは更新する際は、タスクに応じて以下のリファレンスを参照する:
 
-- **Fundamentals**: Best practices for unit testing, async patterns, and `TestBed`. Read [testing-fundamentals.md](references/testing-fundamentals.md)
-- **Component Harnesses**: Standard patterns for robust component interaction. Read [component-harnesses.md](references/component-harnesses.md)
-- **Router Testing**: Using `RouterTestingHarness` for reliable navigation tests. Read [router-testing.md](references/router-testing.md)
-- **End-to-End (E2E) Testing**: Best practices for E2E tests with Cypress or Playwright. Read [e2e-testing.md](references/e2e-testing.md)
+- **基礎**: ユニットテスト、非同期パターン、`TestBed` のベストプラクティス。[testing-fundamentals.md](references/testing-fundamentals.md) を参照
+- **コンポーネントハーネス**: 堅牢なコンポーネント操作のための標準パターン。[component-harnesses.md](references/component-harnesses.md) を参照
+- **ルーターテスト**: 信頼性の高いナビゲーションテストのための `RouterTestingHarness` の使用。[router-testing.md](references/router-testing.md) を参照
+- **エンドツーエンド（E2E）テスト**: Cypress または Playwright を使用した E2E テストのベストプラクティス。[e2e-testing.md](references/e2e-testing.md) を参照
 
-## Tooling
+## ツール
 
-When working with Angular tooling, consult the following references:
+Angular ツールを使用する際は、以下のリファレンスを参照する:
 
-- **Angular CLI**: Creating applications, generating code (components, routes, services), serving, and building. Read [cli.md](references/cli.md)
-- **Angular MCP Server**: Available tools, configuration, and experimental features. Read [mcp.md](references/mcp.md)
+- **Angular CLI**: アプリケーションの作成、コード生成（コンポーネント、ルート、サービス）、サーブ、ビルド。[cli.md](references/cli.md) を参照
+- **Angular MCP サーバー**: 利用可能なツール、設定、実験的な機能。[mcp.md](references/mcp.md) を参照
 
-## Anti-Patterns
+## アンチパターン
 
-- Using `null` or `undefined` as initial signal form field values — use `''`, `0`, or `[]` instead
-- Accessing form field state flags without calling the field first: `form.field.valid()` — use `form.field().valid()`
-- Starting new forms with older form APIs when the target Angular version supports Signal Forms
-- Setting `min`, `max`, `value`, `disabled`, or `readonly` HTML attributes on `[formField]` inputs — define these as schema rules instead
-- Calling `inject()` outside an injection context — use `runInInjectionContext` when needed
-- Using `effect()` for derived state that should use `computed()`
-- Referencing `$parent.$index` in nested `@for` loops — Angular does not support `$parent`; use `let outerIdx = $index` instead
+- シグナルフォームフィールドの初期値に `null` または `undefined` を使用する — 代わりに `''`、`0`、`[]` を使用する
+- フィールドを最初に呼び出さずにフォームフィールドの状態フラグにアクセスする: `form.field.valid()` — `form.field().valid()` を使用する
+- 対象の Angular バージョンがシグナルフォームをサポートしているにも関わらず、古いフォーム API で新しいフォームを始める
+- `[formField]` インプットに `min`、`max`、`value`、`disabled`、`readonly` HTML 属性を設定する — これらはスキーマルールとして定義する
+- インジェクションコンテキスト外で `inject()` を呼び出す — 必要な場合は `runInInjectionContext` を使用する
+- `computed()` を使うべき派生状態に `effect()` を使用する
+- ネストされた `@for` ループで `$parent.$index` を参照する — Angular は `$parent` をサポートしない。代わりに `let outerIdx = $index` を使用する
 
-## Related Skills
+## 関連スキル
 
-- `tdd-workflow` — test-driven development workflow applicable to Angular components and services
-- `security-review` — security checklist for web applications including Angular-specific concerns
-- `frontend-patterns` — general frontend patterns for context on React/Next.js approaches
+- `tdd-workflow` — Angular コンポーネントとサービスに適用可能なテスト駆動開発ワークフロー
+- `security-review` — Angular 固有の懸念事項を含む Web アプリケーションのセキュリティチェックリスト
+- `frontend-patterns` — React/Next.js アプローチのコンテキストのための一般的なフロントエンドパターン

@@ -1,233 +1,233 @@
 ---
 name: codebase-onboarding
-description: Analyze an unfamiliar codebase and generate a structured onboarding guide with architecture map, key entry points, conventions, and a starter CLAUDE.md. Use when joining a new project or setting up Claude Code for the first time in a repo.
+description: 未知のコードベースを分析し、アーキテクチャマップ、主要なエントリーポイント、規約、スターター CLAUDE.md を含む構造化されたオンボーディングガイドを生成する。新しいプロジェクトに参加するときやリポジトリで初めて Claude Code をセットアップするときに使用する。
 origin: ECC
 ---
 
-# Codebase Onboarding
+# コードベースオンボーディング
 
-Systematically analyze an unfamiliar codebase and produce a structured onboarding guide. Designed for developers joining a new project or setting up Claude Code in an existing repo for the first time.
+未知のコードベースを体系的に分析し、構造化されたオンボーディングガイドを作成する。新しいプロジェクトに参加する開発者や、既存のリポジトリで初めて Claude Code をセットアップする開発者向けに設計されている。
 
-## When to Use
+## 使用するタイミング
 
-- First time opening a project with Claude Code
-- Joining a new team or repository
-- User asks "help me understand this codebase"
-- User asks to generate a CLAUDE.md for a project
-- User says "onboard me" or "walk me through this repo"
+- Claude Code でプロジェクトを初めて開くとき
+- 新しいチームやリポジトリに参加するとき
+- ユーザーが「このコードベースを理解する手助けをしてほしい」と言うとき
+- ユーザーがプロジェクト用の CLAUDE.md 生成を依頼するとき
+- ユーザーが「オンボードして」または「このリポジトリを案内して」と言うとき
 
-## How It Works
+## 動作の仕組み
 
-### Phase 1: Reconnaissance
+### フェーズ 1: 偵察
 
-Gather raw signals about the project without reading every file. Run these checks in parallel:
+すべてのファイルを読まずに、プロジェクトについての生のシグナルを収集する。以下のチェックを並列で実行する:
 
 ```
-1. Package manifest detection
+1. パッケージマニフェスト検出
    → package.json, go.mod, Cargo.toml, pyproject.toml, pom.xml, build.gradle,
      Gemfile, composer.json, mix.exs, pubspec.yaml
 
-2. Framework fingerprinting
+2. フレームワークのフィンガープリンティング
    → next.config.*, nuxt.config.*, angular.json, vite.config.*,
      django settings, flask app factory, fastapi main, rails config
 
-3. Entry point identification
+3. エントリーポイントの特定
    → main.*, index.*, app.*, server.*, cmd/, src/main/
 
-4. Directory structure snapshot
-   → Top 2 levels of the directory tree, ignoring node_modules, vendor,
-     .git, dist, build, __pycache__, .next
+4. ディレクトリ構造のスナップショット
+   → node_modules, vendor, .git, dist, build, __pycache__, .next を除く
+     ディレクトリツーの上位 2 レベル
 
-5. Config and tooling detection
+5. 設定とツール検出
    → .eslintrc*, .prettierrc*, tsconfig.json, Makefile, Dockerfile,
-     docker-compose*, .github/workflows/, .env.example, CI configs
+     docker-compose*, .github/workflows/, .env.example, CI 設定
 
-6. Test structure detection
+6. テスト構造検出
    → tests/, test/, __tests__/, *_test.go, *.spec.ts, *.test.js,
      pytest.ini, jest.config.*, vitest.config.*
 ```
 
-### Phase 2: Architecture Mapping
+### フェーズ 2: アーキテクチャマッピング
 
-From the reconnaissance data, identify:
+偵察データから以下を特定する:
 
-**Tech Stack**
-- Language(s) and version constraints
-- Framework(s) and major libraries
-- Database(s) and ORMs
-- Build tools and bundlers
-- CI/CD platform
+**テックスタック**
+- 言語とバージョン制約
+- フレームワークと主要ライブラリ
+- データベースと ORM
+- ビルドツールとバンドラー
+- CI/CD プラットフォーム
 
-**Architecture Pattern**
-- Monolith, monorepo, microservices, or serverless
-- Frontend/backend split or full-stack
-- API style: REST, GraphQL, gRPC, tRPC
+**アーキテクチャパターン**
+- モノリス、モノレポ、マイクロサービス、またはサーバーレス
+- フロントエンド/バックエンド分離またはフルスタック
+- API スタイル: REST、GraphQL、gRPC、tRPC
 
-**Key Directories**
-Map the top-level directories to their purpose:
+**主要ディレクトリ**
+トップレベルのディレクトリをその目的にマッピングする:
 
-<!-- Example for a React project — replace with detected directories -->
+<!-- React プロジェクトの例 — 検出されたディレクトリに置き換える -->
 ```
-src/components/  → React UI components
-src/api/         → API route handlers
-src/lib/         → Shared utilities
-src/db/          → Database models and migrations
-tests/           → Test suites
-scripts/         → Build and deployment scripts
+src/components/  → React UI コンポーネント
+src/api/         → API ルートハンドラー
+src/lib/         → 共有ユーティリティ
+src/db/          → データベースモデルとマイグレーション
+tests/           → テストスイート
+scripts/         → ビルドおよびデプロイスクリプト
 ```
 
-**Data Flow**
-Trace one request from entry to response:
-- Where does a request enter? (router, handler, controller)
-- How is it validated? (middleware, schemas, guards)
-- Where is business logic? (services, models, use cases)
-- How does it reach the database? (ORM, raw queries, repositories)
+**データフロー**
+エントリーからレスポンスまでのリクエストをトレースする:
+- リクエストはどこに入るか？（ルーター、ハンドラー、コントローラー）
+- どのようにバリデートされるか？（ミドルウェア、スキーマ、ガード）
+- ビジネスロジックはどこにあるか？（サービス、モデル、ユースケース）
+- どのようにデータベースに到達するか？（ORM、生クエリ、リポジトリ）
 
-### Phase 3: Convention Detection
+### フェーズ 3: 規約検出
 
-Identify patterns the codebase already follows:
+コードベースがすでに従っているパターンを特定する:
 
-**Naming Conventions**
-- File naming: kebab-case, camelCase, PascalCase, snake_case
-- Component/class naming patterns
-- Test file naming: `*.test.ts`, `*.spec.ts`, `*_test.go`
+**命名規約**
+- ファイル命名: kebab-case、camelCase、PascalCase、snake_case
+- コンポーネント/クラス命名パターン
+- テストファイル命名: `*.test.ts`、`*.spec.ts`、`*_test.go`
 
-**Code Patterns**
-- Error handling style: try/catch, Result types, error codes
-- Dependency injection or direct imports
-- State management approach
-- Async patterns: callbacks, promises, async/await, channels
+**コードパターン**
+- エラーハンドリングスタイル: try/catch、Result 型、エラーコード
+- 依存性注入または直接インポート
+- 状態管理アプローチ
+- 非同期パターン: コールバック、Promise、async/await、チャネル
 
-**Git Conventions**
-- Branch naming from recent branches
-- Commit message style from recent commits
-- PR workflow (squash, merge, rebase)
-- If the repo has no commits yet or only a shallow history (e.g. `git clone --depth 1`), skip this section and note "Git history unavailable or too shallow to detect conventions"
+**Git 規約**
+- 最近のブランチからのブランチ命名
+- 最近のコミットからのコミットメッセージスタイル
+- PR ワークフロー（スカッシュ、マージ、リベース）
+- リポジトリにコミットがない場合や浅い履歴の場合（例: `git clone --depth 1`）は、このセクションをスキップして「Git 履歴が利用できないか、規約を検出するには浅すぎます」と記載する
 
-### Phase 4: Generate Onboarding Artifacts
+### フェーズ 4: オンボーディング成果物の生成
 
-Produce two outputs:
+2 つの出力を生成する:
 
-#### Output 1: Onboarding Guide
+#### 出力 1: オンボーディングガイド
 
 ```markdown
-# Onboarding Guide: [Project Name]
+# オンボーディングガイド: [プロジェクト名]
 
-## Overview
-[2-3 sentences: what this project does and who it serves]
+## 概要
+[2〜3 文: このプロジェクトが何をするもので誰のためのものか]
 
-## Tech Stack
-<!-- Example for a Next.js project — replace with detected stack -->
-| Layer | Technology | Version |
+## テックスタック
+<!-- Next.js プロジェクトの例 — 検出されたスタックに置き換える -->
+| レイヤー | 技術 | バージョン |
 |-------|-----------|---------|
-| Language | TypeScript | 5.x |
-| Framework | Next.js | 14.x |
-| Database | PostgreSQL | 16 |
+| 言語 | TypeScript | 5.x |
+| フレームワーク | Next.js | 14.x |
+| データベース | PostgreSQL | 16 |
 | ORM | Prisma | 5.x |
-| Testing | Jest + Playwright | - |
+| テスト | Jest + Playwright | - |
 
-## Architecture
-[Diagram or description of how components connect]
+## アーキテクチャ
+[コンポーネントがどのように接続されているかの図または説明]
 
-## Key Entry Points
-<!-- Example for a Next.js project — replace with detected paths -->
-- **API routes**: `src/app/api/` — Next.js route handlers
-- **UI pages**: `src/app/(dashboard)/` — authenticated pages
-- **Database**: `prisma/schema.prisma` — data model source of truth
-- **Config**: `next.config.ts` — build and runtime config
+## 主要なエントリーポイント
+<!-- Next.js プロジェクトの例 — 検出されたパスに置き換える -->
+- **API ルート**: `src/app/api/` — Next.js ルートハンドラー
+- **UI ページ**: `src/app/(dashboard)/` — 認証済みページ
+- **データベース**: `prisma/schema.prisma` — データモデルの信頼できる情報源
+- **設定**: `next.config.ts` — ビルドおよびランタイム設定
 
-## Directory Map
-[Top-level directory → purpose mapping]
+## ディレクトリマップ
+[トップレベルディレクトリ → 目的のマッピング]
 
-## Request Lifecycle
-[Trace one API request from entry to response]
+## リクエストのライフサイクル
+[エントリーからレスポンスまでの 1 つの API リクエストをトレース]
 
-## Conventions
-- [File naming pattern]
-- [Error handling approach]
-- [Testing patterns]
-- [Git workflow]
+## 規約
+- [ファイル命名パターン]
+- [エラーハンドリングアプローチ]
+- [テストパターン]
+- [Git ワークフロー]
 
-## Common Tasks
-<!-- Example for a Node.js project — replace with detected commands -->
-- **Run dev server**: `npm run dev`
-- **Run tests**: `npm test`
-- **Run linter**: `npm run lint`
-- **Database migrations**: `npx prisma migrate dev`
-- **Build for production**: `npm run build`
+## よくあるタスク
+<!-- Node.js プロジェクトの例 — 検出されたコマンドに置き換える -->
+- **開発サーバー起動**: `npm run dev`
+- **テスト実行**: `npm test`
+- **リンター実行**: `npm run lint`
+- **データベースマイグレーション**: `npx prisma migrate dev`
+- **本番ビルド**: `npm run build`
 
-## Where to Look
-<!-- Example for a Next.js project — replace with detected paths -->
-| I want to... | Look at... |
+## 調べる場所
+<!-- Next.js プロジェクトの例 — 検出されたパスに置き換える -->
+| やりたいこと | 調べる場所 |
 |--------------|-----------|
-| Add an API endpoint | `src/app/api/` |
-| Add a UI page | `src/app/(dashboard)/` |
-| Add a database table | `prisma/schema.prisma` |
-| Add a test | `tests/` matching the source path |
-| Change build config | `next.config.ts` |
+| API エンドポイントを追加 | `src/app/api/` |
+| UI ページを追加 | `src/app/(dashboard)/` |
+| データベーステーブルを追加 | `prisma/schema.prisma` |
+| テストを追加 | `tests/` のソースパスに対応する場所 |
+| ビルド設定を変更 | `next.config.ts` |
 ```
 
-#### Output 2: Starter CLAUDE.md
+#### 出力 2: スターター CLAUDE.md
 
-Generate or update a project-specific CLAUDE.md based on detected conventions. If `CLAUDE.md` already exists, read it first and enhance it — preserve existing project-specific instructions and clearly call out what was added or changed.
+検出された規約に基づいてプロジェクト固有の CLAUDE.md を生成または更新する。`CLAUDE.md` がすでに存在する場合は先に読み込み、それを拡張する — 既存のプロジェクト固有の指示を保持し、追加・変更された内容を明確に示す。
 
 ```markdown
-# Project Instructions
+# プロジェクト指示
 
-## Tech Stack
-[Detected stack summary]
+## テックスタック
+[検出されたスタックの概要]
 
-## Code Style
-- [Detected naming conventions]
-- [Detected patterns to follow]
+## コードスタイル
+- [検出された命名規約]
+- [従うべき検出されたパターン]
 
-## Testing
-- Run tests: `[detected test command]`
-- Test pattern: [detected test file convention]
-- Coverage: [if configured, the coverage command]
+## テスト
+- テスト実行: `[検出されたテストコマンド]`
+- テストパターン: [検出されたテストファイル規約]
+- カバレッジ: [設定されている場合、カバレッジコマンド]
 
-## Build & Run
-- Dev: `[detected dev command]`
-- Build: `[detected build command]`
-- Lint: `[detected lint command]`
+## ビルドと実行
+- 開発: `[検出された開発コマンド]`
+- ビルド: `[検出されたビルドコマンド]`
+- リント: `[検出されたリントコマンド]`
 
-## Project Structure
-[Key directory → purpose map]
+## プロジェクト構造
+[主要ディレクトリ → 目的のマップ]
 
-## Conventions
-- [Commit style if detectable]
-- [PR workflow if detectable]
-- [Error handling patterns]
+## 規約
+- [検出可能な場合のコミットスタイル]
+- [検出可能な場合の PR ワークフロー]
+- [エラーハンドリングパターン]
 ```
 
-## Best Practices
+## ベストプラクティス
 
-1. **Don't read everything** — reconnaissance should use Glob and Grep, not Read on every file. Read selectively only for ambiguous signals.
-2. **Verify, don't guess** — if a framework is detected from config but the actual code uses something different, trust the code.
-3. **Respect existing CLAUDE.md** — if one already exists, enhance it rather than replacing it. Call out what's new vs existing.
-4. **Stay concise** — the onboarding guide should be scannable in 2 minutes. Details belong in the code, not the guide.
-5. **Flag unknowns** — if a convention can't be confidently detected, say so rather than guessing. "Could not determine test runner" is better than a wrong answer.
+1. **すべてを読まない** — 偵察は Glob と Grep を使うべきであり、すべてのファイルを Read してはいけない。曖昧なシグナルがある場合にのみ選択的に Read する。
+2. **推測せず検証する** — フレームワークが設定ファイルから検出されたが、実際のコードが別のものを使っている場合は、コードを信頼する。
+3. **既存の CLAUDE.md を尊重する** — すでに存在する場合は、置き換えるのではなく拡張する。新規追加内容と既存内容を明示する。
+4. **簡潔に保つ** — オンボーディングガイドは 2 分でスキャンできるものにする。詳細はコードにあるべきで、ガイドではない。
+5. **不明点を示す** — 規約が自信を持って検出できない場合は、推測するよりもそう述べる。「テストランナーを特定できませんでした」の方が誤った答えよりも良い。
 
-## Anti-Patterns to Avoid
+## 避けるべきアンチパターン
 
-- Generating a CLAUDE.md that's longer than 100 lines — keep it focused
-- Listing every dependency — highlight only the ones that shape how you write code
-- Describing obvious directory names — `src/` doesn't need an explanation
-- Copying the README — the onboarding guide adds structural insight the README lacks
+- 100 行を超える CLAUDE.md を生成する — フォーカスを保つ
+- すべての依存関係を列挙する — コードの書き方に影響するものだけを強調する
+- 自明なディレクトリ名を説明する — `src/` は説明不要
+- README をコピーする — オンボーディングガイドは README が欠いている構造的な洞察を加える
 
-## Examples
+## 例
 
-### Example 1: First time in a new repo
-**User**: "Onboard me to this codebase"
-**Action**: Run full 4-phase workflow → produce Onboarding Guide + Starter CLAUDE.md
-**Output**: Onboarding Guide printed directly to the conversation, plus a `CLAUDE.md` written to the project root
+### 例 1: 新しいリポジトリへの初アクセス
+**ユーザー**: 「このコードベースにオンボードしてください」
+**アクション**: 4 フェーズのワークフローをすべて実行 → オンボーディングガイド + スターター CLAUDE.md を生成
+**出力**: オンボーディングガイドを会話に直接表示し、プロジェクトルートに `CLAUDE.md` を書き込む
 
-### Example 2: Generate CLAUDE.md for existing project
-**User**: "Generate a CLAUDE.md for this project"
-**Action**: Run Phases 1-3, skip Onboarding Guide, produce only CLAUDE.md
-**Output**: Project-specific `CLAUDE.md` with detected conventions
+### 例 2: 既存プロジェクトの CLAUDE.md 生成
+**ユーザー**: 「このプロジェクトの CLAUDE.md を生成してください」
+**アクション**: フェーズ 1〜3 を実行し、オンボーディングガイドはスキップして CLAUDE.md のみ生成
+**出力**: 検出された規約を含むプロジェクト固有の `CLAUDE.md`
 
-### Example 3: Enhance existing CLAUDE.md
-**User**: "Update the CLAUDE.md with current project conventions"
-**Action**: Read existing CLAUDE.md, run Phases 1-3, merge new findings
-**Output**: Updated `CLAUDE.md` with additions clearly marked
+### 例 3: 既存 CLAUDE.md の拡張
+**ユーザー**: 「現在のプロジェクト規約で CLAUDE.md を更新してください」
+**アクション**: 既存の CLAUDE.md を読み込み、フェーズ 1〜3 を実行して新しい発見をマージ
+**出力**: 追加内容が明確に示された更新済み `CLAUDE.md`

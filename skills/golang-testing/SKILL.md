@@ -1,33 +1,33 @@
 ---
 name: golang-testing
-description: Go testing patterns including table-driven tests, subtests, benchmarks, fuzzing, and test coverage. Follows TDD methodology with idiomatic Go practices.
+description: テーブル駆動テスト、サブテスト、ベンチマーク、ファジング、テストカバレッジを含むGoのテストパターン。TDD手法と慣用的なGoプラクティスに従います。
 origin: ECC
 ---
 
-# Go Testing Patterns
+# Go テストパターン
 
-Comprehensive Go testing patterns for writing reliable, maintainable tests following TDD methodology.
+TDD手法に従い、信頼性が高く保守しやすいテストを書くための包括的なGoテストパターン。
 
-## When to Activate
+## 有効化するタイミング
 
-- Writing new Go functions or methods
-- Adding test coverage to existing code
-- Creating benchmarks for performance-critical code
-- Implementing fuzz tests for input validation
-- Following TDD workflow in Go projects
+- 新しいGoの関数やメソッドを書くとき
+- 既存コードにテストカバレッジを追加するとき
+- パフォーマンスクリティカルなコードのベンチマークを作成するとき
+- 入力バリデーションのファジングテストを実装するとき
+- GoプロジェクトでTDDワークフローを実践するとき
 
-## TDD Workflow for Go
+## GoでのTDDワークフロー
 
-### The RED-GREEN-REFACTOR Cycle
+### RED-GREEN-REFACTORサイクル
 
 ```
-RED     → Write a failing test first
-GREEN   → Write minimal code to pass the test
-REFACTOR → Improve code while keeping tests green
-REPEAT  → Continue with next requirement
+RED     → まず失敗するテストを書く
+GREEN   → テストをパスする最小限のコードを書く
+REFACTOR → テストをグリーンに保ちながらコードを改善する
+REPEAT  → 次の要件に続ける
 ```
 
-### Step-by-Step TDD in Go
+### GoでのステップバイステップTDD
 
 ```go
 // Step 1: Define the interface/signature
@@ -69,9 +69,9 @@ func Add(a, b int) int {
 // Step 6: Refactor if needed, verify tests still pass
 ```
 
-## Table-Driven Tests
+## テーブル駆動テスト
 
-The standard pattern for Go tests. Enables comprehensive coverage with minimal code.
+Goテストの標準パターン。最小限のコードで包括的なカバレッジを実現します。
 
 ```go
 func TestAdd(t *testing.T) {
@@ -99,7 +99,7 @@ func TestAdd(t *testing.T) {
 }
 ```
 
-### Table-Driven Tests with Error Cases
+### エラーケースを含むテーブル駆動テスト
 
 ```go
 func TestParseConfig(t *testing.T) {
@@ -154,13 +154,13 @@ func TestParseConfig(t *testing.T) {
 }
 ```
 
-## Subtests and Sub-benchmarks
+## サブテストとサブベンチマーク
 
-### Organizing Related Tests
+### 関連するテストの整理
 
 ```go
 func TestUser(t *testing.T) {
-    // Setup shared by all subtests
+    // すべてのサブテストで共有するセットアップ
     db := setupTestDB(t)
 
     t.Run("Create", func(t *testing.T) {
@@ -194,7 +194,7 @@ func TestUser(t *testing.T) {
 }
 ```
 
-### Parallel Subtests
+### 並行サブテスト
 
 ```go
 func TestParallel(t *testing.T) {
@@ -219,9 +219,9 @@ func TestParallel(t *testing.T) {
 }
 ```
 
-## Test Helpers
+## テストヘルパー
 
-### Helper Functions
+### ヘルパー関数
 
 ```go
 func setupTestDB(t *testing.T) *sql.DB {
@@ -260,7 +260,7 @@ func assertEqual[T comparable](t *testing.T, got, want T) {
 }
 ```
 
-### Temporary Files and Directories
+### 一時ファイルとディレクトリ
 
 ```go
 func TestFileProcessing(t *testing.T) {
@@ -285,9 +285,9 @@ func TestFileProcessing(t *testing.T) {
 }
 ```
 
-## Golden Files
+## ゴールデンファイル
 
-Testing against expected output files stored in `testdata/`.
+`testdata/` に保存された期待出力ファイルに対してテストを行います。
 
 ```go
 var update = flag.Bool("update", false, "update golden files")
@@ -328,9 +328,9 @@ func TestRender(t *testing.T) {
 }
 ```
 
-## Mocking with Interfaces
+## インターフェースを使ったモッキング
 
-### Interface-Based Mocking
+### インターフェースベースのモッキング
 
 ```go
 // Define interface for dependencies
@@ -385,9 +385,9 @@ func TestUserService(t *testing.T) {
 }
 ```
 
-## Benchmarks
+## ベンチマーク
 
-### Basic Benchmarks
+### 基本的なベンチマーク
 
 ```go
 func BenchmarkProcess(b *testing.B) {
@@ -403,7 +403,7 @@ func BenchmarkProcess(b *testing.B) {
 // Output: BenchmarkProcess-8   10000   105234 ns/op   4096 B/op   10 allocs/op
 ```
 
-### Benchmark with Different Sizes
+### 異なるサイズでのベンチマーク
 
 ```go
 func BenchmarkSort(b *testing.B) {
@@ -425,7 +425,7 @@ func BenchmarkSort(b *testing.B) {
 }
 ```
 
-### Memory Allocation Benchmarks
+### メモリアロケーションのベンチマーク
 
 ```go
 func BenchmarkStringConcat(b *testing.B) {
@@ -459,9 +459,9 @@ func BenchmarkStringConcat(b *testing.B) {
 }
 ```
 
-## Fuzzing (Go 1.18+)
+## ファジング（Go 1.18以降）
 
-### Basic Fuzz Test
+### 基本的なファズテスト
 
 ```go
 func FuzzParseJSON(f *testing.F) {
@@ -491,7 +491,7 @@ func FuzzParseJSON(f *testing.F) {
 // Run: go test -fuzz=FuzzParseJSON -fuzztime=30s
 ```
 
-### Fuzz Test with Multiple Inputs
+### 複数の入力を使ったファズテスト
 
 ```go
 func FuzzCompare(f *testing.F) {
@@ -519,9 +519,9 @@ func FuzzCompare(f *testing.F) {
 }
 ```
 
-## Test Coverage
+## テストカバレッジ
 
-### Running Coverage
+### カバレッジの実行
 
 ```bash
 # Basic coverage
@@ -540,16 +540,16 @@ go tool cover -func=coverage.out
 go test -race -coverprofile=coverage.out ./...
 ```
 
-### Coverage Targets
+### カバレッジ目標
 
-| Code Type | Target |
+| コードの種類 | 目標 |
 |-----------|--------|
-| Critical business logic | 100% |
-| Public APIs | 90%+ |
-| General code | 80%+ |
-| Generated code | Exclude |
+| 重要なビジネスロジック | 100% |
+| パブリックAPI | 90%以上 |
+| 一般的なコード | 80%以上 |
+| 生成されたコード | 除外 |
 
-### Excluding Generated Code from Coverage
+### 生成されたコードをカバレッジから除外する
 
 ```go
 //go:generate mockgen -source=interface.go -destination=mock_interface.go
@@ -558,7 +558,7 @@ go test -race -coverprofile=coverage.out ./...
 // go test -cover -tags=!generate ./...
 ```
 
-## HTTP Handler Testing
+## HTTPハンドラーのテスト
 
 ```go
 func TestHealthHandler(t *testing.T) {
@@ -641,7 +641,7 @@ func TestAPIHandler(t *testing.T) {
 }
 ```
 
-## Testing Commands
+## テストコマンド
 
 ```bash
 # Run all tests
@@ -678,25 +678,25 @@ go test -fuzz=FuzzParse -fuzztime=30s ./...
 go test -count=10 ./...
 ```
 
-## Best Practices
+## ベストプラクティス
 
-**DO:**
-- Write tests FIRST (TDD)
-- Use table-driven tests for comprehensive coverage
-- Test behavior, not implementation
-- Use `t.Helper()` in helper functions
-- Use `t.Parallel()` for independent tests
-- Clean up resources with `t.Cleanup()`
-- Use meaningful test names that describe the scenario
+**すべきこと:**
+- テストをまず書く（TDD）
+- 包括的なカバレッジのためにテーブル駆動テストを使う
+- 実装ではなく振る舞いをテストする
+- ヘルパー関数には `t.Helper()` を使う
+- 独立したテストには `t.Parallel()` を使う
+- `t.Cleanup()` でリソースをクリーンアップする
+- シナリオを説明する意味のあるテスト名を使う
 
-**DON'T:**
-- Test private functions directly (test through public API)
-- Use `time.Sleep()` in tests (use channels or conditions)
-- Ignore flaky tests (fix or remove them)
-- Mock everything (prefer integration tests when possible)
-- Skip error path testing
+**してはいけないこと:**
+- プライベート関数を直接テストする（パブリックAPIを通じてテストする）
+- テストで `time.Sleep()` を使う（チャネルや条件を使う）
+- 不安定なテストを無視する（修正するか削除する）
+- すべてをモックにする（可能であれば統合テストを好む）
+- エラーパスのテストをスキップする
 
-## Integration with CI/CD
+## CI/CDとの統合
 
 ```yaml
 # GitHub Actions example
@@ -717,4 +717,4 @@ test:
         awk -F'%' '{if ($1 < 80) exit 1}'
 ```
 
-**Remember**: Tests are documentation. They show how your code is meant to be used. Write them clearly and keep them up to date.
+**覚えておこう**: テストはドキュメントです。コードがどのように使われることを意図しているかを示します。明確に書き、常に最新の状態に保ちましょう。

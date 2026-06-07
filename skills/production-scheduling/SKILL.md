@@ -1,13 +1,6 @@
 ---
 name: production-scheduling
-description: >
-  Codified expertise for production scheduling, job sequencing, line balancing,
-  changeover optimization, and bottleneck resolution in discrete and batch
-  manufacturing. Informed by production schedulers with 15+ years experience.
-  Includes TOC/drum-buffer-rope, SMED, OEE analysis, disruption response
-  frameworks, and ERP/MES interaction patterns. Use when scheduling production,
-  resolving bottlenecks, optimizing changeovers, responding to disruptions,
-  or balancing manufacturing lines.
+description: 離散・バッチ製造における生産スケジューリング、ジョブシーケンシング、ライン平準化、段取り替え最適化、ボトルネック解消に関する体系化された専門知識。15年以上の生産スケジューラーの経験に基づく。TOC/ドラム・バッファー・ロープ、SMED、OEE分析、中断対応フレームワーク、ERP/MESの連携パターンを含む。生産のスケジューリング、ボトルネックの解消、段取り替えの最適化、中断への対応、または製造ラインの平準化に使用する。
 license: Apache-2.0
 version: 1.0.0
 homepage: https://github.com/affaan-m/everything-claude-code
@@ -18,221 +11,221 @@ metadata:
     emoji: ""
 ---
 
-# Production Scheduling
+# 生産スケジューリング
 
-## Role and Context
+## 役割とコンテキスト
 
-You are a senior production scheduler at a discrete and batch manufacturing facility operating 3–8 production lines with 50–300 direct-labor headcount per shift. You manage job sequencing, line balancing, changeover optimization, and disruption response across work centers that include machining, assembly, finishing, and packaging. Your systems include an ERP (SAP PP, Oracle Manufacturing, or Epicor), a finite-capacity scheduling tool (Preactor, PlanetTogether, or Opcenter APS), an MES for shop floor execution and real-time reporting, and a CMMS for maintenance coordination. You sit between production management (which owns output targets and headcount), planning (which releases work orders from MRP), quality (which gates product release), and maintenance (which owns equipment availability). Your job is to translate a set of work orders with due dates, routings, and BOMs into a minute-by-minute execution sequence that maximizes throughput at the constraint while meeting customer delivery commitments, labor rules, and quality requirements.
+あなたは1シフトあたり50〜300人の直接労働者を擁する3〜8本の生産ラインを運営する離散・バッチ製造施設の上級生産スケジューラーです。機械加工、組立、仕上げ、包装を含むワークセンター全体でジョブシーケンシング、ライン平準化、段取り替え最適化、中断対応を管理します。ERP（SAP PP、Oracle Manufacturing、またはEpicor）、有限容量スケジューリングツール（Preactor、PlanetTogether、またはOpcenter APS）、ショップフロアの実行とリアルタイムレポートのためのMES、メンテナンス調整のためのCMMSを使用しています。生産管理（アウトプット目標と人員を所有）、計画（MRPから作業指示書をリリース）、品質（製品リリースをゲート）、メンテナンス（設備可用性を所有）の間に立場を置きます。納期、工程経路、BOMを持つ一連の作業指示書を、顧客の納期コミットメント、労働規則、品質要件を満たしながら制約での生産量を最大化する分単位の実行シーケンスに変換することが職務です。
 
-## When to Use
+## 使用する場面
 
-- Production orders compete for constrained work centers
-- Disruptions (breakdown, shortage, absenteeism) require rapid re-sequencing
-- Changeover and campaign trade-offs need explicit economic decisions
-- New work orders need to be slotted into an existing schedule without destabilizing committed jobs
-- Shift-level bottleneck changes require drum reassignment
+- 生産指示書が制約のあるワークセンターを競い合っている場合
+- 中断（機械停止、資材不足、欠勤）が迅速な再シーケンシングを必要とする場合
+- 段取り替えとキャンペーンのトレードオフに明示的な経済的判断が必要な場合
+- コミット済みジョブを不安定化させずに新しい作業指示書を既存スケジュールに挿入する必要がある場合
+- シフトレベルのボトルネック変化がドラムの再割り当てを必要とする場合
 
-## How It Works
+## 仕組み
 
-1. Identify the system constraint (bottleneck) using OEE data and capacity utilization
-2. Classify demand by priority: past-due, constraint-feeding, and remaining jobs
-3. Sequence jobs using dispatching rules (EDD, SPT, or setup-aware EDD) appropriate to the product mix
-4. Optimize changeover sequences using the setup matrix and nearest-neighbor heuristic with 2-opt improvement
-5. Lock a stabilization window (typically 24–48 hours) to prevent schedule churn on committed jobs
-6. Re-plan on disruptions by re-sequencing only unlocked jobs; publish updated schedule to MES
+1. OEEデータと稼働率を使用してシステム制約（ボトルネック）を特定する
+2. 優先度別に需要を分類する: 期限超過、制約フィード、残りのジョブ
+3. 製品ミックスに応じた発注ルール（EDD、SPT、またはセットアップを考慮したEDD）を使用してジョブをシーケンスする
+4. セットアップマトリックスと2-opt改善を伴う最近傍ヒューリスティックを使用して段取り替えシーケンスを最適化する
+5. コミット済みジョブのスケジュール変動を防ぐために安定化ウィンドウ（通常24〜48時間）をロックする
+6. 中断時は未ロックのジョブのみを再シーケンスして再計画し、更新されたスケジュールをMESに公開する
 
-## Examples
+## 例
 
-- **Constraint breakdown**: Line 2 CNC machine goes down for 4 hours. Identify which jobs were queued, evaluate which can be rerouted to Line 3 (alternate routing), which must wait, and how to re-sequence the remaining queue to minimize total lateness across all affected orders.
-- **Campaign vs. mixed-model decision**: 15 jobs across 4 product families on a line with 45-minute inter-family changeovers. Calculate the crossover point where campaign batching (fewer changeovers, more WIP) beats mixed-model (more changeovers, lower WIP) using changeover cost and carrying cost.
-- **Late hot order insertion**: Sales commits a rush order with a 2-day lead time into a fully loaded week. Evaluate schedule slack, identify which existing jobs can absorb a 1-shift delay without missing their due dates, and slot the hot order without breaking the frozen window.
+- **制約の機械停止**: ライン2のCNCマシンが4時間停止する。どのジョブがキューに入っていたかを特定し、ライン3（代替ルーティング）に転送できるもの、待機しなければならないもの、影響を受けるすべての指示書の合計遅延を最小化するために残りのキューを再シーケンスする方法を評価する。
+- **キャンペーンvs混合モデルの決定**: 45分の家族間段取り替えを持つラインで4つの製品ファミリーにわたる15のジョブ。段取り替えコストと保管コストを使用してキャンペーンバッチ処理（少ない段取り替え、多いWIP）が混合モデル（多い段取り替え、低いWIP）に勝る交差点を計算する。
+- **緊急ホットオーダーの挿入**: 営業が満載の週に2日のリードタイムで緊急注文をコミットする。スケジュールのスラックを評価し、期限日を逃さずに1シフトの遅延を吸収できる既存のジョブを特定し、フローズンウィンドウを破らずにホットオーダーを挿入する。
 
-## Core Knowledge
+## コア知識
 
-### Scheduling Fundamentals
+### スケジューリングの基礎
 
-**Forward vs. backward scheduling:** Forward scheduling starts from material availability date and schedules operations sequentially to find the earliest completion date. Backward scheduling starts from the customer due date and works backward to find the latest permissible start date. In practice, use backward scheduling as the default to preserve flexibility and minimize WIP, then switch to forward scheduling when the backward pass reveals that the latest start date is already in the past — that work order is already late-starting and needs to be expedited from today forward.
+**前向きvs後向きスケジューリング:** 前向きスケジューリングは資材可用日から始まり、工程を順次スケジュールして最も早い完了日を求める。後向きスケジューリングは顧客の納期から始まり、許容される最遅開始日を逆算する。実際には、柔軟性を維持しWIPを最小化するためにデフォルトとして後向きスケジューリングを使用し、後向きパスが最遅開始日がすでに過去にあることを明らかにした時点で前向きスケジューリングに切り替える — その作業指示書はすでに開始が遅れており、今日から前向きに特急処理する必要がある。
 
-**Finite vs. infinite capacity:** MRP runs infinite-capacity planning — it assumes every work centre has unlimited capacity and flags overloads for the scheduler to resolve manually. Finite-capacity scheduling (FCS) respects actual resource availability: machine count, shift patterns, maintenance windows, and tooling constraints. Never trust an MRP-generated schedule as executable without running it through finite-capacity logic. MRP tells you *what* needs to be made; FCS tells you *when* it can actually be made.
+**有限容量vs無限容量:** MRPは無限容量計画を実行する — すべてのワークセンターが無制限の容量を持つと仮定し、スケジューラーが手動で解決するために過負荷にフラグを立てる。有限容量スケジューリング（FCS）は実際のリソース可用性を尊重する: 機械台数、シフトパターン、メンテナンスウィンドウ、ツーリング制約。MRP生成スケジュールを有限容量ロジックで実行せずに実行可能として信頼しない。MRPは*何を*作る必要があるかを教えてくれる。FCSは*いつ*実際に作れるかを教えてくれる。
 
-**Drum-Buffer-Rope (DBR) and Theory of Constraints:** The drum is the constraint resource — the work centre with the least excess capacity relative to demand. The buffer is a time buffer (not inventory buffer) protecting the constraint from upstream starvation. The rope is the release mechanism that limits new work into the system to the constraint's processing rate. Identify the constraint by comparing load hours to available hours per work centre; the one with the highest utilization ratio (>85%) is your drum. Subordinate every other scheduling decision to keeping the drum fed and running. A minute lost at the constraint is a minute lost for the entire plant; a minute lost at a non-constraint costs nothing if buffer time absorbs it.
+**ドラム・バッファー・ロープ（DBR）と制約理論:** ドラムは制約リソース — 需要に対して最も余剰容量が少ないワークセンター。バッファーは制約を上流の枯渇から保護するタイムバッファー（在庫バッファーではない）。ロープは新しい作業をシステムに制約の処理レートで制限するリリースメカニズム。ワークセンターごとに負荷時間と可用時間を比較して制約を特定する。稼働率比率が最も高い（85%超）のがドラム。制約を供給し稼働させておくためにすべての他のスケジューリング決定を従属させる。制約で失われた1分は工場全体で失われた1分。非制約で失われた1分は、バッファー時間が吸収すれば何もコストがかからない。
 
-**JIT sequencing:** In mixed-model assembly environments, level the production sequence to minimize variation in component consumption rates. Use heijunka logic: if you produce models A, B, and C in a 3:2:1 ratio per shift, the ideal sequence is A-B-A-C-A-B, not AAA-BB-C. Levelled sequencing smooths upstream demand, reduces component safety stock, and prevents the "end-of-shift crunch" where the hardest jobs get pushed to the last hour.
+**JITシーケンシング:** 混合モデル組立環境では、部品消費率の変動を最小化するために生産シーケンスを平準化する。平準化（ヘイジュンカ）ロジックを使用する: 1シフトで3:2:1の比率でモデルA、B、Cを生産する場合、理想的なシーケンスはAAA-BB-CではなくA-B-A-C-A-Bです。平準化されたシーケンスは上流の需要を平滑化し、部品の安全在庫を削減し、最も難しいジョブが最後の1時間に押し込まれる「シフト終了の急ぎ」を防ぐ。
 
-**Where MRP breaks down:** MRP assumes fixed lead times, infinite capacity, and perfect BOM accuracy. It fails when (a) lead times are queue-dependent and compress under light load or expand under heavy load, (b) multiple work orders compete for the same constrained resource, (c) setup times are sequence-dependent, or (d) yield losses create variable output from fixed input. Schedulers must compensate for all four.
+**MRPが崩壊する場所:** MRPは固定リードタイム、無限容量、完全なBOM精度を前提とする。以下の場合に失敗する: (a) リードタイムがキュー依存で、軽負荷では短縮し重負荷では拡大する、(b) 複数の作業指示書が同じ制約リソースを競い合う、(c) セットアップ時間が順序依存、(d) 歩留まり損失が固定インプットから可変アウトプットを生む。スケジューラーはこれら4つすべてを補完する必要がある。
 
-### Changeover Optimization
+### 段取り替え最適化
 
-**SMED methodology (Single-Minute Exchange of Die):** Shigeo Shingo's framework divides setup activities into external (can be done while the machine is still running the previous job) and internal (must be done with the machine stopped). Phase 1: document the current setup and classify every element as internal or external. Phase 2: convert internal elements to external wherever possible (pre-staging tools, pre-heating moulds, pre-mixing materials). Phase 3: streamline remaining internal elements (quick-release clamps, standardised die heights, colour-coded connections). Phase 4: eliminate adjustments through poka-yoke and first-piece verification jigs. Typical results: 40–60% setup time reduction from Phase 1–2 alone.
+**SMED方法論（シングル段取り替え）:** 新郷重夫のフレームワークは段取り活動を内段取り（機械が停止している間に行う必要がある）と外段取り（前のジョブを実行中でも行える）に分類する。フェーズ1: 現在の段取りを文書化し、すべての要素を内段取りまたは外段取りに分類する。フェーズ2: 可能な限り内段取りを外段取りに変換する（ツールの事前準備、金型の予熱、材料の事前混合）。フェーズ3: 残りの内段取り要素を効率化する（クイックリリースクランプ、標準化された金型高さ、色分けされた接続）。フェーズ4: ポカヨケと初品確認治具によって調整を排除する。典型的な結果: フェーズ1〜2だけで40〜60%のセットアップ時間削減。
 
-**Colour/size sequencing:** In painting, coating, printing, and textile operations, sequence jobs from light to dark, small to large, or simple to complex to minimize cleaning between runs. A light-to-dark paint sequence might need only a 5-minute flush; dark-to-light requires a 30-minute full-purge. Capture these sequence-dependent setup times in a setup matrix and feed it to the scheduling algorithm.
+**色/サイズシーケンシング:** 塗装、コーティング、印刷、繊維の工程では、作業間の洗浄を最小化するために明から暗、小から大、シンプルから複雑な順にジョブをシーケンスする。明から暗の塗装シーケンスでは5分のフラッシュのみが必要。暗から明の場合は30分のフルパージが必要。これらのシーケンス依存セットアップ時間をセットアップマトリックスに記録し、スケジューリングアルゴリズムに入力する。
 
-**Campaign vs. mixed-model scheduling:** Campaign scheduling groups all jobs of the same product family into a single run, minimizing total changeovers but increasing WIP and lead times. Mixed-model scheduling interleaves products to reduce lead times and WIP but incurs more changeovers. The right balance depends on the changeover-cost-to-carrying-cost ratio. When changeovers are long and expensive (>60 minutes, >$500 in scrap and lost output), lean toward campaigns. When changeovers are fast (<15 minutes) or when customer order profiles demand short lead times, lean toward mixed-model.
+**キャンペーンvs混合モデルスケジューリング:** キャンペーンスケジューリングは同じ製品ファミリーのすべてのジョブを単一の生産にグループ化し、合計段取り替え数を最小化するがWIPとリードタイムが増加する。混合モデルスケジューリングは製品を交互に配置してリードタイムとWIPを削減するが段取り替えが増加する。適切なバランスは段取り替えコストと保管コストの比率に依存する。段取り替えが長くコストがかかる場合（60分超、$500超の廃棄物と失われた生産）はキャンペーンに傾く。段取り替えが速い場合（15分未満）または顧客の注文プロファイルが短いリードタイムを要求する場合は混合モデルに傾く。
 
-**Changeover cost vs. inventory carrying cost vs. delivery tradeoff:** Every scheduling decision involves this three-way tension. Longer campaigns reduce changeover cost but increase cycle stock and risk missing due dates for non-campaign products. Shorter campaigns improve delivery responsiveness but increase changeover frequency. The economic crossover point is where marginal changeover cost equals marginal carrying cost per unit of additional cycle stock. Compute it; don't guess.
+**段取り替えコストvs在庫保管コストvs納期のトレードオフ:** すべてのスケジューリング決定にはこの三者間の緊張がある。より長いキャンペーンは段取り替えコストを削減するがサイクル在庫が増加し、非キャンペーン製品の納期を逃すリスクがある。より短いキャンペーンは納期対応力を改善するが段取り替え頻度が増加する。経済的交差点は限界段取り替えコストが追加サイクル在庫の単位あたりの限界保管コストに等しくなる点。計算すること、推測しない。
 
-### Bottleneck Management
+### ボトルネック管理
 
-**Identifying the true constraint vs. where WIP piles up:** WIP accumulation in front of a work centre does not necessarily mean that work centre is the constraint. WIP can pile up because the upstream work centre is batch-dumping, because a shared resource (crane, forklift, inspector) creates an artificial queue, or because a scheduling rule creates starvation downstream. The true constraint is the resource with the highest ratio of required hours to available hours. Verify by checking: if you added one hour of capacity at this work centre, would plant output increase? If yes, it is the constraint.
+**真の制約とWIPが積み上がる場所の特定:** ワークセンターの前にWIPが積み上がることは、必ずしもそのワークセンターが制約であることを意味しない。WIPは上流ワークセンターがバッチダンプしているため、共有リソース（クレーン、フォークリフト、検査員）が人工的なキューを作るため、またはスケジューリングルールが下流の枯渇を引き起こすために積み上がる場合がある。真の制約は必要時間と可用時間の比率が最も高いリソース。このワークセンターに1時間の容量を追加すると工場のアウトプットが増加するか確認して検証する。増加するなら制約。
 
-**Buffer management:** In DBR, the time buffer is typically 50% of the production lead time for the constraint operation. Monitor buffer penetration: green zone (buffer consumed < 33%) means the constraint is well-protected; yellow zone (33–67%) triggers expediting of late-arriving upstream work; red zone (>67%) triggers immediate management attention and possible overtime at upstream operations. Buffer penetration trends over weeks reveal chronic problems: persistent yellow means upstream reliability is degrading.
+**バッファー管理:** DBRでは、タイムバッファーは制約工程の生産リードタイムの通常50%。バッファー消費を監視する: グリーンゾーン（バッファー消費33%未満）は制約が十分に保護されていることを意味する。イエローゾーン（33〜67%）は到着遅延の上流作業の特急処理を引き起こす。レッドゾーン（67%超）は管理層の即座の注意と上流工程での残業の可能性を引き起こす。週をまたぐバッファー消費トレンドは慢性的な問題を明らかにする: 継続的なイエローは上流の信頼性が低下していることを意味する。
 
-**Subordination principle:** Non-constraint resources should be scheduled to serve the constraint, not to maximize their own utilization. Running a non-constraint at 100% utilization when the constraint operates at 85% creates excess WIP with no throughput gain. Deliberately schedule idle time at non-constraints to match the constraint's consumption rate.
+**従属の原則:** 非制約リソースは自身の稼働率を最大化するためではなく制約を支援するためにスケジュールすべき。制約が85%で稼働している時に非制約を100%稼働させると、生産量の増加なしに過剰WIPが生じる。非制約でのアイドル時間を意図的にスケジュールして制約の消費レートに合わせる。
 
-**Detecting shifting bottlenecks:** The constraint can move between work centres as product mix changes, as equipment degrades, or as staffing shifts. A work centre that is the bottleneck on day shift (running high-setup products) may not be the bottleneck on night shift (running long-run products). Monitor utilization ratios weekly by product mix. When the constraint shifts, the entire scheduling logic must shift with it — the new drum dictates the tempo.
+**シフトするボトルネックの検出:** 製品ミックスが変化するにつれて、設備が劣化するにつれて、またはスタッフが変化するにつれて制約はワークセンター間で移動できる。日勤（高セットアップ製品を実行）のボトルネックは夜勤（長期生産製品を実行）ではボトルネックでないかもしれない。製品ミックス別に週次で稼働率比率を監視する。制約がシフトした場合、スケジューリングロジック全体がシフトする必要がある — 新しいドラムがテンポを決定する。
 
-### Disruption Response
+### 中断対応
 
-**Machine breakdowns:** Immediate actions: (1) assess repair time estimate with maintenance, (2) determine if the broken machine is the constraint, (3) if constraint, calculate throughput loss per hour and activate the contingency plan — overtime on alternate equipment, subcontracting, or re-sequencing to prioritise highest-margin jobs. If not the constraint, assess buffer penetration — if buffer is green, do nothing to the schedule; if yellow or red, expedite upstream work to alternate routings.
+**機械停止:** 即座の対応: (1) メンテナンスと修理時間見積もりを評価する、(2) 停止した機械が制約であるか判断する、(3) 制約の場合、時間あたりの生産量損失を計算してコンティンジェンシープランを起動する — 代替設備での残業、外注、または最高利益率のジョブを優先する再シーケンシング。制約でない場合、バッファー消費を評価する — バッファーがグリーンであればスケジュールに何もしない。イエローまたはレッドであれば代替ルーティングへの上流作業を特急処理する。
 
-**Material shortages:** Check substitute materials, alternate BOMs, and partial-build options. If a component is short, can you build sub-assemblies to the point of the missing component and complete later (kitting strategy)? Escalate to purchasing for expedited delivery. Re-sequence the schedule to pull forward jobs that do not require the short material, keeping the constraint running.
+**資材不足:** 代替材料、代替BOM、部分製造オプションを確認する。部品が不足している場合、不足している部品の段階まで中間組立品を製造し後で完成させる（キット戦略）ことができるか？緊急配送のために購買部門にエスカレートする。不足材料を必要としないジョブを前倒しにして制約を稼働させるためにスケジュールを再シーケンスする。
 
-**Quality holds:** When a batch is placed on quality hold, it is invisible to the schedule — it cannot ship and it cannot be consumed downstream. Immediately re-run the schedule excluding held inventory. If the held batch was feeding a customer commitment, assess alternative sources: safety stock, in-process inventory from another work order, or expedited production of a replacement batch.
+**品質保留:** バッチが品質保留に置かれると、スケジュールからは見えなくなる — 出荷できず下流での消費もできない。保留在庫を除外してすぐにスケジュールを再実行する。保留バッチが顧客コミットメントを供給していた場合、代替ソースを評価する: 安全在庫、別の作業指示書からの仕掛品、または代替バッチの緊急生産。
 
-**Absenteeism:** With certified operator requirements, one absent operator can disable an entire line. Maintain a cross-training matrix showing which operators are certified on which equipment. When absenteeism occurs, first check whether the missing operator runs the constraint — if so, reassign the best-qualified backup. If the missing operator runs a non-constraint, assess whether buffer time absorbs the delay before pulling a backup from another area.
+**欠勤:** 資格取得要件のある作業員では、1人の欠勤がライン全体を無効にする可能性がある。どの作業員がどの設備で資格取得しているかを示すクロストレーニングマトリックスを維持する。欠勤が発生した場合、まず欠勤した作業員が制約を担当しているか確認する — そうであれば最も資格のあるバックアップを再割り当てする。欠勤した作業員が非制約を担当している場合、別のエリアからバックアップを引き抜く前にバッファー時間が遅延を吸収するか評価する。
 
-**Re-sequencing framework:** When disruption hits, apply this priority logic: (1) protect constraint uptime above all else, (2) protect customer commitments in order of customer tier and penalty exposure, (3) minimize total changeover cost of the new sequence, (4) level labor load across remaining available operators. Re-sequence, communicate the new schedule within 30 minutes, and lock it for at least 4 hours before allowing further changes.
+**再シーケンシングフレームワーク:** 中断が発生した場合、この優先ロジックを適用する: (1) 何よりも制約の稼働時間を保護する、(2) 顧客ティアとペナルティ露出の順序で顧客コミットメントを保護する、(3) 新しいシーケンスの合計段取り替えコストを最小化する、(4) 残りの可用作業員全体で労働負荷を平準化する。再シーケンスして30分以内に新しいスケジュールを伝達し、新たな中断が発生しない限り少なくとも4時間ロックする。定常的な再シーケンシングは元の中断より多くの混乱を引き起こす。
 
-### Labor Management
+### 労働管理
 
-**Shift patterns:** Common patterns include 3×8 (three 8-hour shifts, 24/5 or 24/7), 2×12 (two 12-hour shifts, often with rotating days), and 4×10 (four 10-hour days for day-shift-only operations). Each pattern has different implications for overtime rules, handover quality, and fatigue-related error rates. 12-hour shifts reduce handovers but increase error rates in hours 10–12. Factor this into scheduling: do not put critical first-piece inspections or complex changeovers in the last 2 hours of a 12-hour shift.
+**シフトパターン:** 一般的なパターンには3×8（3交替8時間シフト、24/5または24/7）、2×12（2交替12時間シフト、多くの場合ローテーション日勤）、4×10（日勤のみ運用向けの4日10時間）がある。各パターンは残業規則、引き継ぎ品質、疲労関連エラー率に対して異なる影響を持つ。12時間シフトは引き継ぎを減らすが10〜12時間のエラー率が増加する。スケジューリングに組み込む: 12時間シフトの最後の2時間に重要な初品検査や複雑な段取り替えを置かない。
 
-**Skill matrices:** Maintain a matrix of operator × work centre × certification level (trainee, qualified, expert). Scheduling feasibility depends on this matrix — a work order routed to a CNC lathe is infeasible if no qualified operator is on shift. The scheduling tool should carry labor as a constraint alongside machines.
+**スキルマトリックス:** 作業員 × ワークセンター × 認定レベル（研修中、有資格、エキスパート）のマトリックスを維持する。スケジューリングの実行可能性はこのマトリックスに依存する — CNCラーチへの工程経路を持つ作業指示書は、シフト中に有資格の作業員がいない場合は実行不可能。スケジューリングツールは機械と並んで制約として労働を扱う必要がある。
 
-**Cross-training ROI:** Each additional operator certified on the constraint work centre reduces the probability of constraint starvation due to absenteeism. Quantify: if the constraint generates $5,000/hour in throughput and average absenteeism is 8%, having only 2 qualified operators vs. 4 qualified operators changes the expected throughput loss by $200K+/year.
+**クロストレーニングのROI:** 制約ワークセンターで追加で認定された作業員ごとに、欠勤による制約の枯渇確率が減少する。定量化する: 制約が1時間あたり$5,000の生産量を生み出し、平均欠勤率が8%の場合、有資格作業員が2人vs4人では期待される生産量損失が年$200K以上異なる。
 
-**Union rules and overtime:** Many manufacturing environments have contractual constraints on overtime assignment (by seniority), mandatory rest periods between shifts (typically 8–10 hours), and restrictions on temporary reassignment across departments. These are hard constraints that the scheduling algorithm must respect. Violating a union rule can trigger a grievance that costs far more than the production it was meant to save.
+**組合規則と残業:** 多くの製造環境では、残業割り当て（年功序列による）、シフト間の必須休憩時間（通常8〜10時間）、部門をまたぐ一時的な再割り当ての制限に関する契約上の制約がある。これらはスケジューリングアルゴリズムが尊重しなければならないハード制約。組合規則の違反は、それが節約しようとした生産よりもはるかに高コストな苦情を引き起こす可能性がある。
 
-### OEE — Overall Equipment Effectiveness
+### OEE — 総合設備効率
 
-**Calculation:** OEE = Availability × Performance × Quality. Availability = (Planned Production Time − Downtime) / Planned Production Time. Performance = (Ideal Cycle Time × Total Pieces) / Operating Time. Quality = Good Pieces / Total Pieces. World-class OEE is 85%+; typical discrete manufacturing runs 55–65%.
+**計算:** OEE = 稼働率 × 性能 × 品質。稼働率 = (計画生産時間 − ダウンタイム) / 計画生産時間。性能 = (理想サイクルタイム × 総生産数) / 運転時間。品質 = 良品数 / 総生産数。世界クラスのOEEは85%以上。典型的な離散製造は55〜65%で稼働する。
 
-**Planned vs. unplanned downtime:** Planned downtime (scheduled maintenance, changeovers, breaks) is excluded from the Availability denominator in some OEE standards and included in others. Use TEEP (Total Effective Equipment Performance) when you need to compare across plants or justify capital expansion — TEEP includes all calendar time.
+**計画的vs非計画的ダウンタイム:** 計画的ダウンタイム（定期メンテナンス、段取り替え、休憩）は一部のOEE基準では稼働率の分母から除外され、他では含まれる。工場間の比較や設備投資の正当化が必要な場合はTEEP（総合設備活用率）を使用する — TEEPはすべてのカレンダー時間を含む。
 
-**Availability losses:** Breakdowns and unplanned stops. Address with preventive maintenance, predictive maintenance (vibration analysis, thermal imaging), and TPM operator-level daily checks. Target: unplanned downtime < 5% of scheduled time.
+**稼働率損失:** 機械停止と非計画停止。予防保全、予知保全（振動分析、サーモグラフィー）、TPMオペレーター主導の日常点検で対処する。目標: 非計画ダウンタイム < 予定時間の5%。
 
-**Performance losses:** Speed losses and micro-stops. A machine rated at 100 parts/hour running at 85 parts/hour has a 15% performance loss. Common causes: material feed inconsistencies, worn tooling, sensor false-triggers, and operator hesitation. Track actual cycle time vs. standard cycle time per job.
+**性能損失:** 速度損失とマイクロ停止。時間あたり100個の定格機械が85個で稼働している場合、15%の性能損失がある。一般的な原因: 材料供給の不一致、摩耗した工具、センサーの誤作動、作業員のためらい。ジョブごとに実際のサイクルタイムと標準サイクルタイムを追跡する。
 
-**Quality losses:** Scrap and rework. First-pass yield below 95% on a constraint operation directly reduces effective capacity. Prioritise quality improvement at the constraint — a 2% yield improvement at the constraint delivers the same throughput gain as a 2% capacity expansion.
+**品質損失:** 廃棄物と手直し。制約工程での初回合格率が95%を下回ると、実効容量が直接減少する。制約での品質改善を優先する — 制約での2%の歩留まり改善は2%の容量拡張と同じ生産量増加をもたらす。
 
-### ERP/MES Interaction Patterns
+### ERP/MES連携パターン
 
-**SAP PP / Oracle Manufacturing production planning flow:** Demand enters as sales orders or forecast consumption, drives MPS (Master Production Schedule), which explodes through MRP into planned orders by work centre with material requirements. The scheduler converts planned orders into production orders, sequences them, and releases to the shop floor via MES. Feedback flows from MES (operation confirmations, scrap reporting, labor booking) back to ERP to update order status and inventory.
+**SAP PP / Oracle Manufacturing生産計画フロー:** 需要が販売注文または予測消費として入力され、MPS（主要生産計画）を駆動し、MRPを通じて材料要件を持つワークセンター別の計画指示書に展開される。スケジューラーは計画指示書を生産指示書に変換し、シーケンスを決定し、MES経由でショップフロアにリリースする。フィードバックはMES（工程確認、廃棄物報告、労働記録）から指示書ステータスと在庫を更新するためにERPに戻る。
 
-**Work order management:** A work order carries the routing (sequence of operations with work centres, setup times, and run times), the BOM (components required), and the due date. The scheduler's job is to assign each operation to a specific time slot on a specific resource, respecting resource capacity, material availability, and dependency constraints (operation 20 cannot start until operation 10 is complete).
+**作業指示書管理:** 作業指示書は工程経路（セットアップ時間と実行時間を持つワークセンターの工程シーケンス）、BOM（必要な部品）、納期を持つ。スケジューラーの仕事は、リソース容量、材料可用性、依存関係制約（工程10が完了するまで工程20は開始できない）を尊重しながら各工程を特定のリソースの特定の時間スロットに割り当てること。
 
-**Shop floor reporting and plan-vs-reality gap:** MES captures actual start/end times, actual quantities produced, scrap counts, and downtime reasons. The gap between the schedule and MES actuals is the "plan adherence" metric. Healthy plan adherence is > 90% of jobs starting within ±1 hour of scheduled start. Persistent gaps indicate that either the scheduling parameters (setup times, run rates, yield factors) are wrong or that the shop floor is not following the sequence.
+**ショップフロアレポートと計画vs実績のギャップ:** MESは実際の開始/終了時間、実際の生産数、廃棄物数、ダウンタイム理由を記録する。スケジュールとMES実績のギャップが「計画遵守」指標。健全な計画遵守は、ジョブの90%超がスケジュール開始の±1時間以内に開始すること。継続的なギャップは、スケジューリングパラメーター（セットアップ時間、実行レート、歩留まり係数）が誤っているか、ショップフロアがシーケンスに従っていないことを示す。
 
-**Closing the loop:** Every shift, compare scheduled vs. actual at the operation level. Update the schedule with actuals, re-sequence the remaining horizon, and publish the updated schedule. This "rolling re-plan" cadence keeps the schedule realistic rather than aspirational. The worst failure mode is a schedule that diverges from reality and becomes ignored by the shop floor — once operators stop trusting the schedule, it ceases to function.
+**ループを閉じる:** シフトごとに工程レベルでスケジュール対実績を比較する。実績でスケジュールを更新し、残りのホライゾンを再シーケンスし、更新されたスケジュールを公開する。この「ローリング再計画」サイクルはスケジュールを現実的に保ちます。最悪の失敗モードは現実から乖離してショップフロアに無視されるスケジュール — 作業員がスケジュールを信頼しなくなると機能しなくなる。
 
-## Decision Frameworks
+## 意思決定フレームワーク
 
-### Job Priority Sequencing
+### ジョブ優先シーケンシング
 
-When multiple jobs compete for the same resource, apply this decision tree:
+複数のジョブが同じリソースを競い合う場合、この意思決定ツリーを適用する。
 
-1. **Is any job past-due or will miss its due date without immediate processing?** → Schedule past-due jobs first, ordered by customer penalty exposure (contractual penalties > reputational damage > internal KPI impact).
-2. **Are any jobs feeding the constraint and the constraint buffer is in yellow or red zone?** → Schedule constraint-feeding jobs next to prevent constraint starvation.
-3. **Among remaining jobs, apply the dispatching rule appropriate to the product mix:**
-   - High-variety, short-run: use **Earliest Due Date (EDD)** to minimize maximum lateness.
-   - Long-run, few products: use **Shortest Processing Time (SPT)** to minimize average flow time and WIP.
-   - Mixed, with sequence-dependent setups: use **setup-aware EDD** — EDD with a setup-time lookahead that swaps adjacent jobs when a swap saves >30 minutes of setup without causing a due date miss.
-4. **Tie-breaker:** Higher customer tier wins. If same tier, higher margin job wins.
+1. **期限超過のジョブや即座の処理なしに納期を逃すジョブがあるか？** → 顧客ペナルティ露出の順で期限超過ジョブを先にスケジュールする（契約上のペナルティ > 評判へのダメージ > 内部KPIへの影響）。
+2. **制約を供給しているジョブがあり制約バッファーがイエローまたはレッドゾーンにあるか？** → 制約の枯渇を防ぐために次に制約供給ジョブをスケジュールする。
+3. **残りのジョブには、製品ミックスに適した発注ルールを適用する:**
+   - 高バラエティ、短期生産: 最大遅延を最小化するために**最早納期（EDD）**を使用する。
+   - 長期生産、少品種: 平均フロー時間とWIPを最小化するために**最短処理時間（SPT）**を使用する。
+   - 混合、シーケンス依存セットアップあり: **セットアップを考慮したEDD** — 隣接ジョブのスワップが30分以上のセットアップを節約し納期遅延を引き起こさない場合にスワップするセットアップ時間先読み付きのEDD。
+4. **タイブレーカー:** 上位の顧客ティアが勝つ。同ティアの場合、利益率の高いジョブが勝つ。
 
-### Changeover Sequence Optimization
+### 段取り替えシーケンス最適化
 
-1. **Build the setup matrix:** For each pair of products (A→B, B→A, A→C, etc.), record the changeover time in minutes and the changeover cost (labor + scrap + lost output).
-2. **Identify mandatory sequence constraints:** Some transitions are prohibited (allergen cross-contamination in food, hazardous material sequencing in chemical). These are hard constraints, not optimizable.
-3. **Apply nearest-neighbour heuristic as baseline:** From the current product, select the next product with the smallest changeover time. This gives a feasible starting sequence.
-4. **Improve with 2-opt swaps:** Swap pairs of adjacent jobs; keep the swap if total changeover time decreases without violating due dates.
-5. **Validate against due dates:** Run the optimized sequence through the schedule. If any job misses its due date, insert it earlier even if it increases total changeover time. Due date compliance trumps changeover optimization.
+1. **セットアップマトリックスを構築する:** 各製品ペア（A→B、B→A、A→C等）に対して段取り替え時間（分）と段取り替えコスト（労働 + 廃棄物 + 失われた生産）を記録する。
+2. **必須シーケンス制約を特定する:** 一部の遷移は禁止されている（食品でのアレルゲン交差汚染、化学品でのハザード材料シーケンシング）。これらは最適化できないハード制約。
+3. **ベースラインとして最近傍ヒューリスティックを適用する:** 現在の製品から、最小の段取り替え時間を持つ次の製品を選択する。これで実行可能な開始シーケンスが得られる。
+4. **2-optスワップで改善する:** 隣接するジョブペアをスワップし、納期に違反せずに合計段取り替え時間が減少する場合はスワップを維持する。
+5. **納期に対して検証する:** 最適化されたシーケンスをスケジュールで実行する。いずれかのジョブが納期を逃す場合、合計段取り替え時間が増加しても前倒しで挿入する。納期遵守が段取り替え最適化より優先される。
 
-### Disruption Re-Sequencing
+### 中断時の再シーケンシング
 
-When a disruption invalidates the current schedule:
+中断が現在のスケジュールを無効にした場合:
 
-1. **Assess impact window:** How many hours/shifts is the disrupted resource unavailable? Is it the constraint?
-2. **Freeze committed work:** Jobs already in process or within 2 hours of start should not be moved unless physically impossible.
-3. **Re-sequence remaining jobs:** Apply the job priority framework above to all unfrozen jobs, using updated resource availability.
-4. **Communicate within 30 minutes:** Publish the revised schedule to all affected work centres, supervisors, and material handlers.
-5. **Set a stability lock:** No further schedule changes for at least 4 hours (or until next shift start) unless a new disruption occurs. Constant re-sequencing creates more chaos than the original disruption.
+1. **影響ウィンドウを評価する:** 中断されたリソースが何時間/シフト利用できないか？制約か？
+2. **コミット済み作業をフリーズする:** すでに処理中または開始まで2時間以内のジョブは、物理的に不可能でない限り移動させない。
+3. **残りのジョブを再シーケンスする:** 更新されたリソース可用性を使用して、すべての未フリーズジョブにジョブ優先フレームワークを適用する。
+4. **30分以内に伝達する:** 影響を受けるすべてのワークセンター、監督者、材料ハンドラーに修正されたスケジュールを公開する。
+5. **安定性ロックを設定する:** 新たな中断が発生しない限り、少なくとも4時間（または次のシフト開始まで）それ以上のスケジュール変更なし。定常的な再シーケンシングは元の中断より多くの混乱を引き起こす。
 
-### Bottleneck Identification
+### ボトルネック特定
 
-1. **Pull utilization reports** for all work centres over the trailing 2 weeks (by shift, not averaged).
-2. **Rank by utilization ratio** (load hours / available hours). The top work centre is the suspected constraint.
-3. **Verify causally:** Would adding one hour of capacity at this work centre increase total plant output? If the work centre downstream of it is always starved when this one is down, the answer is yes.
-4. **Check for shifting patterns:** If the top-ranked work centre changes between shifts or between weeks, you have a shifting bottleneck driven by product mix. In this case, schedule the constraint *for each shift* based on that shift's product mix, not on a weekly average.
-5. **Distinguish from artificial constraints:** A work centre that appears overloaded because upstream batch-dumps WIP into it is not a true constraint — it is a victim of poor upstream scheduling. Fix the upstream release rate before adding capacity to the victim.
+1. **稼働率レポートを取得する** — すべてのワークセンターの過去2週間分（シフト別、平均でなく）。
+2. **稼働率比率で順位付けする** （負荷時間 / 可用時間）。上位のワークセンターが疑われる制約。
+3. **因果的に検証する:** このワークセンターに1時間の容量を追加すると工場の総アウトプットが増加するか？このワークセンターが停止している時、下流のワークセンターが常に枯渇している場合、答えはイエス。
+4. **シフトパターンを確認する:** 上位のワークセンターがシフト間または週間で変化する場合、製品ミックスによって駆動されるシフトするボトルネックがある。この場合、週平均ではなくそのシフトの製品ミックスに基づいて*シフトごとに*制約をスケジュールする。
+5. **人工的な制約と区別する:** 上流バッチダンプがWIPをダンプするために過負荷に見えるワークセンターは真の制約ではなく、不適切な上流スケジューリングの被害者。被害者に容量を追加する前に上流のリリースレートを修正する。
 
-## Key Edge Cases
+## 主要なエッジケース
 
-Brief summaries are included here so you can expand them into project-specific playbooks if needed.
+必要に応じてプロジェクト固有のプレイブックに展開できるよう、簡単な要約を含める。
 
-1. **Shifting bottleneck mid-shift:** Product mix change moves the constraint from machining to assembly during the shift. The schedule that was optimal at 6:00 AM is wrong by 10:00 AM. Requires real-time utilization monitoring and intra-shift re-sequencing authority.
+1. **シフト途中でのボトルネックのシフト:** 製品ミックスの変化がシフト中に制約を機械加工から組立に移す。午前6時に最適だったスケジュールは午前10時には誤りになる。リアルタイムの稼働率監視とシフト内再シーケンシング権限が必要。
 
-2. **Certified operator absent for regulated process:** An FDA-regulated coating operation requires a specific operator certification. The only certified night-shift operator calls in sick. The line cannot legally run. Activate the cross-training matrix, call in a certified day-shift operator on overtime if permitted, or shut down the regulated operation and re-route non-regulated work.
+2. **規制工程での資格取得作業員の欠勤:** FDA規制のコーティング工程は特定の作業員の認定が必要。唯一の認定夜勤作業員が病欠する。ラインは法的に稼働できない。クロストレーニングマトリックスを起動し、許可されれば認定日勤作業員を残業で呼び出すか、規制工程を停止して非規制作業を転送する。
 
-3. **Competing rush orders from tier-1 customers:** Two top-tier automotive OEM customers both demand expedited delivery. Satisfying one delays the other. Requires commercial decision input — which customer relationship carries higher penalty exposure or strategic value? The scheduler identifies the tradeoff; management decides.
+3. **ティア1顧客からの競合する緊急注文:** 2つのトップ自動車OEM顧客が両方とも緊急配送を要求する。一方を満たすと他方が遅れる。商業的な意思決定インプットが必要 — どの顧客関係がより高いペナルティ露出または戦略的価値を持つか？スケジューラーはトレードオフを特定し、管理層が決定する。
 
-4. **MRP phantom demand from BOM error:** A BOM listing error causes MRP to generate planned orders for a component that is not actually consumed. The scheduler sees a work order with no real demand behind it. Detect by cross-referencing MRP-generated demand against actual sales orders and forecast consumption. Flag and hold — do not schedule phantom demand.
+4. **BOMエラーによるMRPファントム需要:** BOMの記載エラーにより、実際には消費されない部品に対してMRPが計画指示書を生成する。スケジューラーは実際の需要のない作業指示書を見る。MRP生成需要と実際の販売注文および予測消費の相互参照によって検出する。フラグを立てて保留 — ファントム需要をスケジュールしない。
 
-5. **Quality hold on WIP affecting downstream:** A paint defect is discovered on 200 partially complete assemblies. These were scheduled to feed the final assembly constraint tomorrow. The constraint will starve unless replacement WIP is expedited from an earlier stage or alternate routing is used.
+5. **下流に影響するWIPへの品質保留:** 200個の部分完成組立品に塗装欠陥が発見される。これらは明日の最終組立制約を供給するためにスケジュールされていた。代替WIPを前の段階から緊急処理するか代替ルーティングを使用しない限り制約が枯渇する。
 
-6. **Equipment breakdown at the constraint:** The single most damaging disruption. Every minute of constraint downtime equals lost throughput for the entire plant. Trigger immediate maintenance response, activate alternate routing if available, and notify customers whose orders are at risk.
+6. **制約での設備停止:** 最も損害の大きい中断。制約ダウンタイムの1分は工場全体の失われた生産量と等しい。即座のメンテナンス対応を引き起こし、利用可能であれば代替ルーティングを起動し、リスクにある注文の顧客に通知する。
 
-7. **Supplier delivers wrong material mid-run:** A batch of steel arrives with the wrong alloy specification. Jobs already kitted with this material cannot proceed. Quarantine the material, re-sequence to pull forward jobs using a different alloy, and escalate to purchasing for emergency replacement.
+7. **稼働中にサプライヤーが誤った材料を納品する:** 鋼材のバッチが誤った合金仕様で届く。この材料でキット済みのジョブは続行できない。材料を隔離し、異なる合金を使用するジョブを前倒しにして再シーケンスし、緊急交換品のために購買部門にエスカレートする。
 
-8. **Customer order change after production started:** The customer modifies quantity or specification after work is in process. Assess sunk cost of work already completed, rework feasibility, and impact on other jobs sharing the same resource. A partial-completion hold may be cheaper than scrapping and restarting.
+8. **生産開始後の顧客注文変更:** 顧客が作業進行中に数量または仕様を変更する。すでに完成した作業のサンクコスト、手直しの実行可能性、同じリソースを共有する他のジョブへの影響を評価する。部分完成の保留は廃棄と再開始より安価かもしれない。
 
-## Communication Patterns
+## コミュニケーションパターン
 
-### Tone Calibration
+### トーン調整
 
-- **Daily schedule publication:** Clear, structured, no ambiguity. Job sequence, start times, line assignments, operator assignments. Use table format. The shop floor does not read paragraphs.
-- **Schedule change notification:** Urgent header, reason for change, specific jobs affected, new sequence and timing. "Effective immediately" or "effective at [time]."
-- **Disruption escalation:** Lead with impact magnitude (hours of constraint time lost, number of customer orders at risk), then cause, then proposed response, then decision needed from management.
-- **Overtime request:** Quantify the business case — cost of overtime vs. cost of missed deliveries. Include union rule compliance. "Requesting 4 hours voluntary OT for CNC operators (3 personnel) on Saturday AM. Cost: $1,200. At-risk revenue without OT: $45,000."
-- **Customer delivery impact notice:** Never surprise the customer. As soon as a delay is likely, notify with the new estimated date, root cause (without blaming internal teams), and recovery plan. "Due to an equipment issue, order #12345 will ship [new date] vs. the original [old date]. We are running overtime to minimize the delay."
-- **Maintenance coordination:** Specific window requested, business justification for the timing, impact if maintenance is deferred. "Requesting PM window on Line 3, Tuesday 06:00–10:00. This avoids the Thursday changeover peak. Deferring past Friday risks an unplanned breakdown — vibration readings are trending into the caution zone."
+- **日次スケジュール公開:** 明確、構造化、曖昧さなし。ジョブシーケンス、開始時間、ライン割り当て、作業員割り当て。表形式を使用する。ショップフロアは段落を読まない。
+- **スケジュール変更通知:** 緊急ヘッダー、変更理由、影響を受ける特定のジョブ、新しいシーケンスとタイミング。「即時有効」または「[時刻]に有効」。
+- **中断エスカレーション:** インパクトの大きさ（失われた制約時間時間数、リスクにある顧客注文数）を先に述べ、次に原因、次に提案された対応、次に管理層からの必要な意思決定。
+- **残業要求:** ビジネスケースを定量化する — 残業コストvs納期遅延のコスト。組合規則遵守を含める。「CNCオペレーター向けに土曜日午前4時間の自発的残業を要求（3名）。コスト: $1,200。残業なしでのリスクにある収益: $45,000。」
+- **顧客配送遅延通知:** 顧客を驚かせない。遅延が予想される場合はすぐに、新しい推定日、根本原因（内部チームを責めることなく）、回復計画とともに通知する。「設備の問題により、注文#12345は元の[旧日付]に対して[新日付]に出荷されます。遅延を最小限に抑えるために残業を行っています。」
+- **メンテナンス調整:** 要求された特定のウィンドウ、タイミングのビジネス上の正当化、メンテナンスを延期した場合の影響。「ライン3の定期メンテナンスウィンドウを火曜日06:00〜10:00に要求。木曜日の段取り替えピークを避けられます。金曜日以降に延期すると非計画停止のリスクがある — 振動読み取りが注意ゾーンにトレンドしています。」
 
-Brief templates appear above. Adapt them to your plant, planner, and customer-commitment workflows before using them in production.
+以上のテンプレートは上記の通りです。本番で使用する前に自社の工場、プランナー、顧客コミットメントワークフローに合わせて適応させること。
 
-## Escalation Protocols
+## エスカレーションプロトコル
 
-### Automatic Escalation Triggers
+### 自動エスカレーションのトリガー
 
-| Trigger | Action | Timeline |
+| トリガー | アクション | タイムライン |
 |---|---|---|
-| Constraint work centre down > 30 minutes unplanned | Alert production manager + maintenance manager | Immediate |
-| Plan adherence drops below 80% for a shift | Root cause analysis with shift supervisor | Within 4 hours |
-| Customer order projected to miss committed ship date | Notify sales and customer service with revised ETA | Within 2 hours of detection |
-| Overtime requirement exceeds weekly budget by > 20% | Escalate to plant manager with cost-benefit analysis | Within 1 business day |
-| OEE at constraint drops below 65% for 3 consecutive shifts | Trigger focused improvement event (maintenance + engineering + scheduling) | Within 1 week |
-| Quality yield at constraint drops below 93% | Joint review with quality engineering | Within 24 hours |
-| MRP-generated load exceeds finite capacity by > 15% for the upcoming week | Capacity meeting with planning and production management | 2 days before the overloaded week |
+| 制約ワークセンターが計画外で30分超停止 | 生産マネージャーとメンテナンスマネージャーにアラート | 即座 |
+| シフトの計画遵守が80%を下回る | シフト監督者と根本原因分析 | 4時間以内 |
+| 顧客注文がコミット出荷日を逃す見込み | 改訂ETAとともに営業とカスタマーサービスに通知 | 検出後2時間以内 |
+| 残業要件が週次予算を20%超超過 | コスト便益分析とともに工場長にエスカレート | 1営業日以内 |
+| 制約でのOEEが3シフト連続して65%を下回る | 集中改善イベントのトリガー（メンテナンス + エンジニアリング + スケジューリング） | 1週間以内 |
+| 制約での品質歩留まりが93%を下回る | 品質エンジニアリングとの合同レビュー | 24時間以内 |
+| MRP生成負荷が翌週の有限容量を15%超超過 | 計画と生産管理との容量会議 | 過負荷週の2日前 |
 
-### Escalation Chain
+### エスカレーションチェーン
 
-Level 1 (Production Scheduler) → Level 2 (Production Manager / Shift Superintendent, 30 min for constraint issues, 4 hours for non-constraint) → Level 3 (Plant Manager, 2 hours for customer-impacting issues) → Level 4 (VP Operations, same day for multi-customer impact or safety-related schedule changes)
+レベル1（生産スケジューラー）→ レベル2（生産マネージャー/シフト監督者、制約問題は30分、非制約は4時間）→ レベル3（工場長、顧客に影響する問題は2時間）→ レベル4（運営担当副社長、複数顧客への影響または安全関連スケジュール変更は当日）
 
-## Performance Indicators
+## パフォーマンス指標
 
-Track per shift and trend weekly:
+シフトごとに追跡し、週次でトレンドを分析する。
 
-| Metric | Target | Red Flag |
+| 指標 | 目標 | 警告フラグ |
 |---|---|---|
-| Schedule adherence (jobs started within ±1 hour) | > 90% | < 80% |
-| On-time delivery (to customer commit date) | > 95% | < 90% |
-| OEE at constraint | > 75% | < 65% |
-| Changeover time vs. standard | < 110% of standard | > 130% |
-| WIP days (total WIP value / daily COGS) | < 5 days | > 8 days |
-| Constraint utilization (actual producing / available) | > 85% | < 75% |
-| First-pass yield at constraint | > 97% | < 93% |
-| Unplanned downtime (% of scheduled time) | < 5% | > 10% |
-| Labor utilization (direct hours / available hours) | 80–90% | < 70% or > 95% |
+| スケジュール遵守（±1時間以内に開始したジョブ） | 90%超 | 80%未満 |
+| 定時納品（顧客コミット日に対して） | 95%超 | 90%未満 |
+| 制約でのOEE | 75%超 | 65%未満 |
+| 標準に対する段取り替え時間 | 標準の110%未満 | 130%超 |
+| WIP日数（総WIP価値 / 日次売上原価） | 5日未満 | 8日超 |
+| 制約稼働率（実際生産 / 可用時間） | 85%超 | 75%未満 |
+| 制約での初回合格率 | 97%超 | 93%未満 |
+| 非計画ダウンタイム（予定時間の%） | 5%未満 | 10%超 |
+| 労働稼働率（直接時間 / 可用時間） | 80〜90% | 70%未満または95%超 |
 
-## Additional Resources
+## 追加リソース
 
-- Pair this skill with your constraint hierarchy, frozen-window policy, and expedite-approval thresholds.
-- Record actual schedule-adherence failures and root causes beside the workflow so the sequencing rules improve over time.
+- このスキルを制約階層、フローズンウィンドウポリシー、特急承認閾値と組み合わせて使用する。
+- シーケンシングルールが時間とともに改善するよう、実際のスケジュール遵守失敗と根本原因をワークフローの隣に記録する。

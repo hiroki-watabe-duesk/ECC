@@ -1,46 +1,46 @@
 ---
 name: kotlin-testing
-description: Kotlin testing patterns with Kotest, MockK, coroutine testing, property-based testing, and Kover coverage. Follows TDD methodology with idiomatic Kotlin practices.
+description: Kotest、MockK、コルーチンテスト、プロパティベーステスト、Kover カバレッジを使った Kotlin テストパターン。TDD 手法とイディオマティックな Kotlin プラクティスに従う。
 origin: ECC
 ---
 
-# Kotlin Testing Patterns
+# Kotlin テストパターン
 
-Comprehensive Kotlin testing patterns for writing reliable, maintainable tests following TDD methodology with Kotest and MockK.
+Kotest と MockK を用いた TDD 手法に基づき、信頼性が高く保守しやすいテストを書くための包括的な Kotlin テストパターン。
 
-## When to Use
+## いつ使うか
 
-- Writing new Kotlin functions or classes
-- Adding test coverage to existing Kotlin code
-- Implementing property-based tests
-- Following TDD workflow in Kotlin projects
-- Configuring Kover for code coverage
+- 新しい Kotlin 関数やクラスを書くとき
+- 既存の Kotlin コードにテストカバレッジを追加するとき
+- プロパティベーステストを実装するとき
+- Kotlin プロジェクトで TDD ワークフローに従うとき
+- Kover によるコードカバレッジを設定するとき
 
-## How It Works
+## 仕組み
 
-1. **Identify target code** — Find the function, class, or module to test
-2. **Write a Kotest spec** — Choose a spec style (StringSpec, FunSpec, BehaviorSpec) matching the test scope
-3. **Mock dependencies** — Use MockK to isolate the unit under test
-4. **Run tests (RED)** — Verify the test fails with the expected error
-5. **Implement code (GREEN)** — Write minimal code to pass the test
-6. **Refactor** — Improve the implementation while keeping tests green
-7. **Check coverage** — Run `./gradlew koverHtmlReport` and verify 80%+ coverage
+1. **テスト対象の特定** — テストする関数、クラス、またはモジュールを探す
+2. **Kotest スペックを書く** — テストのスコープに合わせたスペックスタイル（StringSpec、FunSpec、BehaviorSpec）を選ぶ
+3. **依存関係をモックする** — MockK を使ってテスト対象を分離する
+4. **テストを実行（RED）** — テストが期待どおりのエラーで失敗することを確認する
+5. **コードを実装（GREEN）** — テストをパスするための最小限のコードを書く
+6. **リファクタリング** — テストがグリーンの状態を維持しながら実装を改善する
+7. **カバレッジの確認** — `./gradlew koverHtmlReport` を実行し、80%以上のカバレッジを確認する
 
-## Examples
+## 例
 
-The following sections contain detailed, runnable examples for each testing pattern:
+以下のセクションには各テストパターンの詳細かつ実行可能な例が含まれています:
 
-### Quick Reference
+### クイックリファレンス
 
-- **Kotest specs** — StringSpec, FunSpec, BehaviorSpec, DescribeSpec examples in [Kotest Spec Styles](#kotest-spec-styles)
-- **Mocking** — MockK setup, coroutine mocking, argument capture in [MockK](#mockk)
-- **TDD walkthrough** — Full RED/GREEN/REFACTOR cycle with EmailValidator in [TDD Workflow for Kotlin](#tdd-workflow-for-kotlin)
-- **Coverage** — Kover configuration and commands in [Kover Coverage](#kover-coverage)
-- **Ktor testing** — testApplication setup in [Ktor testApplication Testing](#ktor-testapplication-testing)
+- **Kotest スペック** — [Kotest スペックスタイル](#kotest-スペックスタイル) にある StringSpec、FunSpec、BehaviorSpec、DescribeSpec の例
+- **モック** — [MockK](#mockk) にある MockK のセットアップ、コルーチンモック、引数キャプチャ
+- **TDD ウォークスルー** — [Kotlin における TDD ワークフロー](#kotlin-における-tdd-ワークフロー) にある EmailValidator を使った完全な RED/GREEN/REFACTOR サイクル
+- **カバレッジ** — [Kover カバレッジ](#kover-カバレッジ) にある Kover の設定とコマンド
+- **Ktor テスト** — [Ktor testApplication テスト](#ktor-testapplication-テスト) にある testApplication のセットアップ
 
-### TDD Workflow for Kotlin
+### Kotlin における TDD ワークフロー
 
-#### The RED-GREEN-REFACTOR Cycle
+#### RED-GREEN-REFACTOR サイクル
 
 ```
 RED     -> Write a failing test first
@@ -49,7 +49,7 @@ REFACTOR -> Improve code while keeping tests green
 REPEAT  -> Continue with next requirement
 ```
 
-#### Step-by-Step TDD in Kotlin
+#### Kotlin における TDD のステップバイステップ
 
 ```kotlin
 // Step 1: Define the interface/signature
@@ -105,9 +105,9 @@ fun validateEmail(email: String): Result<String> {
 // Step 6: Refactor if needed, verify tests still pass
 ```
 
-### Kotest Spec Styles
+### Kotest スペックスタイル
 
-#### StringSpec (Simplest)
+#### StringSpec（最もシンプル）
 
 ```kotlin
 class CalculatorTest : StringSpec({
@@ -125,7 +125,7 @@ class CalculatorTest : StringSpec({
 })
 ```
 
-#### FunSpec (JUnit-like)
+#### FunSpec（JUnit 風）
 
 ```kotlin
 class UserServiceTest : FunSpec({
@@ -151,7 +151,7 @@ class UserServiceTest : FunSpec({
 })
 ```
 
-#### BehaviorSpec (BDD Style)
+#### BehaviorSpec（BDD スタイル）
 
 ```kotlin
 class OrderServiceTest : BehaviorSpec({
@@ -193,7 +193,7 @@ class OrderServiceTest : BehaviorSpec({
 })
 ```
 
-#### DescribeSpec (RSpec Style)
+#### DescribeSpec（RSpec スタイル）
 
 ```kotlin
 class UserValidatorTest : DescribeSpec({
@@ -222,9 +222,9 @@ class UserValidatorTest : DescribeSpec({
 })
 ```
 
-### Kotest Matchers
+### Kotest マッチャー
 
-#### Core Matchers
+#### コアマッチャー
 
 ```kotlin
 import io.kotest.matchers.shouldBe
@@ -272,7 +272,7 @@ shouldNotThrow<Exception> {
 }
 ```
 
-#### Custom Matchers
+#### カスタムマッチャー
 
 ```kotlin
 fun beActiveUser() = object : Matcher<User> {
@@ -289,7 +289,7 @@ user should beActiveUser()
 
 ### MockK
 
-#### Basic Mocking
+#### 基本的なモック
 
 ```kotlin
 class UserServiceTest : FunSpec({
@@ -321,7 +321,7 @@ class UserServiceTest : FunSpec({
 })
 ```
 
-#### Coroutine Mocking
+#### コルーチンのモック
 
 ```kotlin
 class AsyncUserServiceTest : FunSpec({
@@ -349,7 +349,7 @@ class AsyncUserServiceTest : FunSpec({
 })
 ```
 
-#### Argument Capture
+#### 引数キャプチャ
 
 ```kotlin
 test("save captures the user argument") {
@@ -364,7 +364,7 @@ test("save captures the user argument") {
 }
 ```
 
-#### Spy and Partial Mocking
+#### スパイと部分モック
 
 ```kotlin
 test("spy on real object") {
@@ -380,9 +380,9 @@ test("spy on real object") {
 }
 ```
 
-### Coroutine Testing
+### コルーチンテスト
 
-#### runTest for Suspend Functions
+#### サスペンド関数のための runTest
 
 ```kotlin
 import kotlinx.coroutines.test.runTest
@@ -413,7 +413,7 @@ class CoroutineServiceTest : FunSpec({
 })
 ```
 
-#### Testing Flows
+#### Flow のテスト
 
 ```kotlin
 import io.kotest.matchers.collections.shouldContainInOrder
@@ -485,9 +485,9 @@ class DispatcherTest : FunSpec({
 })
 ```
 
-### Property-Based Testing
+### プロパティベーステスト
 
-#### Kotest Property Testing
+#### Kotest プロパティテスト
 
 ```kotlin
 import io.kotest.core.spec.style.FunSpec
@@ -527,7 +527,7 @@ class PropertyTest : FunSpec({
 })
 ```
 
-#### Custom Generators
+#### カスタムジェネレーター
 
 ```kotlin
 val userArb: Arb<User> = Arb.bind(
@@ -551,9 +551,9 @@ val moneyArb: Arb<Money> = Arb.bind(
 }
 ```
 
-### Data-Driven Testing
+### データ駆動テスト
 
-#### withData in Kotest
+#### Kotest の withData
 
 ```kotlin
 class ParserTest : FunSpec({
@@ -583,7 +583,7 @@ class ParserTest : FunSpec({
 })
 ```
 
-### Test Lifecycle and Fixtures
+### テストライフサイクルとフィクスチャ
 
 #### BeforeTest / AfterTest
 
@@ -627,7 +627,7 @@ class DatabaseTest : FunSpec({
 })
 ```
 
-#### Kotest Extensions
+#### Kotest エクステンション
 
 ```kotlin
 // Reusable test extension
@@ -654,9 +654,9 @@ class UserRepositoryTest : FunSpec({
 })
 ```
 
-### Kover Coverage
+### Kover カバレッジ
 
-#### Gradle Configuration
+#### Gradle 設定
 
 ```kotlin
 // build.gradle.kts
@@ -684,7 +684,7 @@ kover {
 }
 ```
 
-#### Coverage Commands
+#### カバレッジコマンド
 
 ```bash
 # Run tests with coverage
@@ -702,16 +702,16 @@ kover {
 # Windows: start build/reports/kover/html/index.html
 ```
 
-#### Coverage Targets
+#### カバレッジ目標
 
-| Code Type | Target |
+| コードの種類 | 目標 |
 |-----------|--------|
-| Critical business logic | 100% |
-| Public APIs | 90%+ |
-| General code | 80%+ |
-| Generated / config code | Exclude |
+| 重要なビジネスロジック | 100% |
+| パブリック API | 90%以上 |
+| 一般的なコード | 80%以上 |
+| 生成済み / 設定コード | 除外 |
 
-### Ktor testApplication Testing
+### Ktor testApplication テスト
 
 ```kotlin
 class ApiRoutesTest : FunSpec({
@@ -748,7 +748,7 @@ class ApiRoutesTest : FunSpec({
 })
 ```
 
-### Testing Commands
+### テストコマンド
 
 ```bash
 # Run all tests
@@ -776,26 +776,26 @@ class ApiRoutesTest : FunSpec({
 ./gradlew test --continuous
 ```
 
-### Best Practices
+### ベストプラクティス
 
-**DO:**
-- Write tests FIRST (TDD)
-- Use Kotest's spec styles consistently across the project
-- Use MockK's `coEvery`/`coVerify` for suspend functions
-- Use `runTest` for coroutine testing
-- Test behavior, not implementation
-- Use property-based testing for pure functions
-- Use `data class` test fixtures for clarity
+**やること:**
+- テストを先に書く（TDD）
+- プロジェクト全体で Kotest のスペックスタイルを統一する
+- サスペンド関数には MockK の `coEvery`/`coVerify` を使う
+- コルーチンテストには `runTest` を使う
+- 実装ではなく振る舞いをテストする
+- 純粋関数にはプロパティベーステストを使う
+- 明確さのために `data class` のテストフィクスチャを使う
 
-**DON'T:**
-- Mix testing frameworks (pick Kotest and stick with it)
-- Mock data classes (use real instances)
-- Use `Thread.sleep()` in coroutine tests (use `advanceTimeBy`)
-- Skip the RED phase in TDD
-- Test private functions directly
-- Ignore flaky tests
+**やってはいけないこと:**
+- テストフレームワークを混在させない（Kotest を選んで一貫して使う）
+- データクラスをモックしない（実際のインスタンスを使う）
+- コルーチンテストで `Thread.sleep()` を使わない（`advanceTimeBy` を使う）
+- TDD の RED フェーズをスキップしない
+- プライベート関数を直接テストしない
+- 不安定なテストを放置しない
 
-### Integration with CI/CD
+### CI/CD との統合
 
 ```yaml
 # GitHub Actions example
@@ -821,4 +821,4 @@ test:
         token: ${{ secrets.CODECOV_TOKEN }}
 ```
 
-**Remember**: Tests are documentation. They show how your Kotlin code is meant to be used. Use Kotest's expressive matchers to make tests readable and MockK for clean mocking of dependencies.
+**注意**: テストはドキュメントです。Kotlin コードがどのように使われるべきかを示します。Kotest の表現力豊かなマッチャーでテストを読みやすくし、MockK で依存関係をクリーンにモックしてください。

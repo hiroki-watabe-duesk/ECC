@@ -1,39 +1,39 @@
 ---
-description: Enforce TDD workflow for Kotlin. Write Kotest tests first, then implement. Verify 80%+ coverage with Kover.
+description: Kotlin の TDD ワークフローを強制します。まず Kotest テストを書いてから実装し、Kover で 80% 以上のカバレッジを確認します。
 ---
 
-# Kotlin TDD Command
+# Kotlin TDD コマンド
 
-This command enforces test-driven development methodology for Kotlin code using Kotest, MockK, and Kover.
+このコマンドは Kotest、MockK、Kover を使用した Kotlin コードのテスト駆動開発手法を強制します。
 
-## What This Command Does
+## このコマンドの動作
 
-1. **Define Types/Interfaces**: Scaffold function signatures first
-2. **Write Kotest Tests**: Create comprehensive test specs (RED)
-3. **Run Tests**: Verify tests fail for the right reason
-4. **Implement Code**: Write minimal code to pass (GREEN)
-5. **Refactor**: Improve while keeping tests green
-6. **Check Coverage**: Ensure 80%+ coverage with Kover
+1. **型/インターフェースの定義**: まず関数のシグネチャをスキャフォールドする
+2. **Kotest テストを書く**: 包括的なテストスペックを作成する（RED）
+3. **テストを実行する**: 正しい理由でテストが失敗することを確認する
+4. **コードを実装する**: 通過するための最小限のコードを書く（GREEN）
+5. **リファクタリング**: テストをグリーンに保ちながら改善する
+6. **カバレッジを確認する**: Kover で 80% 以上のカバレッジを確保する
 
-## When to Use
+## いつ使うか
 
-Use `/kotlin-test` when:
-- Implementing new Kotlin functions or classes
-- Adding test coverage to existing Kotlin code
-- Fixing bugs (write failing test first)
-- Building critical business logic
-- Learning TDD workflow in Kotlin
+`/kotlin-test` を使用するのは次の場合です。
+- 新しい Kotlin 関数またはクラスを実装するとき
+- 既存の Kotlin コードにテストカバレッジを追加するとき
+- バグを修正するとき（最初に失敗するテストを書く）
+- 重要なビジネスロジックを構築するとき
+- Kotlin で TDD ワークフローを学ぶとき
 
-## TDD Cycle
+## TDD サイクル
 
 ```
-RED     -> Write failing Kotest test
-GREEN   -> Implement minimal code to pass
-REFACTOR -> Improve code, tests stay green
-REPEAT  -> Next test case
+RED     -> 失敗する Kotest テストを書く
+GREEN   -> 通過するための最小限のコードを実装する
+REFACTOR -> コードを改善し、テストをグリーンに保つ
+REPEAT  -> 次のテストケース
 ```
 
-## Example Session
+## セッション例
 
 ````text
 User: /kotlin-test I need a function to validate user registration requests
@@ -151,7 +151,7 @@ RegistrationValidatorTest > valid registration returns Valid FAILED
 FAILED (5 tests, 0 passed, 5 failed)
 ```
 
-✓ Tests fail as expected (NotImplementedError).
+✓ テストは期待通り失敗します（NotImplementedError）。
 
 ## Step 4: Implement Minimal Code (GREEN)
 
@@ -188,7 +188,7 @@ RegistrationValidatorTest > multiple errors returns all errors PASSED
 PASSED (5 tests, 5 passed, 0 failed)
 ```
 
-✓ All tests passing!
+✓ すべてのテストが通過しています！
 
 ## Step 6: Check Coverage
 
@@ -198,14 +198,14 @@ $ ./gradlew koverHtmlReport
 Coverage: 100.0% of statements
 ```
 
-✓ Coverage: 100%
+✓ カバレッジ: 100%
 
 ## TDD Complete!
 ````
 
-## Test Patterns
+## テストパターン
 
-### StringSpec (Simplest)
+### StringSpec（最もシンプル）
 
 ```kotlin
 class CalculatorTest : StringSpec({
@@ -215,7 +215,7 @@ class CalculatorTest : StringSpec({
 })
 ```
 
-### BehaviorSpec (BDD)
+### BehaviorSpec（BDD）
 
 ```kotlin
 class OrderServiceTest : BehaviorSpec({
@@ -227,7 +227,7 @@ class OrderServiceTest : BehaviorSpec({
 })
 ```
 
-### Data-Driven Tests
+### データ駆動テスト
 
 ```kotlin
 class ParserTest : FunSpec({
@@ -239,7 +239,7 @@ class ParserTest : FunSpec({
 })
 ```
 
-### Coroutine Testing
+### コルーチンテスト
 
 ```kotlin
 class AsyncServiceTest : FunSpec({
@@ -252,61 +252,61 @@ class AsyncServiceTest : FunSpec({
 })
 ```
 
-## Coverage Commands
+## カバレッジコマンド
 
 ```bash
-# Run tests with coverage
+# カバレッジ付きでテストを実行する
 ./gradlew koverHtmlReport
 
-# Verify coverage thresholds
+# カバレッジ閾値を確認する
 ./gradlew koverVerify
 
-# XML report for CI
+# CI 用の XML レポート
 ./gradlew koverXmlReport
 
-# Open HTML report
+# HTML レポートを開く
 open build/reports/kover/html/index.html
 
-# Run specific test class
+# 特定のテストクラスを実行する
 ./gradlew test --tests "com.example.UserServiceTest"
 
-# Run with verbose output
+# 詳細出力で実行する
 ./gradlew test --info
 ```
 
-## Coverage Targets
+## カバレッジ目標
 
-| Code Type | Target |
+| コードの種類 | 目標 |
 |-----------|--------|
-| Critical business logic | 100% |
-| Public APIs | 90%+ |
-| General code | 80%+ |
-| Generated code | Exclude |
+| 重要なビジネスロジック | 100% |
+| パブリック API | 90% 以上 |
+| 一般的なコード | 80% 以上 |
+| 生成されたコード | 除外 |
 
-## TDD Best Practices
+## TDD のベストプラクティス
 
-**DO:**
-- Write test FIRST, before any implementation
-- Run tests after each change
-- Use Kotest matchers for expressive assertions
-- Use MockK's `coEvery`/`coVerify` for suspend functions
-- Test behavior, not implementation details
-- Include edge cases (empty, null, max values)
+**すべきこと:**
+- 実装の前にテストを書く
+- 変更のたびにテストを実行する
+- 表現力豊かなアサーションに Kotest のマッチャーを使用する
+- suspend 関数には MockK の `coEvery`/`coVerify` を使用する
+- 実装の詳細ではなく振る舞いをテストする
+- エッジケース（空、null、最大値）を含める
 
-**DON'T:**
-- Write implementation before tests
-- Skip the RED phase
-- Test private functions directly
-- Use `Thread.sleep()` in coroutine tests
-- Ignore flaky tests
+**すべきでないこと:**
+- テストの前に実装を書く
+- RED フェーズをスキップする
+- プライベート関数を直接テストする
+- コルーチンテストで `Thread.sleep()` を使用する
+- 不安定なテストを無視する
 
-## Related Commands
+## 関連コマンド
 
-- `/kotlin-build` - Fix build errors
-- `/kotlin-review` - Review code after implementation
-- `verification-loop` skill - Run full verification loop
+- `/kotlin-build` - ビルドエラーを修正する
+- `/kotlin-review` - 実装後にコードをレビューする
+- `verification-loop` スキル - 完全な検証ループを実行する
 
-## Related
+## 関連情報
 
 - Skill: `skills/kotlin-testing/`
 - Skill: `skills/tdd-workflow/`

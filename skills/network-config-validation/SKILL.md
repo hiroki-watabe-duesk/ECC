@@ -1,38 +1,34 @@
 ---
 name: network-config-validation
-description: Pre-deployment checks for router and switch configuration, including dangerous commands, duplicate addresses, subnet overlaps, stale references, management-plane risk, and IOS-style security hygiene.
+description: ルーターおよびスイッチ設定のデプロイ前チェック。危険なコマンド、重複アドレス、サブネットの重複、参照の陳腐化、管理プレーンのリスク、IOS スタイルのセキュリティ衛生を含みます。
 origin: community
 ---
 
-# Network Config Validation
+# ネットワーク設定バリデーション
 
-Use this skill to review network configuration before a change window or before
-an automation run touches production devices.
+このスキルを使用して、変更ウィンドウの前、または自動化実行が本番デバイスに触れる前にネットワーク設定をレビューします。
 
-## When to Use
+## いつ使うか
 
-- Reviewing Cisco IOS or IOS-XE style snippets before deployment.
-- Auditing generated config from scripts or templates.
-- Looking for dangerous commands, duplicate IP addresses, or subnet overlaps.
-- Checking whether ACLs, route-maps, prefix-lists, or line policies are referenced
-  but not defined.
-- Building lightweight pre-flight scripts for network automation.
+- デプロイ前に Cisco IOS または IOS-XE スタイルのスニペットをレビューするとき。
+- スクリプトやテンプレートから生成された設定を監査するとき。
+- 危険なコマンド、重複 IP アドレス、またはサブネットの重複を探すとき。
+- ACL、ルートマップ、プレフィックスリスト、またはライン設定が参照されているが定義されていない場合を確認するとき。
+- ネットワーク自動化のための軽量なプリフライトスクリプトを構築するとき。
 
-## How It Works
+## 仕組み
 
-Treat config validation as layered evidence, not as a complete parser. Regex
-checks are useful for pre-flight warnings, but final approval still needs a
-network engineer to review intent, platform syntax, and rollback steps.
+設定バリデーションを完全なパーサーではなく、層状の証拠として扱います。正規表現チェックはプリフライトの警告に有用ですが、最終承認にはネットワークエンジニアが意図、プラットフォームの構文、ロールバック手順をレビューする必要があります。
 
-Validate in this order:
+以下の順序でバリデーションを行います。
 
-1. Destructive commands.
-2. Credential and management-plane exposure.
-3. Duplicate addresses and overlapping subnets.
-4. Stale references to ACLs, route-maps, prefix-lists, and interfaces.
-5. Operational hygiene such as NTP, timestamps, remote logging, and banners.
+1. 破壊的なコマンド。
+2. 認証情報と管理プレーンの露出。
+3. 重複アドレスとサブネットの重複。
+4. ACL、ルートマップ、プレフィックスリスト、インターフェースへの陳腐化した参照。
+5. NTP、タイムスタンプ、リモートロギング、バナーなどの運用衛生。
 
-## Dangerous Command Detection
+## 危険なコマンドの検出
 
 ```python
 import re
@@ -61,7 +57,7 @@ def find_dangerous_commands(lines: list[str]) -> list[dict[str, str | int]]:
     return findings
 ```
 
-## Duplicate IPs And Subnet Overlaps
+## 重複 IP とサブネットの重複
 
 ```python
 import ipaddress
@@ -105,10 +101,9 @@ def find_subnet_overlaps(config: str) -> list[tuple[str, str]]:
     return overlaps
 ```
 
-## Management-Plane Checks
+## 管理プレーンのチェック
 
-Parse VTY blocks by section so access-class checks do not spill across unrelated
-lines.
+VTY ブロックをセクションごとに解析して、アクセスクラスのチェックが無関係な行にまたがらないようにします。
 
 ```python
 import re
@@ -144,7 +139,7 @@ def check_vty_blocks(config: str) -> list[str]:
     return issues
 ```
 
-## Security Hygiene Checks
+## セキュリティ衛生チェック
 
 ```python
 SECURITY_PATTERNS = [
@@ -179,31 +174,28 @@ def check_missing_hygiene(config: str) -> list[str]:
     ]
 ```
 
-## Examples
+## 使用例
 
-### Change-Window Preflight
+### 変更ウィンドウのプリフライト
 
-1. Run dangerous-command checks on the exact snippet to be pasted.
-2. Run duplicate IP and subnet overlap checks against the full candidate config.
-3. Confirm every referenced ACL, route-map, and prefix-list exists.
-4. Confirm rollback commands and out-of-band access before any management-plane
-   change.
+1. 貼り付けるスニペットに対して危険なコマンドチェックを実行する。
+2. 完全な候補設定に対して重複 IP とサブネットの重複チェックを実行する。
+3. 参照されているすべての ACL、ルートマップ、プレフィックスリストが存在することを確認する。
+4. 管理プレーンの変更を行う前に、ロールバックコマンドと帯域外アクセスを確認する。
 
-### Automation Preflight
+### 自動化プリフライト
 
-Use validation as a blocking gate before Netmiko, NAPALM, Ansible, or vendor API
-automation pushes a generated config. Fail closed on dangerous commands and
-credentials. Warn on best-practice gaps that are outside the change scope.
+生成された設定を Netmiko、NAPALM、Ansible、またはベンダー API の自動化がプッシュする前に、バリデーションをブロッキングゲートとして使用します。危険なコマンドと認証情報では失敗し、変更スコープ外のベストプラクティスのギャップでは警告します。
 
-## Anti-Patterns
+## アンチパターン
 
-- Treating regex validation as a device parser.
-- Applying generated config without a dry-run diff.
-- Recommending SNMPv2 community strings as a monitoring requirement.
-- Checking VTY blocks with regex that can accidentally span unrelated sections.
-- Testing firewall behavior by disabling ACLs instead of reading counters/logs.
+- 正規表現バリデーションをデバイスパーサーとして扱う。
+- ドライランの差分なしに生成された設定を適用する。
+- SNMPv2 コミュニティ文字列を監視要件として推奨する。
+- 無関係なセクションをまたぐ正規表現で VTY ブロックをチェックする。
+- カウンター/ログを読む代わりに ACL を無効にしてファイアウォールの動作をテストする。
 
-## See Also
+## 関連情報
 
 - Agent: `network-config-reviewer`
 - Agent: `network-troubleshooter`

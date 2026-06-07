@@ -1,6 +1,6 @@
 ---
 name: motion-advanced
-description: Advanced motion patterns for React / Next.js — drag & drop, gestures, text animations, SVG path drawing, custom hooks, imperative sequences (useAnimate), loaders, and the full API decision tree. Requires motion-foundations.
+description: React / Next.js向けの高度なモーションパターン。ドラッグ＆ドロップ、ジェスチャー、テキストアニメーション、SVGパス描画、カスタムフック、命令的シーケンス（useAnimate）、ローダー、APIデシジョンツリーを含む。motion-foundationsが必要。
 version: 1.0
 tags: [motion, animation, advanced, gestures, svg]
 category: frontend
@@ -9,93 +9,93 @@ author: jeff
 
 # Motion Advanced
 
-Complex, interactive, and physics-based animation patterns.
-Requires `motion-foundations` to be set up first.
-Use these when `motion-patterns` is not enough.
+複雑でインタラクティブな、物理ベースのアニメーションパターン。
+事前に`motion-foundations`のセットアップが必要です。
+`motion-patterns`では不十分なときに使用してください。
 
-## When to Activate
+## アクティブにするタイミング
 
-- Building drag-to-dismiss sheets, swipe gestures, or reorderable lists
-- Animating text word-by-word, character-by-character, or as a live counter
-- Drawing SVG paths, morphing icons, or animating circular progress
-- Writing a custom animation hook (`useScrollReveal`, magnetic button, cursor follower)
-- Sequencing multi-step animations imperatively with `useAnimate`
-- Building spinners, shimmer skeletons, pulse indicators, or loading button states
+- ドラッグで消えるシート、スワイプジェスチャー、並べ替えリストを構築するとき
+- テキストを単語ごと、文字ごと、またはライブカウンターとしてアニメーションするとき
+- SVGパスを描画したり、アイコンをモーフィングしたり、円形プログレスをアニメーションするとき
+- カスタムアニメーションフック（`useScrollReveal`、マグネティックボタン、カーソルフォロワー）を書くとき
+- `useAnimate`を使って複数ステップのアニメーションを命令的にシーケンス化するとき
+- スピナー、シマースケルトン、パルスインジケーター、またはローディングボタン状態を構築するとき
 
-## Outputs
+## 出力
 
-This skill produces:
+このスキルが生成するもの:
 
-- Drag interactions: draggable cards, drag-to-dismiss sheets, `Reorder.Group` lists
-- Gesture hooks: swipe detection, long press, pinch outline
-- Text animation components: word reveal, character typewriter, number counter
-- SVG animation: path draw-on, icon morph, stroke progress ring
-- Custom hooks: `useScrollReveal`, `useHoverScale`, `useNavigationDirection`, `useInViewOnce`
-- Imperative sequences via `useAnimate` with interrupt-safe `async/await`
-- Loader components: spinner, shimmer, pulse dot, progress bar, button loading state
+- ドラッグインタラクション: ドラッグ可能なカード、ドラッグで消えるシート、`Reorder.Group`リスト
+- ジェスチャーフック: スワイプ検出、ロングプレス、ピンチアウトライン
+- テキストアニメーションコンポーネント: 単語リビール、文字タイプライター、数値カウンター
+- SVGアニメーション: パス描画、アイコンモーフ、ストロークプログレスリング
+- カスタムフック: `useScrollReveal`、`useHoverScale`、`useNavigationDirection`、`useInViewOnce`
+- 割り込み安全な`async/await`を使った`useAnimate`による命令的シーケンス
+- ローダーコンポーネント: スピナー、シマー、パルスドット、プログレスバー、ボタンローディング状態
 
-## Principles
+## 原則
 
-- Physics-based motion (`useSpring`, `springs.*`) always feels more natural than duration-based for direct manipulation.
-- `useMotionValue` + `useTransform` computes derived values without triggering re-renders.
-- `useAnimate` sequences are imperative and interrupt-safe — calling `animate()` mid-flight cancels the previous animation automatically.
-- Motion values (`useMotionValue`, `useSpring`) are SSR-safe and do not cause hydration errors.
+- 物理ベースのモーション（`useSpring`、`springs.*`）は、直接操作においては常に時間ベースよりも自然に感じられる。
+- `useMotionValue` + `useTransform`は、再レンダーを発生させずに派生値を計算する。
+- `useAnimate`シーケンスは命令的で割り込み安全 — 実行中に`animate()`を呼び出すと自動的に前のアニメーションがキャンセルされる。
+- モーション値（`useMotionValue`、`useSpring`）はSSRセーフで、ハイドレーションエラーを起こさない。
 
-## Rules
+## ルール
 
-1. **Drag interactions must be tested on touch devices**, not just mouse. `drag` prop works on both but feel and threshold differ.
-2. **Infinite animations must pause when `document.visibilityState === "hidden"`.** Background tabs must not consume GPU/CPU.
-3. **Swipe threshold must be explicit.** Never infer intent from velocity alone; combine `offset` + `velocity` checks.
-4. **`useAnimate` scope ref must be attached to a mounted DOM element.** Calling `animate()` before mount throws silently.
-5. **Motion values must not be recreated on render.** `useMotionValue(0)` inside a component body is correct; `new MotionValue(0)` in a render is not.
-6. **All token values are imported from `motion-foundations`.** No inline numbers.
-7. **Custom hooks must handle cleanup.** Every `window.addEventListener` needs a matching `removeEventListener` in the `useEffect` return.
-8. **SVG morphing requires equal path command counts.** Paths with different command structures snap instead of interpolating.
+1. **ドラッグインタラクションはタッチデバイスでテストすること**（マウスだけでなく）。`drag`プロップは両方で動作するが、感触としきい値が異なる。
+2. **無限アニメーションは`document.visibilityState === "hidden"`のときに一時停止すること。** バックグラウンドタブはGPU/CPUを消費してはならない。
+3. **スワイプのしきい値は明示的に設定すること。** 速度だけから意図を推測しない。`offset` + `velocity`の両方を確認する。
+4. **`useAnimate`のスコープrefはマウントされたDOM要素に紐付けること。** マウント前に`animate()`を呼び出すとサイレントにエラーになる。
+5. **モーション値はレンダーごとに再作成してはならない。** コンポーネント本体内の`useMotionValue(0)`は正しい。レンダー内の`new MotionValue(0)`は誤り。
+6. **全トークン値は`motion-foundations`からインポートすること。** インライン数値禁止。
+7. **カスタムフックはクリーンアップを処理すること。** `window.addEventListener`は全て`useEffect`の戻り値で対応する`removeEventListener`が必要。
+8. **SVGモーフィングは同数のパスコマンドが必要。** コマンド構造が異なるパスはアニメーションせずにスナップする。
 
-## Decision Guidance
+## 判断の指針
 
-### Choosing the right advanced API
+### 適切な高度なAPIの選び方
 
-| Scenario | API |
+| シナリオ | API |
 | ------------------------------ | -------------------------------- |
-| Drag with physics on release | `drag` + `dragTransition: springs.release` |
-| Ordered drag-to-reorder list | `Reorder.Group` + `Reorder.Item` |
-| Dismiss on drag offset | `drag="y"` + `onDragEnd` offset check |
-| Swipe left/right | `drag="x"` + `onDragEnd` offset check |
-| Long press | `useLongPress` hook |
-| Value smoothed over time | `useSpring` |
-| Value derived from another | `useTransform` |
-| Multi-step sequence | `useAnimate` with `async/await` |
-| One-shot imperative animation | `animate()` from `motion` |
-| Text entering word by word | Stagger on `inline-block` spans |
-| SVG drawing on | `pathLength` 0 → 1 |
-| SVG morph | `d` attribute tween (equal commands) |
-| Circular progress | `strokeDashoffset` tween |
+| 離した後の物理ドラッグ | `drag` + `dragTransition: springs.release` |
+| 順番付きドラッグで並べ替えリスト | `Reorder.Group` + `Reorder.Item` |
+| ドラッグオフセットで消える | `drag="y"` + `onDragEnd`のオフセット確認 |
+| 左右スワイプ | `drag="x"` + `onDragEnd`のオフセット確認 |
+| ロングプレス | `useLongPress`フック |
+| 時間的に平滑化された値 | `useSpring` |
+| 別の値から派生した値 | `useTransform` |
+| 複数ステップシーケンス | `useAnimate`と`async/await` |
+| 一発の命令的アニメーション | `motion`からの`animate()` |
+| テキストを単語ごとに表示 | `inline-block`スパンのスタガー |
+| SVG描画 | `pathLength` 0 → 1 |
+| SVGモーフ | `d`属性トウィーン（同数コマンド） |
+| 円形プログレス | `strokeDashoffset`トウィーン |
 
-### When to use `useSpring` vs a spring transition
+### `useSpring`とスプリングトランジションの使い分け
 
 | | `useSpring` | `transition: springs.*` |
 | -------------- | ---------------------------------------- | ----------------------- |
-| Use for | Cursor follower, pointer-tracked values | Discrete state changes |
-| Updates | Continuous, on every frame | Triggered by state change |
-| Interrupt | Smooth — physics picks up from velocity | Restarts from current value |
+| 使い所 | カーソルフォロワー、ポインタ追跡値 | 離散的な状態変化 |
+| 更新 | 毎フレーム連続 | 状態変化で起動 |
+| 割り込み | スムーズ — 物理が速度から引き継ぐ | 現在値から再起動 |
 
-## Core Concepts
+## 核となる概念
 
 ### useMotionValue + useTransform
 
-Reactive computation without re-renders:
+再レンダーなしのリアクティブ計算:
 
 ```tsx
 const x = useMotionValue(0)
 const opacity = useTransform(x, [-200, 0, 200], [0, 1, 0])
-// opacity updates every frame as x changes — no setState, no re-render
+// opacityはxが変化するたびに毎フレーム更新される — setStateなし、再レンダーなし
 ```
 
 ### useAnimate
 
-Returns `[scope, animate]`. The scope ref must be attached to a DOM element.
-`animate()` calls are interrupt-safe — calling mid-flight cancels the previous run.
+`[scope, animate]`を返す。スコープrefはDOM要素に紐付ける必要がある。
+`animate()`呼び出しは割り込み安全 — 実行中に呼び出すと前の実行がキャンセルされる。
 
 ```tsx
 const [scope, animate] = useAnimate()
@@ -109,9 +109,9 @@ async function play() {
 return <div ref={scope}>...</div>
 ```
 
-## Code Examples
+## コード例
 
-### Draggable card
+### ドラッグ可能なカード
 
 ```tsx
 "use client"
@@ -130,7 +130,7 @@ import { springs, motionTokens } from "@/lib/motion-tokens"
 />
 ```
 
-### Drag-to-dismiss sheet
+### ドラッグで消えるシート
 
 ```tsx
 "use client"
@@ -146,7 +146,7 @@ export function BottomSheet({ onClose }: { onClose: () => void }) {
       dragConstraints={{ top: 0 }}
       style={{ y, opacity }}
       onDragEnd={(_, info) => {
-        // Rule 3: combine offset + velocity
+        // ルール3: offsetとvelocityの両方を確認
         if (info.offset.y > 120 || info.velocity.y > 500) onClose()
       }}
     />
@@ -154,7 +154,7 @@ export function BottomSheet({ onClose }: { onClose: () => void }) {
 }
 ```
 
-### Reorderable list
+### 並べ替え可能なリスト
 
 ```tsx
 "use client"
@@ -174,7 +174,7 @@ export function SortableList() {
 }
 ```
 
-### Swipe detection
+### スワイプ検出
 
 ```tsx
 "use client"
@@ -195,7 +195,7 @@ const VELOCITY_THRESHOLD = 300
 />
 ```
 
-### Long press hook
+### ロングプレスフック
 
 ```tsx
 import { useRef } from "react"
@@ -210,7 +210,7 @@ export function useLongPress(callback: () => void, ms = 600) {
 }
 ```
 
-### Word-by-word reveal
+### 単語ごとのリビール
 
 ```tsx
 "use client"
@@ -241,7 +241,7 @@ export function AnimatedText({ text }: { text: string }) {
 }
 ```
 
-### Number counter
+### 数値カウンター
 
 ```tsx
 "use client"
@@ -260,14 +260,14 @@ export function Counter({ to }: { to: number }) {
         if (nodeRef.current) nodeRef.current.textContent = Math.round(v).toString()
       },
     })
-    return controls.stop   // Rule 7: cleanup
+    return controls.stop   // ルール7: クリーンアップ
   }, [to])
 
   return <span ref={nodeRef} />
 }
 ```
 
-### SVG path draw-on
+### SVGパスの描画
 
 ```tsx
 "use client"
@@ -282,7 +282,7 @@ import { motionTokens } from "@/lib/motion-tokens"
 />
 ```
 
-### Stroke progress ring
+### ストロークプログレスリング
 
 ```tsx
 "use client"
@@ -309,7 +309,7 @@ export function ProgressRing({ progress }: { progress: number }) {
 }
 ```
 
-### useScrollReveal hook
+### useScrollRevealフック
 
 ```tsx
 "use client"
@@ -325,12 +325,12 @@ export function useScrollReveal() {
   return { ref, style: { opacity, y } }
 }
 
-// Usage
+// 使用例
 const { ref, style } = useScrollReveal()
 <motion.section ref={ref} style={style} />
 ```
 
-### Cursor follower
+### カーソルフォロワー
 
 ```tsx
 "use client"
@@ -347,7 +347,7 @@ export function CursorFollower() {
   useEffect(() => {
     const move = (e: MouseEvent) => { x.set(e.clientX); y.set(e.clientY) }
     window.addEventListener("mousemove", move)
-    return () => window.removeEventListener("mousemove", move)   // Rule 7
+    return () => window.removeEventListener("mousemove", move)   // ルール7
   }, [])
 
   return (
@@ -360,7 +360,7 @@ export function CursorFollower() {
 }
 ```
 
-### Shimmer skeleton
+### シマースケルトン
 
 ```tsx
 "use client"
@@ -407,7 +407,7 @@ export function ShimmerSkeleton({ className = "" }: { className?: string }) {
 }
 ```
 
-### Button loading state
+### ボタンのローディング状態
 
 ```tsx
 "use client"
@@ -455,7 +455,7 @@ export function LoadingButton({
 }
 ```
 
-### Infinite animation with visibility pause
+### 表示非表示時に一時停止する無限アニメーション
 
 ```tsx
 "use client"
@@ -474,7 +474,7 @@ export function PulseDot() {
         transition: { repeat: Infinity, duration: motionTokens.duration.crawl },
       })
 
-    // Rule 2: pause when tab is hidden
+    // ルール2: タブが非表示のときに一時停止
     const handleVisibility = () => {
       if (document.visibilityState === "hidden") controls.stop()
       else void pulse()
@@ -482,7 +482,7 @@ export function PulseDot() {
 
     void pulse()
     document.addEventListener("visibilitychange", handleVisibility)
-    // Rule 7: stop controls and remove listeners on unmount.
+    // ルール7: アンマウント時にcontrolsを停止しリスナーを削除する
     return () => {
       controls.stop()
       document.removeEventListener("visibilitychange", handleVisibility)
@@ -493,11 +493,9 @@ export function PulseDot() {
 }
 ```
 
-## End-to-End Example
+## エンドツーエンド例
 
-Drag-to-dismiss sheet with shimmer content, loading state, and reduced motion
-support — combining `useMotionValue`, `useTransform`, `useSafeMotion`,
-`AnimatePresence`, and tokens from `motion-foundations`:
+`useMotionValue`、`useTransform`、`useSafeMotion`、`AnimatePresence`、および`motion-foundations`のトークンを組み合わせた、シマーコンテンツ、ローディング状態、モーション削減対応を備えたドラッグで消えるシート:
 
 ```tsx
 "use client"
@@ -526,7 +524,7 @@ export function DismissibleSheet({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* バックドロップ */}
           <motion.div
             key="backdrop"
             className="fixed inset-0 bg-black/40"
@@ -536,7 +534,7 @@ export function DismissibleSheet({
             onClick={onClose}
           />
 
-          {/* Sheet — drag-to-dismiss */}
+          {/* シート — ドラッグで消える */}
           <motion.div
             key="sheet"
             className="fixed bottom-0 inset-x-0 rounded-t-2xl bg-white p-6"
@@ -566,31 +564,31 @@ export function DismissibleSheet({
 }
 ```
 
-## Constraints / Non-Goals
+## 制約 / 対象外
 
-This skill does **not** cover:
+このスキルは以下を**カバーしない**:
 
-- Token and spring definitions → see `motion-foundations`
-- Standard UI patterns (button, modal, stagger, page transitions) → see `motion-patterns`
-- CSS-only animations or Tailwind `animate-*` without `motion/react`
-- Canvas or WebGL-based animation (Three.js, Pixi, etc.)
-- Full drag-and-drop systems with external state managers (dnd-kit, react-beautiful-dnd)
-- Game-loop or frame-by-frame animation
+- トークンとスプリング定義 → `motion-foundations`を参照
+- 標準的なUIパターン（ボタン、モーダル、スタガー、ページトランジション）→ `motion-patterns`を参照
+- CSSのみのアニメーションや`motion/react`なしのTailwindの`animate-*`
+- キャンバスまたはWebGLベースのアニメーション（Three.js、Pixiなど）
+- 外部状態マネージャーを使ったフルドラッグ＆ドロップシステム（dnd-kit、react-beautiful-dnd）
+- ゲームループやフレームバイフレームアニメーション
 
-## Anti-Patterns
+## アンチパターン
 
-| Anti-pattern | Rule violated | Fix |
+| アンチパターン | 違反ルール | 修正方法 |
 | ---------------------------------------------- | ------- | ------------------------------------------------ |
-| `drag` tested only on desktop | Rule 1 | Test on touch emulator and real device |
-| `animate={{ repeat: Infinity }}` with no pause | Rule 2 | Add `visibilitychange` listener |
-| `onDragEnd` checking only offset, not velocity | Rule 3 | Check both `info.offset` and `info.velocity` |
-| `animate(scope, ...)` before `useEffect` | Rule 4 | Call `animate()` only after mount |
-| `const x = new MotionValue(0)` in render | Rule 5 | Use `const x = useMotionValue(0)` |
-| `transition={{ duration: 1.2 }}` inline | Rule 6 | Use `motionTokens.duration.crawl` |
-| `useEffect` without cleanup | Rule 7 | Return `removeEventListener` / `controls.stop` |
-| SVG morph between paths with different commands | Rule 8 | Normalize path commands before animating |
+| `drag`をデスクトップのみでテスト | ルール1 | タッチエミュレーターと実機でテストする |
+| `animate={{ repeat: Infinity }}`で一時停止なし | ルール2 | `visibilitychange`リスナーを追加する |
+| `onDragEnd`でオフセットのみ確認し速度を確認しない | ルール3 | `info.offset`と`info.velocity`の両方を確認する |
+| `useEffect`の前に`animate(scope, ...)`を呼び出す | ルール4 | マウント後にのみ`animate()`を呼び出す |
+| レンダー内で`const x = new MotionValue(0)` | ルール5 | `const x = useMotionValue(0)`を使う |
+| インラインで`transition={{ duration: 1.2 }}` | ルール6 | `motionTokens.duration.crawl`を使う |
+| クリーンアップなしの`useEffect` | ルール7 | `removeEventListener` / `controls.stop`を返す |
+| 異なるコマンドを持つパス間でSVGモーフ | ルール8 | アニメーション前にパスコマンドを正規化する |
 
-## Related Skills
+## 関連スキル
 
-- **`motion-foundations`** — defines all tokens, springs, `useSafeMotion`, and SSR guards imported here. Must be set up before using this skill.
-- **`motion-patterns`** — handles standard UI patterns (button, modal, stagger, page transitions, scroll reveals). Use it before reaching for the advanced patterns here.
+- **`motion-foundations`** — このスキルでインポートされる全トークン、スプリング、`useSafeMotion`、SSRガードを定義する。このスキルを使う前に必ずセットアップすること。
+- **`motion-patterns`** — 標準的なUIパターン（ボタン、モーダル、スタガー、ページトランジション、スクロールリビール）を担当する。高度なパターンを使う前にまずこちらを使うこと。

@@ -1,46 +1,46 @@
 ---
 name: react-performance
-description: React and Next.js performance optimization patterns adapted from Vercel Engineering's React Best Practices (https://github.com/vercel-labs/agent-skills). Organizes 70+ rules across 8 priority categories — waterfalls, bundle size, server-side, client fetching, re-render, rendering, JS micro-perf, advanced. Use when writing, reviewing, or refactoring React/Next.js code for performance.
+description: VercelエンジニアリングのReactベストプラクティス（https://github.com/vercel-labs/agent-skills）を元にしたReact/Next.jsパフォーマンス最適化パターン。ウォーターフォール、バンドルサイズ、サーバーサイド、クライアントフェッチ、再レンダリング、レンダリング、JS マイクロパフォーマンス、高度パターンの8つの優先カテゴリで70以上のルールを整理。React/Next.jsコードのパフォーマンスを書く・レビューする・リファクタリングする際に使用してください。
 origin: ECC
 ---
 
-# React Performance
+# Reactパフォーマンス
 
-Performance optimization patterns for React 18/19 and Next.js, adapted from [Vercel Labs `react-best-practices`](https://github.com/vercel-labs/agent-skills/tree/main/skills/react-best-practices) (MIT, v1.0.0). This skill organizes rules by priority and provides decision-tree guidance for active code review and refactoring.
+React 18/19とNext.jsのパフォーマンス最適化パターン。[Vercel Labs `react-best-practices`](https://github.com/vercel-labs/agent-skills/tree/main/skills/react-best-practices)（MIT、v1.0.0）から参考にしています。このスキルはルールを優先度順に整理し、積極的なコードレビューとリファクタリングのための意思決定ツリーガイダンスを提供します。
 
-## When to Activate
+## 起動タイミング
 
-- Writing or reviewing React/Next.js code for performance
-- Diagnosing slow page loads, slow interactions, or high CPU on the client
-- Auditing bundle size or Lighthouse Core Web Vitals regressions
-- Removing waterfalls in Server Components / API routes
-- Reducing client-side re-renders
-- Optimizing long lists, animations, or hydration
-- Auditing optimization choices in PRs touching `app/`, `pages/`, `components/`, or data layers
+- パフォーマンスを意識してReact/Next.jsコードを書く・レビューする場合
+- ページ読み込みの遅さ、インタラクションの遅さ、クライアントの高CPU使用率を診断する場合
+- バンドルサイズやLighthouse Core Web Vitalsのリグレッションを監査する場合
+- Server Components / APIルートのウォーターフォールを排除する場合
+- クライアントサイドの再レンダリングを削減する場合
+- 長いリスト、アニメーション、またはハイドレーションを最適化する場合
+- `app/`、`pages/`、`components/`、またはデータ層に触れるPRの最適化選択を監査する場合
 
-## Priority Index
+## 優先度インデックス
 
-| Priority | Category | Prefix | When it matters |
+| 優先度 | カテゴリ | プレフィックス | 適用タイミング |
 |---|---|---|---|
-| 1 — CRITICAL | Eliminating Waterfalls | `async-` | Anytime `await` is followed by independent `await` |
-| 2 — CRITICAL | Bundle Size Optimization | `bundle-` | First-load JS, route-level imports, third-party libs |
-| 3 — HIGH | Server-Side Performance | `server-` | RSC, Server Actions, API routes, SSR |
-| 4 — MEDIUM-HIGH | Client-Side Data Fetching | `client-` | SWR / TanStack Query / raw `fetch` in hooks |
-| 5 — MEDIUM | Re-render Optimization | `rerender-` | High-frequency state updates, parent-child fan-out |
-| 6 — MEDIUM | Rendering Performance | `rendering-` | Long lists, animations, hydration |
-| 7 — LOW-MEDIUM | JavaScript Performance | `js-` | Hot loops, frequent allocations |
-| 8 — LOW | Advanced Patterns | `advanced-` | Effect-event integration, stable refs |
+| 1 — 重大 | ウォーターフォールの排除 | `async-` | 独立した `await` の後に `await` が続く場合 |
+| 2 — 重大 | バンドルサイズの最適化 | `bundle-` | 初回ロードJS、ルートレベルのimport、サードパーティライブラリ |
+| 3 — 高 | サーバーサイドパフォーマンス | `server-` | RSC、Server Actions、APIルート、SSR |
+| 4 — 中高 | クライアントサイドデータフェッチ | `client-` | SWR / TanStack Query / フックでの生の `fetch` |
+| 5 — 中 | 再レンダリング最適化 | `rerender-` | 高頻度の状態更新、親子のファンアウト |
+| 6 — 中 | レンダリングパフォーマンス | `rendering-` | 長いリスト、アニメーション、ハイドレーション |
+| 7 — 低中 | JavaScriptパフォーマンス | `js-` | ホットループ、頻繁なアロケーション |
+| 8 — 低 | 高度なパターン | `advanced-` | エフェクトイベント統合、安定したref |
 
-## 1. Eliminating Waterfalls (CRITICAL)
+## 1. ウォーターフォールの排除（重大）
 
-> "Waterfalls are the #1 performance killer" — every sequential `await` adds full network latency.
+> 「ウォーターフォールはパフォーマンスの最大の敵」 — 逐次的な `await` はフルネットワーク遅延を加算します。
 
-### Cheap conditions before await
+### awaitの前に安価な条件チェック
 
-Check sync conditions (props, env, hardcoded flags) before awaiting remote data.
+リモートデータをawaitする前に、同期条件（props、env、ハードコードフラグ）を確認します。
 
 ```ts
-// INCORRECT
+// 誤り
 async function Page({ id }: { id: string }) {
   const flag = await getFlag("show-page");
   if (!flag || !id) return null;
@@ -48,7 +48,7 @@ async function Page({ id }: { id: string }) {
   // ...
 }
 
-// CORRECT — short-circuit on cheap sync condition first
+// 正しい — 安価な同期条件を先にショートサーキット
 async function Page({ id }: { id: string }) {
   if (!id) return null;
   const flag = await getFlag("show-page");
@@ -57,31 +57,31 @@ async function Page({ id }: { id: string }) {
 }
 ```
 
-### Defer awaits until used
+### 使用するまでawaitを遅らせる
 
-Move `await` into the branch that uses it.
+データを使用するブランチに `await` を移動します。
 
 ```ts
-// INCORRECT — awaits before deciding it needs the data
+// 誤り — データが必要かどうかを決める前にawaitしている
 const user = await getUser(id);
 if (mode === "guest") return renderGuest();
 return renderUser(user);
 
-// CORRECT
+// 正しい
 if (mode === "guest") return renderGuest();
 const user = await getUser(id);
 return renderUser(user);
 ```
 
-### Promise.all for independent work
+### 独立した処理にはPromise.allを使用
 
 ```ts
-// INCORRECT — sequential
+// 誤り — 逐次実行
 const user = await getUser(id);
 const posts = await getPosts(id);
 const followers = await getFollowers(id);
 
-// CORRECT — parallel
+// 正しい — 並列実行
 const [user, posts, followers] = await Promise.all([
   getUser(id),
   getPosts(id),
@@ -89,10 +89,10 @@ const [user, posts, followers] = await Promise.all([
 ]);
 ```
 
-### Partial dependencies — start early, await late
+### 部分的依存関係 — 早めに開始し、遅くawaitする
 
 ```ts
-// CORRECT — kick off all promises, await only when each result is needed
+// 正しい — すべてのPromiseを開始し、各結果が必要な時だけawaitする
 const userP = getUser(id);
 const postsP = getPosts(id);
 const profile = await getProfile(id);
@@ -100,21 +100,21 @@ if (profile.private) return null;
 const [user, posts] = await Promise.all([userP, postsP]);
 ```
 
-### Suspense for streaming
+### ストリーミングのためのSuspense
 
-Push `<Suspense>` boundaries close to the data so the page paints what it can while slower sub-trees stream in. The trade-off: layout shift when content arrives — reserve space (skeleton or `min-height`).
+ページが描画できるものを描画しながら、遅いサブツリーがストリームされるよう、`<Suspense>` 境界をデータの近くに配置します。トレードオフ: コンテンツ到着時のレイアウトシフト — スペースを確保してください（スケルトンまたは `min-height`）。
 
-### Server Components: parallel through composition
+### Server Components: コンポジションによる並列化
 
 ```tsx
-// INCORRECT — sibling awaits run sequentially inside one component
+// 誤り — 1つのコンポーネント内の兄弟awaitは逐次実行される
 export default async function Page() {
   const user = await getUser();
   const cart = await getCart();
   return <View user={user} cart={cart} />;
 }
 
-// CORRECT — split into children, React runs them in parallel
+// 正しい — 子コンポーネントに分割し、Reactが並列実行する
 export default async function Page() {
   return (
     <View>
@@ -125,50 +125,50 @@ export default async function Page() {
 }
 ```
 
-## 2. Bundle Size Optimization (CRITICAL)
+## 2. バンドルサイズの最適化（重大）
 
-### Direct imports, not barrels
+### バレルではなく直接インポート
 
-Barrel `index.ts` files force the bundler to walk the entire module graph even when tree-shaking removes most of it. Direct imports save 200-800ms of first-load JS in many real-world apps.
+バレル `index.ts` ファイルはツリーシェイキングがほとんどを削除しても、バンドラーがモジュールグラフ全体を走査することを強制します。直接インポートは多くの実際のアプリで初回ロードJSを200〜800ms節約します。
 
 ```ts
-// INCORRECT
+// 誤り
 import { Button, Card, Modal } from "@/components";
 
-// CORRECT
+// 正しい
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { Modal } from "@/components/Modal";
 ```
 
-Next.js 13.5+ has [Optimize Package Imports](https://nextjs.org/docs/app/api-reference/next-config-js/optimizePackageImports) that automates this for listed packages — use it; manual direct imports still required for non-listed libs.
+Next.js 13.5以降には[Optimize Package Imports](https://nextjs.org/docs/app/api-reference/next-config-js/optimizePackageImports)があり、リストされたパッケージに対してこれを自動化します — 使用してください。リストされていないライブラリには引き続き手動の直接インポートが必要です。
 
-### Statically analyzable paths
+### 静的に解析可能なパス
 
 ```ts
-// INCORRECT — defeats bundler/trace analysis
+// 誤り — バンドラー/トレース解析を妨げる
 const mod = await import(`./pages/${name}`);
 
-// CORRECT — explicit per branch
+// 正しい — ブランチごとに明示的
 const mod = name === "home" ? await import("./pages/home") : await import("./pages/about");
 ```
 
-### Dynamic imports for heavy components
+### 重いコンポーネントの動的インポート
 
 ```tsx
 import dynamic from "next/dynamic";
 
 const HeavyChart = dynamic(() => import("./HeavyChart"), {
   loading: () => <Skeleton />,
-  ssr: false, // when client-only
+  ssr: false, // クライアントのみの場合
 });
 ```
 
-### Defer third-party scripts
+### サードパーティスクリプトの遅延読み込み
 
-Load analytics, logging, support widgets AFTER hydration. Use `next/script` with `strategy="afterInteractive"` (default) or `"lazyOnload"`.
+アナリティクス、ロギング、サポートウィジェットはハイドレーション後に読み込みます。`next/script` を `strategy="afterInteractive"`（デフォルト）または `"lazyOnload"` で使用します。
 
-### Conditional module loading
+### 条件付きモジュール読み込み
 
 ```tsx
 if (user.role === "admin") {
@@ -177,15 +177,15 @@ if (user.role === "admin") {
 }
 ```
 
-### Preload on hover/focus
+### ホバー/フォーカス時にプリロード
 
-Trigger `<link rel="preload">` or `import()` on hover so the bundle is in cache by the time the user clicks.
+ユーザーがクリックするまでにバンドルがキャッシュされるよう、ホバー時に `<link rel="preload">` または `import()` をトリガーします。
 
-## 3. Server-Side Performance (HIGH)
+## 3. サーバーサイドパフォーマンス（高）
 
-### Authenticate Server Actions like API routes
+### Server ActionsをAPIルートと同様に認証する
 
-Every `"use server"` function is a public endpoint. Authenticate AND authorize inside the action — never rely on the calling Client Component's gating.
+すべての `"use server"` 関数は公開エンドポイントです。アクション内で認証と認可の両方を行ってください — 呼び出し元のClient Componentのゲーティングに依存しないでください。
 
 ```ts
 "use server";
@@ -200,7 +200,7 @@ export async function deleteUser(formData: FormData) {
 }
 ```
 
-### `React.cache()` for per-request deduplication
+### リクエストごとの重複排除に `React.cache()` を使用
 
 ```ts
 import { cache } from "react";
@@ -210,20 +210,20 @@ export const getUser = cache(async (id: string) => {
 });
 ```
 
-`React.cache` dedupes within a single request. Calling `getUser("1")` from three Server Components in the same render = one DB query.
+`React.cache` は単一リクエスト内での重複排除を行います。同じレンダリング内の3つのServer Componentから `getUser("1")` を呼び出す = 1回のDBクエリ。
 
-### LRU cache for cross-request data
+### クロスリクエストデータにはLRUキャッシュを使用
 
-For data that does NOT change per request (config, lookup tables), cache outside React with an LRU cache or `unstable_cache`.
+リクエストごとに変化しないデータ（設定、ルックアップテーブル）は、LRUキャッシュまたは `unstable_cache` でReactの外にキャッシュします。
 
-### Avoid duplicate serialization in RSC props
+### RSCプロパティの重複シリアライゼーションを避ける
 
-When a Server Component renders the same data into multiple Client Components, the data is serialized once per consumer. Lift the Client Component up and pass children.
+Server Componentが同じデータを複数のClient Componentにレンダリングする場合、データはコンシューマーごとに1回シリアライズされます。Client Componentを上に持ち上げてchildrenを渡します。
 
-### Hoist static I/O to module scope
+### 静的I/Oをモジュールスコープに巻き上げる
 
 ```ts
-// CORRECT — runs once at module load
+// 正しい — モジュール読み込み時に1回実行
 const fontData = readFileSync(fontPath);
 
 export async function Page() {
@@ -231,15 +231,15 @@ export async function Page() {
 }
 ```
 
-### No mutable module-level state in RSC/SSR
+### RSC/SSRでミュータブルなモジュールレベル状態を使用しない
 
-Module state on the server is shared across all requests — a race condition between users. Use request-scoped storage (`headers()`, `cookies()`, async context) instead.
+サーバー上のモジュール状態はすべてのリクエスト間で共有されます — ユーザー間の競合状態になります。代わりにリクエストスコープのストレージ（`headers()`、`cookies()`、非同期コンテキスト）を使用してください。
 
-### Minimize data passed to Client Components
+### Client Componentsに渡すデータを最小化する
 
-Only serialize what the Client needs. Strip fields, paginate, project columns at the DB layer.
+Clientが必要とするものだけをシリアライズします。DBレイヤーでフィールドを省き、ページネーションし、カラムを射影します。
 
-### Parallelize nested fetches with Promise.all per item
+### Promise.allでネストされたフェッチを並列化する
 
 ```ts
 const users = await getUsers();
@@ -248,9 +248,9 @@ const enriched = await Promise.all(
 );
 ```
 
-### Use `after()` for non-blocking work
+### ノンブロッキング処理に `after()` を使用する
 
-Next.js 15 `after()` runs work after the response is sent — logging, cache warming, analytics.
+Next.js 15の `after()` はレスポンス送信後に処理を実行します — ロギング、キャッシュウォーミング、アナリティクス。
 
 ```ts
 import { after } from "next/server";
@@ -261,183 +261,183 @@ export async function GET() {
 }
 ```
 
-## 4. Client-Side Data Fetching (MEDIUM-HIGH)
+## 4. クライアントサイドデータフェッチ（中高）
 
-### SWR / TanStack Query for deduplication
+### 重複排除のためにSWR / TanStack Queryを使用する
 
-Multiple components calling `useUser(id)` should share one network request and one cache entry. Use SWR or TanStack Query — never roll your own `useEffect` + `fetch` for shared data.
+`useUser(id)` を呼び出す複数のコンポーネントは1つのネットワークリクエストと1つのキャッシュエントリを共有すべきです。SWRまたはTanStack Queryを使用してください — 共有データに `useEffect` + `fetch` を自前実装しないでください。
 
-### Deduplicate global event listeners
+### グローバルイベントリスナーの重複排除
 
 ```tsx
-// INCORRECT — every component adds its own
+// 誤り — すべてのコンポーネントが独自のリスナーを追加する
 useEffect(() => {
   window.addEventListener("scroll", handler);
   return () => window.removeEventListener("scroll", handler);
 }, []);
 
-// CORRECT — single shared listener via a hook + global subject
-const useScroll = createScrollHook(); // singleton subject under the hood
+// 正しい — フック + グローバルサブジェクトによる単一共有リスナー
+const useScroll = createScrollHook(); // 内部でシングルトンサブジェクトを使用
 ```
 
-### Passive listeners for scroll
+### スクロールにはpassiveリスナーを使用する
 
 ```ts
 window.addEventListener("scroll", handler, { passive: true });
 ```
 
-Improves scrolling smoothness; the listener cannot `preventDefault()`.
+スクロールのスムーズさを改善します。リスナーは `preventDefault()` を呼び出せません。
 
-### localStorage: version + minimize
+### localStorage: バージョン管理とペイロードの最小化
 
-- Always store a `version` field; bump on schema change and migrate or discard old data
-- Keep payloads small — `localStorage` is synchronous and blocks main thread
+- 常に `version` フィールドを保存し、スキーマ変更時にバンプして古いデータを移行または破棄する
+- ペイロードを小さく保つ — `localStorage` は同期APIでメインスレッドをブロックする
 
-## 5. Re-render Optimization (MEDIUM)
+## 5. 再レンダリング最適化（中）
 
-### Don't subscribe to state used only in callbacks
+### コールバックでのみ使用する状態をサブスクライブしない
 
 ```tsx
-// INCORRECT — re-renders every time count changes
+// 誤り — countが変わるたびに再レンダリング
 const count = useStore((s) => s.count);
 const handler = () => doSomething(count);
 
-// CORRECT — read once on call
+// 正しい — 呼び出し時に1回読み込む
 const handler = () => {
   const count = useStore.getState().count;
   doSomething(count);
 };
 ```
 
-### Extract expensive work into memoized components
+### コストのかかる処理をメモ化されたコンポーネントに抽出する
 
 ```tsx
-// CORRECT — child re-renders only when `items` changes
+// 正しい — childは`items`が変わった時だけ再レンダリング
 const Heavy = memo(function Heavy({ items }: { items: Item[] }) {
   return <Chart data={transform(items)} />;
 });
 ```
 
-### Hoist default non-primitive props
+### デフォルトの非プリミティブpropsを巻き上げる
 
 ```tsx
-// INCORRECT — new array each render breaks memo
+// 誤り — レンダリングごとに新しい配列でmemoが壊れる
 <List items={items ?? []} />
 
-// CORRECT
+// 正しい
 const EMPTY: Item[] = [];
 <List items={items ?? EMPTY} />
 ```
 
-### Primitive dependencies in effects
+### エフェクトにはプリミティブ依存関係を使用する
 
 ```tsx
-// INCORRECT — new object identity every render
+// 誤り — レンダリングごとに新しいオブジェクトのアイデンティティ
 useEffect(() => {}, [{ id, name }]);
 
-// CORRECT — primitives
+// 正しい — プリミティブ
 useEffect(() => {}, [id, name]);
 ```
 
-### Subscribe to derived booleans, not raw values
+### 生の値ではなく派生ブール値をサブスクライブする
 
 ```tsx
-// INCORRECT — re-renders for any cart change
+// 誤り — カートの変更があるたびに再レンダリング
 const cart = useStore((s) => s.cart);
 const hasItems = cart.length > 0;
 
-// CORRECT — re-renders only when emptiness flips
+// 正しい — 空/非空の切り替わり時のみ再レンダリング
 const hasItems = useStore((s) => s.cart.length > 0);
 ```
 
-### Derive during render, never via `useEffect`
+### `useEffect` ではなくレンダリング中に派生する
 
 ```tsx
-// INCORRECT
+// 誤り
 const [full, setFull] = useState("");
 useEffect(() => setFull(`${first} ${last}`), [first, last]);
 
-// CORRECT
+// 正しい
 const full = `${first} ${last}`;
 ```
 
-### Functional `setState` for stable callbacks
+### 安定したコールバックには関数形式の `setState` を使用する
 
 ```tsx
-// CORRECT
+// 正しい
 const increment = useCallback(() => setCount((c) => c + 1), []);
 ```
 
-### Lazy state initializer for expensive values
+### コストのかかる値には遅延state初期化を使用する
 
 ```tsx
 const [tree] = useState(() => parseTree(largeInput));
 ```
 
-### Avoid memo for simple primitives
+### 単純なプリミティブにはmemoを使用しない
 
-`useMemo(() => x + 1, [x])` is overhead. Memo earns its keep on object identity and expensive computation.
+`useMemo(() => x + 1, [x])` はオーバーヘッドです。memoはオブジェクトのアイデンティティとコストのかかる計算で効果を発揮します。
 
-### Split hooks with independent deps
+### 独立した依存関係を持つフックを分割する
 
 ```tsx
-// INCORRECT — both selectors re-run if either source changes
+// 誤り — どちらかのソースが変わると両方のセレクタが再実行される
 const { a, b } = useSomething(source1, source2);
 
-// CORRECT
+// 正しい
 const a = useA(source1);
 const b = useB(source2);
 ```
 
-### Move interaction logic into event handlers
+### インタラクションロジックをイベントハンドラーに移動する
 
-Event handlers run only on the user action — `useEffect` re-runs whenever deps change.
+イベントハンドラーはユーザーアクション時のみ実行されます — `useEffect` は依存関係が変わるたびに再実行されます。
 
-### `startTransition` for non-urgent updates
+### 緊急でない更新には `startTransition` を使用する
 
 ```tsx
 const [pending, startTransition] = useTransition();
 startTransition(() => setFilters(newFilters));
 ```
 
-### `useDeferredValue` for expensive renders
+### コストのかかるレンダリングには `useDeferredValue` を使用する
 
 ```tsx
 const deferredQuery = useDeferredValue(query);
 const results = useMemo(() => expensiveSearch(deferredQuery), [deferredQuery]);
 ```
 
-### `useRef` for transient frequent values
+### 一時的な高頻度の値には `useRef` を使用する
 
-For values that change often but should not trigger re-render (timestamps, last-key, accumulators).
+再レンダリングをトリガーすべきでないが頻繁に変わる値（タイムスタンプ、最後のキー、アキュムレーター）に使用します。
 
-### Don't define components inside components
+### コンポーネント内にコンポーネントを定義しない
 
 ```tsx
-// INCORRECT — Inner is a new component on every Outer render
+// 誤り — Innerは毎回のOuterレンダリングで新しいコンポーネントになる
 function Outer() {
   const Inner = () => <span />;
   return <Inner />;
 }
 ```
 
-Each render makes a new `Inner` type, defeating reconciliation and unmounting children.
+レンダリングごとに新しい `Inner` 型が生成され、リコンシリエーションが壊れ、childrenがアンマウントされます。
 
-## 6. Rendering Performance (MEDIUM)
+## 6. レンダリングパフォーマンス（中）
 
-### Animate the wrapper, not the SVG
+### SVGではなくラッパーをアニメーションする
 
-Transforming a `<div>` wrapper around an SVG is GPU-accelerated; transforming the SVG itself triggers paint.
+SVGの周りの `<div>` ラッパーを変換するとGPUアクセラレーションになりますが、SVG自体を変換するとペイントが発生します。
 
-### `content-visibility: auto` for long lists
+### 長いリストには `content-visibility: auto` を使用する
 
 ```css
 .row { content-visibility: auto; contain-intrinsic-size: auto 80px; }
 ```
 
-Browser skips offscreen rendering — major win for lists with hundreds of rows.
+ブラウザはオフスクリーンのレンダリングをスキップします — 数百行のリストに大きな効果があります。
 
-### Hoist static JSX
+### 静的JSXを巻き上げる
 
 ```tsx
 const STATIC_HEADER = <h1>Title</h1>;
@@ -446,41 +446,41 @@ function Page() {
 }
 ```
 
-### SVG: reduce coordinate precision
+### SVG: 座標の精度を下げる
 
-`d="M10.123456,20.654321"` → `d="M10.12,20.65"`. Each digit costs bytes; the visual difference is sub-pixel.
+`d="M10.123456,20.654321"` → `d="M10.12,20.65"`。各桁はバイトコストになりますが、視覚的な差はサブピクセルです。
 
-### Hydration no-flicker via inline script
+### インラインスクリプトによるハイドレーションのちらつき防止
 
-For values needed before hydration (theme, locale), inline a `<script>` that sets `document.documentElement.dataset.*` before React mounts.
+ハイドレーション前に必要な値（テーマ、ロケール）については、Reactがマウントする前に `document.documentElement.dataset.*` を設定するインライン `<script>` を組み込みます。
 
-### Suppress expected hydration mismatches narrowly
+### 予期されるハイドレーションの不一致を狭く抑制する
 
 ```tsx
 <time suppressHydrationWarning>{new Date().toLocaleString()}</time>
 ```
 
-Use ONLY for known-divergent leaf nodes — never on a tree containing other children.
+既知の分岐リーフノードにのみ使用してください — 他のchildrenを含むツリーには絶対に使用しないでください。
 
-### `<Activity>` for show/hide instead of mount/unmount
+### マウント/アンマウントの代わりに表示/非表示に `<Activity>` を使用する
 
-React 19 `<Activity mode="visible|hidden">` keeps tree state and effects mounted but hides — cheaper than unmount/remount for tabs and accordions.
+React 19の `<Activity mode="visible|hidden">` はツリーの状態とエフェクトをマウントしたまま非表示にします — タブやアコーディオンのアンマウント/再マウントよりコストが低い。
 
-### Ternary over `&&` for conditional render
+### 条件付きレンダリングには `&&` より三項演算子を使用する
 
 ```tsx
-// INCORRECT — `0` renders as text node
+// 誤り — `0`がテキストノードとしてレンダリングされる
 {count && <Badge>{count}</Badge>}
 
-// CORRECT
+// 正しい
 {count > 0 ? <Badge>{count}</Badge> : null}
 ```
 
-### `useTransition` for loading states
+### ローディング状態に `useTransition` を使用する
 
-Pair `startTransition` with the action; React shows the previous UI as `isPending` while the next state computes.
+`startTransition` をアクションとペアにします。Reactは次の状態が計算される間、`isPending` として前のUIを表示します。
 
-### React DOM resource hints
+### React DOMリソースヒント
 
 ```tsx
 import { preload, preconnect } from "react-dom";
@@ -488,36 +488,36 @@ preload("/api/critical", { as: "fetch" });
 preconnect("https://api.example.com");
 ```
 
-### `defer` / `async` on `<script>` tags
+### `<script>` タグに `defer` / `async` を使用する
 
-`defer` for ordered execution after DOMContentLoaded; `async` for fire-and-forget.
+`defer` はDOMContentLoaded後の順序付き実行のため、`async` はファイアアンドフォーゲットのために使用します。
 
-## 7. JavaScript Performance (LOW-MEDIUM)
+## 7. JavaScriptパフォーマンス（低中）
 
-- **Batch DOM/CSS changes** — apply via class swap or `cssText`, not property-by-property
-- **`Map` for repeated lookups** — `O(1)` vs `O(n)` linear scan
-- **Cache property access in loops** — `const len = arr.length`
-- **Memoize pure functions** — module-level `Map<key, result>`
-- **Cache `localStorage` reads** — sync API; one read per render
-- **Combine `filter().map()` into one pass** — `flatMap` or single `for`
-- **Check array length first** before expensive comparisons
-- **Early return** from functions
-- **Hoist RegExp** out of loops — compilation is not free
-- **Loop for min/max** instead of `sort()` — `O(n)` vs `O(n log n)`
-- **`Set`/`Map` for membership** — `O(1)` vs `Array.includes` `O(n)`
-- **`toSorted()` over mutation** when immutability matters
-- **`flatMap` to map and filter in one pass**
-- **`requestIdleCallback`** for non-critical work
+- **DOM/CSS変更をバッチ処理** — プロパティ個別ではなく、クラスの切り替えや `cssText` で適用
+- **繰り返しルックアップに `Map` を使用** — `O(1)` vs `O(n)` の線形スキャン
+- **ループ内でプロパティアクセスをキャッシュ** — `const len = arr.length`
+- **純粋関数をメモ化** — モジュールレベルの `Map<key, result>`
+- **`localStorage` 読み取りをキャッシュ** — 同期API；レンダリングごとに1回読み込む
+- **`filter().map()` を1パスにまとめる** — `flatMap` または単一の `for`
+- **コストのかかる比較の前に配列の長さを確認**
+- **関数から早期リターン**
+- **RegExpをループの外に巻き上げる** — コンパイルコストは無視できない
+- **min/maxには `sort()` の代わりにループを使用** — `O(n)` vs `O(n log n)`
+- **メンバーシップには `Set`/`Map` を使用** — `O(1)` vs `Array.includes` の `O(n)`
+- **イミュータビリティが重要な場合は `toSorted()` を使用**（ミューテーションではなく）
+- **マップとフィルターを1パスで行うには `flatMap` を使用**
+- **クリティカルでない処理には `requestIdleCallback` を使用**
 
-## 8. Advanced Patterns (LOW)
+## 8. 高度なパターン（低）
 
-### `useEffectEvent` deps
+### `useEffectEvent` の依存関係
 
-Values from `useEffectEvent` are stable — do NOT add them to effect deps.
+`useEffectEvent` の値は安定しています — エフェクトの依存関係に追加しないでください。
 
-### Event handler refs
+### イベントハンドラーref
 
-For stable callbacks passed to memoized children:
+メモ化されたchildrenに渡す安定したコールバックのために：
 
 ```tsx
 const handlerRef = useRef(handler);
@@ -525,11 +525,11 @@ useEffect(() => { handlerRef.current = handler; });
 const stable = useCallback((arg) => handlerRef.current(arg), []);
 ```
 
-### Init once per app load
+### アプリロード時に1回だけ初期化する
 
-For module-level singletons (telemetry, logger), guard with a module-scope flag — not `useEffect`.
+モジュールレベルのシングルトン（テレメトリ、ロガー）には、モジュールスコープのフラグで保護します — `useEffect` は使いません。
 
-### `useLatest` for stable callback refs
+### 安定したコールバックrefに `useLatest` を使用する
 
 ```tsx
 function useLatest<T>(value: T) {
@@ -539,36 +539,36 @@ function useLatest<T>(value: T) {
 }
 ```
 
-## Automated Tools
+## 自動化ツール
 
-Many of these rules are now automated:
+これらのルールの多くは現在自動化されています：
 
-- **Next.js 13.5+ Optimize Package Imports** — barrel import optimization
-- **React Compiler** (RFC, in canary) — auto-memoization
-- **Turbopack** — faster builds, better tree-shaking
-- **Bundle Analyzer** (`@next/bundle-analyzer`) — visualize first-load JS
+- **Next.js 13.5+ Optimize Package Imports** — バレルインポートの最適化
+- **React Compiler**（RFC、canaryで提供中） — 自動メモ化
+- **Turbopack** — より速いビルド、より良いツリーシェイキング
+- **Bundle Analyzer**（`@next/bundle-analyzer`） — 初回ロードJSの可視化
 
-When the project ships React Compiler, demote `rerender-*` manual memoization rules to "review-only" — the compiler handles them. Manual `useMemo`/`useCallback` becomes unnecessary noise.
+プロジェクトがReact Compilerを採用した場合、`rerender-*` の手動メモ化ルールを「レビューのみ」に降格してください — コンパイラーが処理します。手動の `useMemo`/`useCallback` は不要なノイズになります。
 
-## Lighthouse / Web Vitals Mapping
+## Lighthouse / Web Vitalsのマッピング
 
-| Metric | Most relevant categories |
+| メトリクス | 最も関連するカテゴリ |
 |---|---|
-| **LCP** (Largest Contentful Paint) | Waterfalls, Bundle Size, Resource Hints |
-| **INP** (Interaction to Next Paint) | Re-render, Rendering, JavaScript |
-| **CLS** (Cumulative Layout Shift) | Rendering (Suspense placement, image dimensions) |
-| **TBT** (Total Blocking Time) | Bundle Size, JavaScript, Defer Third-Party |
-| **FID** (legacy) | Bundle Size, Hydration |
+| **LCP**（Largest Contentful Paint） | ウォーターフォール、バンドルサイズ、リソースヒント |
+| **INP**（Interaction to Next Paint） | 再レンダリング、レンダリング、JavaScript |
+| **CLS**（Cumulative Layout Shift） | レンダリング（Suspense配置、画像サイズ） |
+| **TBT**（Total Blocking Time） | バンドルサイズ、JavaScript、サードパーティの遅延読み込み |
+| **FID**（レガシー） | バンドルサイズ、ハイドレーション |
 
-## Related
+## 関連情報
 
-- Skills: [react-patterns](../react-patterns/SKILL.md), [react-testing](../react-testing/SKILL.md), [frontend-patterns](../frontend-patterns/SKILL.md), [accessibility](../accessibility/SKILL.md), [nextjs-turbopack](../nextjs-turbopack/SKILL.md)
-- Rules: [rules/react/](../../rules/react/)
-- Agents: `react-reviewer` enforces these rules in code review; `react-build-resolver` handles related build failures
-- Commands: `/react-review`, `/react-build`, `/react-test`
+- スキル: [react-patterns](../react-patterns/SKILL.md)、[react-testing](../react-testing/SKILL.md)、[frontend-patterns](../frontend-patterns/SKILL.md)、[accessibility](../accessibility/SKILL.md)、[nextjs-turbopack](../nextjs-turbopack/SKILL.md)
+- ルール: [rules/react/](../../rules/react/)
+- エージェント: `react-reviewer` がコードレビューでこれらのルールを適用；`react-build-resolver` が関連するビルド失敗を処理
+- コマンド: `/react-review`、`/react-build`、`/react-test`
 
-## Attribution
+## クレジット
 
-Adapted from Vercel Labs `react-best-practices` skill (MIT License, copyright Vercel Engineering, v1.0.0 January 2026). Source: [https://github.com/vercel-labs/agent-skills/tree/main/skills/react-best-practices](https://github.com/vercel-labs/agent-skills/tree/main/skills/react-best-practices).
+Vercel Labs `react-best-practices` スキル（MITライセンス、著作権 Vercel Engineering、v1.0.0 2026年1月）から参考にしています。ソース: [https://github.com/vercel-labs/agent-skills/tree/main/skills/react-best-practices](https://github.com/vercel-labs/agent-skills/tree/main/skills/react-best-practices)。
 
-This skill restructures and adapts the original 70-rule catalog into a single navigable reference. For the full original ruleset with extended examples, see the upstream repository.
+このスキルはオリジナルの70ルールカタログを単一のナビゲート可能なリファレンスに再構成・適応しています。拡張例を含む完全なオリジナルルールセットについては、上流リポジトリを参照してください。

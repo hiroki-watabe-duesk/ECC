@@ -1,24 +1,24 @@
 ---
 name: django-patterns
-description: Django architecture patterns, REST API design with DRF, ORM best practices, caching, signals, middleware, and production-grade Django apps.
+description: Django アーキテクチャパターン、DRF を用いた REST API 設計、ORM ベストプラクティス、キャッシュ、シグナル、ミドルウェア、プロダクショングレードの Django アプリ。
 origin: ECC
 ---
 
-# Django Development Patterns
+# Django 開発パターン
 
-Production-grade Django architecture patterns for scalable, maintainable applications.
+スケーラブルで保守性の高いアプリケーションのためのプロダクショングレード Django アーキテクチャパターン。
 
-## When to Activate
+## いつ有効にするか
 
-- Building Django web applications
-- Designing Django REST Framework APIs
-- Working with Django ORM and models
-- Setting up Django project structure
-- Implementing caching, signals, middleware
+- Django Web アプリケーションの構築
+- Django REST Framework API の設計
+- Django ORM とモデルの活用
+- Django プロジェクト構成のセットアップ
+- キャッシュ、シグナル、ミドルウェアの実装
 
-## Project Structure
+## プロジェクト構成
 
-### Recommended Layout
+### 推奨レイアウト
 
 ```
 myproject/
@@ -50,7 +50,7 @@ myproject/
         └── ...
 ```
 
-### Split Settings Pattern
+### 設定分割パターン
 
 ```python
 # config/settings/base.py
@@ -150,9 +150,9 @@ LOGGING = {
 }
 ```
 
-## Model Design Patterns
+## モデル設計パターン
 
-### Model Best Practices
+### モデルのベストプラクティス
 
 ```python
 from django.db import models
@@ -225,7 +225,7 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 ```
 
-### QuerySet Best Practices
+### QuerySet のベストプラクティス
 
 ```python
 from django.db import models
@@ -265,7 +265,7 @@ class Product(models.Model):
 Product.objects.active().with_category().in_stock()
 ```
 
-### Manager Methods
+### マネージャーメソッド
 
 ```python
 class ProductManager(models.Manager):
@@ -295,9 +295,9 @@ class Product(models.Model):
     custom = ProductManager()
 ```
 
-## Django REST Framework Patterns
+## Django REST Framework パターン
 
-### Serializer Patterns
+### シリアライザーパターン
 
 ```python
 from rest_framework import serializers
@@ -380,7 +380,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return user
 ```
 
-### ViewSet Patterns
+### ViewSet パターン
 
 ```python
 from rest_framework import viewsets, status, filters
@@ -439,7 +439,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         return self.get_paginated_response(serializer.data)
 ```
 
-### Custom Actions
+### カスタムアクション
 
 ```python
 from rest_framework.decorators import api_view, permission_classes
@@ -471,7 +471,7 @@ def add_to_cart(request):
     return Response({'message': 'Added to cart'}, status=status.HTTP_201_CREATED)
 ```
 
-## Service Layer Pattern
+## サービスレイヤーパターン
 
 ```python
 # apps/orders/services.py
@@ -529,9 +529,9 @@ class OrderService:
         pass
 ```
 
-## Caching Strategies
+## キャッシュ戦略
 
-### View-Level Caching
+### ビューレベルのキャッシュ
 
 ```python
 from django.views.decorators.cache import cache_page
@@ -544,7 +544,7 @@ class ProductListView(generic.ListView):
     context_object_name = 'products'
 ```
 
-### Template Fragment Caching
+### テンプレートフラグメントキャッシュ
 
 ```django
 {% load cache %}
@@ -553,7 +553,7 @@ class ProductListView(generic.ListView):
 {% endcache %}
 ```
 
-### Low-Level Caching
+### 低レベルキャッシュ
 
 ```python
 from django.core.cache import cache
@@ -570,7 +570,7 @@ def get_featured_products():
     return products
 ```
 
-### QuerySet Caching
+### QuerySet キャッシュ
 
 ```python
 from django.core.cache import cache
@@ -588,9 +588,9 @@ def get_popular_categories():
     return categories
 ```
 
-## Signals
+## シグナル
 
-### Signal Patterns
+### シグナルパターン
 
 ```python
 # apps/users/signals.py
@@ -624,9 +624,9 @@ class UsersConfig(AppConfig):
         import apps.users.signals
 ```
 
-## Middleware
+## ミドルウェア
 
-### Custom Middleware
+### カスタムミドルウェア
 
 ```python
 # middleware/active_user_middleware.py
@@ -658,9 +658,9 @@ class RequestLoggingMiddleware(MiddlewareMixin):
         return response
 ```
 
-## Performance Optimization
+## パフォーマンス最適化
 
-### N+1 Query Prevention
+### N+1 クエリの防止
 
 ```python
 # Bad - N+1 queries
@@ -680,7 +680,7 @@ for product in products:
         print(tag.name)
 ```
 
-### Database Indexing
+### データベースインデックス
 
 ```python
 class Product(models.Model):
@@ -697,7 +697,7 @@ class Product(models.Model):
         ]
 ```
 
-### Bulk Operations
+### バルク処理
 
 ```python
 # Bulk create
@@ -716,19 +716,19 @@ Product.objects.bulk_update(products, ['is_active'])
 Product.objects.filter(stock=0).delete()
 ```
 
-## Quick Reference
+## クイックリファレンス
 
-| Pattern | Description |
+| パターン | 説明 |
 |---------|-------------|
-| Split settings | Separate dev/prod/test settings |
-| Custom QuerySet | Reusable query methods |
-| Service Layer | Business logic separation |
-| ViewSet | REST API endpoints |
-| Serializer validation | Request/response transformation |
-| select_related | Foreign key optimization |
-| prefetch_related | Many-to-many optimization |
-| Cache first | Cache expensive operations |
-| Signals | Event-driven actions |
-| Middleware | Request/response processing |
+| 設定分割 | dev/prod/test 設定を分離する |
+| カスタム QuerySet | 再利用可能なクエリメソッド |
+| サービスレイヤー | ビジネスロジックの分離 |
+| ViewSet | REST API エンドポイント |
+| シリアライザーバリデーション | リクエスト・レスポンスの変換 |
+| select_related | 外部キーの最適化 |
+| prefetch_related | 多対多リレーションの最適化 |
+| キャッシュ優先 | コストの高い処理をキャッシュする |
+| シグナル | イベント駆動アクション |
+| ミドルウェア | リクエスト・レスポンス処理 |
 
-Remember: Django provides many shortcuts, but for production applications, structure and organization matter more than concise code. Build for maintainability.
+注意: Django には多くのショートカットが用意されていますが、プロダクションアプリケーションでは構造と整理が簡潔なコードよりも重要です。保守性を念頭に置いて構築してください。

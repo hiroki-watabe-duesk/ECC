@@ -1,28 +1,28 @@
 ---
 name: springboot-security
-description: Spring Security best practices for authn/authz, validation, CSRF, secrets, headers, rate limiting, and dependency security in Java Spring Boot services.
+description: Java Spring Boot サービスにおける認証/認可、バリデーション、CSRF、シークレット、ヘッダー、レート制限、依存関係セキュリティのための Spring Security ベストプラクティス。
 origin: ECC
 ---
 
-# Spring Boot Security Review
+# Spring Boot セキュリティレビュー
 
-Use when adding auth, handling input, creating endpoints, or dealing with secrets.
+認証の追加、入力の処理、エンドポイントの作成、またはシークレットの扱いの際に使用する。
 
-## When to Activate
+## 有効にするタイミング
 
-- Adding authentication (JWT, OAuth2, session-based)
-- Implementing authorization (@PreAuthorize, role-based access)
-- Validating user input (Bean Validation, custom validators)
-- Configuring CORS, CSRF, or security headers
-- Managing secrets (Vault, environment variables)
-- Adding rate limiting or brute-force protection
-- Scanning dependencies for CVEs
+- 認証を追加するとき（JWT、OAuth2、セッションベース）
+- 認可を実装するとき（@PreAuthorize、ロールベースアクセス）
+- ユーザー入力をバリデートするとき（Bean バリデーション、カスタムバリデーター）
+- CORS、CSRF、またはセキュリティヘッダーを設定するとき
+- シークレットを管理するとき（Vault、環境変数）
+- レート制限またはブルートフォース保護を追加するとき
+- CVE の依存関係をスキャンするとき
 
-## Authentication
+## 認証
 
-- Prefer stateless JWT or opaque tokens with revocation list
-- Use `httpOnly`, `Secure`, `SameSite=Strict` cookies for sessions
-- Validate tokens with `OncePerRequestFilter` or resource server
+- ステートレス JWT または失効リスト付き不透明トークンを優先する
+- セッションには `httpOnly`、`Secure`、`SameSite=Strict` Cookie を使用する
+- `OncePerRequestFilter` またはリソースサーバーでトークンをバリデートする
 
 ```java
 @Component
@@ -47,11 +47,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 }
 ```
 
-## Authorization
+## 認可
 
-- Enable method security: `@EnableMethodSecurity`
-- Use `@PreAuthorize("hasRole('ADMIN')")` or `@PreAuthorize("@authz.canEdit(#id)")`
-- Deny by default; expose only required scopes
+- メソッドセキュリティを有効化する: `@EnableMethodSecurity`
+- `@PreAuthorize("hasRole('ADMIN')")` または `@PreAuthorize("@authz.canEdit(#id)")` を使用する
+- デフォルトで拒否し、必要なスコープのみを公開する
 
 ```java
 @RestController
@@ -73,20 +73,20 @@ public class AdminController {
 }
 ```
 
-## Input Validation
+## 入力バリデーション
 
-- Use Bean Validation with `@Valid` on controllers
-- Apply constraints on DTOs: `@NotBlank`, `@Email`, `@Size`, custom validators
-- Sanitize any HTML with a whitelist before rendering
+- コントローラーで `@Valid` を使って Bean バリデーションを使用する
+- DTO にコンストレイントを適用する: `@NotBlank`、`@Email`、`@Size`、カスタムバリデーター
+- レンダリング前にホワイトリストを使ってすべての HTML をサニタイズする
 
 ```java
-// BAD: No validation
+// 悪い例: バリデーションなし
 @PostMapping("/users")
 public User createUser(@RequestBody UserDto dto) {
   return userService.create(dto);
 }
 
-// GOOD: Validated DTO
+// 良い例: バリデートされた DTO
 public record CreateUserDto(
     @NotBlank @Size(max = 100) String name,
     @NotBlank @Email String email,
@@ -100,45 +100,45 @@ public ResponseEntity<UserDto> createUser(@Valid @RequestBody CreateUserDto dto)
 }
 ```
 
-## SQL Injection Prevention
+## SQL インジェクション防止
 
-- Use Spring Data repositories or parameterized queries
-- For native queries, use `:param` bindings; never concatenate strings
+- Spring Data リポジトリまたはパラメータ化クエリを使用する
+- ネイティブクエリには `:param` バインディングを使用し、文字列を連結しない
 
 ```java
-// BAD: String concatenation in native query
+// 悪い例: ネイティブクエリでの文字列連結
 @Query(value = "SELECT * FROM users WHERE name = '" + name + "'", nativeQuery = true)
 
-// GOOD: Parameterized native query
+// 良い例: パラメータ化されたネイティブクエリ
 @Query(value = "SELECT * FROM users WHERE name = :name", nativeQuery = true)
 List<User> findByName(@Param("name") String name);
 
-// GOOD: Spring Data derived query (auto-parameterized)
+// 良い例: Spring Data 派生クエリ（自動パラメータ化）
 List<User> findByEmailAndActiveTrue(String email);
 ```
 
-## Password Encoding
+## パスワードエンコーディング
 
-- Always hash passwords with BCrypt or Argon2 — never store plaintext
-- Use `PasswordEncoder` bean, not manual hashing
+- 常に BCrypt または Argon2 でパスワードをハッシュする — 平文で保存しない
+- 手動ハッシュではなく `PasswordEncoder` Bean を使用する
 
 ```java
 @Bean
 public PasswordEncoder passwordEncoder() {
-  return new BCryptPasswordEncoder(12); // cost factor 12
+  return new BCryptPasswordEncoder(12); // コストファクター 12
 }
 
-// In service
+// サービス内
 public User register(CreateUserDto dto) {
   String hashedPassword = passwordEncoder.encode(dto.password());
   return userRepository.save(new User(dto.email(), hashedPassword));
 }
 ```
 
-## CSRF Protection
+## CSRF 保護
 
-- For browser session apps, keep CSRF enabled; include token in forms/headers
-- For pure APIs with Bearer tokens, disable CSRF and rely on stateless auth
+- ブラウザセッションアプリでは CSRF を有効にしておく; フォーム/ヘッダーにトークンを含める
+- Bearer トークンを使った純粋な API では CSRF を無効にし、ステートレス認証に依存する
 
 ```java
 http
@@ -146,24 +146,24 @@ http
   .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 ```
 
-## Secrets Management
+## シークレット管理
 
-- No secrets in source; load from env or vault
-- Keep `application.yml` free of credentials; use placeholders
-- Rotate tokens and DB credentials regularly
+- ソースにシークレットを含めない; 環境変数または Vault から読み込む
+- `application.yml` を認証情報がない状態に保つ; プレースホルダーを使用する
+- トークンと DB 認証情報を定期的にローテートする
 
 ```yaml
-# BAD: Hardcoded in application.yml
+# 悪い例: application.yml にハードコード
 spring:
   datasource:
     password: mySecretPassword123
 
-# GOOD: Environment variable placeholder
+# 良い例: 環境変数プレースホルダー
 spring:
   datasource:
     password: ${DB_PASSWORD}
 
-# GOOD: Spring Cloud Vault integration
+# 良い例: Spring Cloud Vault 統合
 spring:
   cloud:
     vault:
@@ -171,7 +171,7 @@ spring:
       token: ${VAULT_TOKEN}
 ```
 
-## Security Headers
+## セキュリティヘッダー
 
 ```java
 http
@@ -183,10 +183,10 @@ http
     .referrerPolicy(rp -> rp.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER)));
 ```
 
-## CORS Configuration
+## CORS 設定
 
-- Configure CORS at the security filter level, not per-controller
-- Restrict allowed origins — never use `*` in production
+- コントローラーごとではなく、セキュリティフィルターレベルで CORS を設定する
+- 許可するオリジンを制限する — 本番環境では `*` を絶対に使わない
 
 ```java
 @Bean
@@ -203,17 +203,17 @@ public CorsConfigurationSource corsConfigurationSource() {
   return source;
 }
 
-// In SecurityFilterChain:
+// SecurityFilterChain 内:
 http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 ```
 
-## Rate Limiting
+## レート制限
 
-- Apply Bucket4j or gateway-level limits on expensive endpoints
-- Log and alert on bursts; return 429 with retry hints
+- 高コストなエンドポイントに Bucket4j またはゲートウェイレベルの制限を適用する
+- バーストをログに記録してアラートする; リトライヒントと共に 429 を返す
 
 ```java
-// Using Bucket4j for per-endpoint rate limiting
+// エンドポイントごとのレート制限に Bucket4j を使用
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
   private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
@@ -240,33 +240,33 @@ public class RateLimitFilter extends OncePerRequestFilter {
 }
 ```
 
-## Dependency Security
+## 依存関係セキュリティ
 
-- Run OWASP Dependency Check / Snyk in CI
-- Keep Spring Boot and Spring Security on supported versions
-- Fail builds on known CVEs
+- CI で OWASP Dependency Check / Snyk を実行する
+- Spring Boot と Spring Security をサポートされているバージョンに保つ
+- 既知の CVE でビルドを失敗させる
 
-## Logging and PII
+## ロギングと PII
 
-- Never log secrets, tokens, passwords, or full PAN data
-- Redact sensitive fields; use structured JSON logging
+- シークレット、トークン、パスワード、または完全な PAN データをログに記録しない
+- 機密フィールドを編集する; 構造化 JSON ロギングを使用する
 
-## File Uploads
+## ファイルアップロード
 
-- Validate size, content type, and extension
-- Store outside web root; scan if required
+- サイズ、コンテンツタイプ、拡張子をバリデートする
+- Web ルート外に保存する; 必要に応じてスキャンする
 
-## Checklist Before Release
+## リリース前チェックリスト
 
-- [ ] Auth tokens validated and expired correctly
-- [ ] Authorization guards on every sensitive path
-- [ ] All inputs validated and sanitized
-- [ ] No string-concatenated SQL
-- [ ] CSRF posture correct for app type
-- [ ] Secrets externalized; none committed
-- [ ] Security headers configured
-- [ ] Rate limiting on APIs
-- [ ] Dependencies scanned and up to date
-- [ ] Logs free of sensitive data
+- [ ] 認証トークンが正しくバリデートされ期限切れになっている
+- [ ] すべての機密パスに認可ガードがある
+- [ ] すべての入力がバリデートおよびサニタイズされている
+- [ ] 文字列連結された SQL がない
+- [ ] アプリタイプに対して CSRF の状態が正しい
+- [ ] シークレットが外部化されており、コミットされていない
+- [ ] セキュリティヘッダーが設定されている
+- [ ] API にレート制限がある
+- [ ] 依存関係がスキャンされて最新である
+- [ ] ログに機密データが含まれていない
 
-**Remember**: Deny by default, validate inputs, least privilege, and secure-by-configuration first.
+**覚えておくこと**: デフォルトで拒否、入力をバリデート、最小権限、そして設定によるセキュアファーストを徹底する。

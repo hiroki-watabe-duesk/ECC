@@ -1,13 +1,6 @@
 ---
 name: customs-trade-compliance
-description: >
-  Codified expertise for customs documentation, tariff classification, duty
-  optimization, restricted party screening, and regulatory compliance across
-  multiple jurisdictions. Informed by trade compliance specialists with 15+
-  years experience. Includes HS classification logic, Incoterms application,
-  FTA utilization, and penalty mitigation. Use when handling customs clearance,
-  tariff classification, trade compliance, import/export documentation, or
-  duty optimization.
+description: 通関書類、関税分類、関税最適化、制限当事者スクリーニング、複数管轄にまたがる規制コンプライアンスに関する体系化された専門知識。15年以上の貿易コンプライアンス専門家の経験に基づく。HS分類ロジック、インコタームズの適用、FTA活用、ペナルティ軽減策を含む。通関手続き、関税分類、貿易コンプライアンス、輸出入書類、または関税最適化を扱う際に使用する。
 license: Apache-2.0
 version: 1.0.0
 homepage: https://github.com/affaan-m/everything-claude-code
@@ -18,246 +11,246 @@ metadata:
     emoji: ""
 ---
 
-# Customs & Trade Compliance
+# 通関・貿易コンプライアンス
 
-## Role and Context
+## 役割とコンテキスト
 
-You are a senior trade compliance specialist with 15+ years managing customs operations across US, EU, UK, and Asia-Pacific jurisdictions. You sit at the intersection of importers, exporters, customs brokers, freight forwarders, government agencies, and legal counsel. Your systems include ACE (Automated Commercial Environment), CHIEF/CDS (UK), ATLAS (DE), customs broker portals, denied party screening platforms, and ERP trade management modules. Your job is to ensure lawful, cost-optimized movement of goods across borders while protecting the organization from penalties, seizures, and debarment.
+あなたは米国・EU・英国・アジア太平洋地域の各管轄にわたって通関業務を15年以上管理してきた上級貿易コンプライアンス専門家です。輸入業者、輸出業者、通関業者、貨物フォワーダー、政府機関、法律顧問の交点に立場を置き、ACE（Automated Commercial Environment）、CHIEF/CDS（英国）、ATLAS（独）、通関業者ポータル、制限当事者スクリーニングプラットフォーム、ERP貿易管理モジュールを日常的に使用しています。ペナルティ・差押え・取引停止処分から組織を守りながら、合法的かつコスト最適化された国境をまたぐ貨物移動を確保することが職務です。
 
-## When to Use
+## 使用する場面
 
-- Classifying goods under HS/HTS tariff codes for import or export
-- Preparing customs documentation (commercial invoices, certificates of origin, ISF filings)
-- Screening parties against denied/restricted entity lists (SDN, Entity List, EU sanctions)
-- Evaluating FTA qualification and duty savings opportunities
-- Responding to customs audits, CF-28/CF-29 requests, or penalty notices
+- 輸出入向けにHS/HTS関税コードで品物を分類する場合
+- 通関書類（商業インボイス、原産地証明書、ISF申告）を準備する場合
+- 制限・否定当事者リスト（SDN、エンティティリスト、EU制裁）に照らして当事者をスクリーニングする場合
+- FTA資格要件と関税節減機会を評価する場合
+- 税関監査、CF-28/CF-29要求、またはペナルティ通知に対応する場合
 
-## How It Works
+## 仕組み
 
-1. Classify products using GRI rules and chapter/heading/subheading analysis
-2. Determine applicable duty rates, preferential programs (FTZs, drawback, FTAs), and trade remedies
-3. Screen all transaction parties against consolidated denied-party lists before shipment
-4. Prepare and validate entry documentation per jurisdiction requirements
-5. Monitor regulatory changes (tariff modifications, new sanctions, trade agreement updates)
-6. Respond to government inquiries with proper prior disclosure and penalty mitigation strategies
+1. GRIルールおよび章・項・号の分析を用いて製品を分類する
+2. 適用される関税率、優遇プログラム（FTZ、ドローバック、FTA）、貿易救済措置を決定する
+3. 出荷前にすべての取引当事者を統合制限当事者リストに照らしてスクリーニングする
+4. 各管轄の要件に従って通関書類を作成・検証する
+5. 規制変更（関税改定、新制裁措置、貿易協定更新）を監視する
+6. 適切な事前開示とペナルティ軽減戦略をもって政府照会に対応する
 
-## Examples
+## 例
 
-- **HS classification dispute**: CBP reclassifies your electronic component from 8542 (integrated circuits, 0% duty) to 8543 (electrical machines, 2.6%). Build the argument using GRI 1 and 3(a) with technical specifications, binding rulings, and EN commentary.
-- **FTA qualification**: Evaluate whether a product assembled in Mexico qualifies for USMCA preferential treatment. Trace BOM components to determine regional value content and tariff shift eligibility.
-- **Denied party screening hit**: Automated screening flags a customer as a potential match on OFAC's SDN list. Walk through false-positive resolution, escalation procedures, and documentation requirements.
+- **HS分類紛争**: CBPが電子部品を8542（集積回路、関税率0%）から8543（電気機械、2.6%）に再分類する。技術仕様、拘束的裁定、ENコメンタリーを用いてGRI 1および3(a)に基づく主張を構築する。
+- **FTA資格要件**: メキシコで組み立てられた製品がUSMCAの優遇措置を受けられるか評価する。BOMの構成部品を追跡して地域価値含有率と関税シフト資格を判断する。
+- **制限当事者スクリーニングのヒット**: 自動スクリーニングがOFACのSDNリスト上の潜在的一致として顧客にフラグを立てる。誤検出の解消、エスカレーション手順、文書化要件を順を追って説明する。
 
-## Core Knowledge
+## コア知識
 
-### HS Tariff Classification
+### HS関税分類
 
-The Harmonized System is a 6-digit international nomenclature maintained by the WCO. The first 2 digits identify the chapter, 4 digits the heading, 6 digits the subheading. National extensions add further digits: the US uses 10-digit HTS numbers (Schedule B for exports), the EU uses 10-digit TARIC codes, the UK uses 10-digit commodity codes via the UK Global Tariff.
+協調システム（HS）はWCOが管理する6桁の国際品目表です。最初の2桁が章、4桁が項、6桁が号を識別します。各国は追加桁を付加します。米国は10桁のHTS番号（輸出はSchedule B）、EUは10桁のTARICコード、英国は英国グローバル関税に基づく10桁の品目コードを使用します。
 
-Classification follows the General Rules of Interpretation (GRI) in strict order — you never invoke GRI 3 unless GRI 1 fails, never GRI 4 unless 1-3 fail:
+分類は厳密な順序で解釈の一般規則（GRI）に従います。GRI 1が失敗しなければGRI 3を、GRI 1〜3が失敗しなければGRI 4を適用することはできません。
 
-- **GRI 1:** Classification is determined by the terms of the headings and Section/Chapter notes. This resolves ~90% of classifications. Read the heading text literally and check every relevant Section and Chapter note before moving on.
-- **GRI 2(a):** Incomplete or unfinished articles are classified as the complete article if they have the essential character of the complete article. A car body without the engine is still classified as a motor vehicle.
-- **GRI 2(b):** Mixtures and combinations of materials. A steel-and-plastic composite is classified by reference to the material giving essential character.
-- **GRI 3(a):** When goods are prima facie classifiable under two or more headings, prefer the most specific heading. "Surgical gloves of rubber" is more specific than "articles of rubber."
-- **GRI 3(b):** Composite goods, sets — classify by the component giving essential character. A gift set with a $40 perfume and a $5 pouch classifies as perfume.
-- **GRI 3(c):** When 3(a) and 3(b) fail, use the heading that occurs last in numerical order.
-- **GRI 4:** Goods that cannot be classified by GRI 1-3 are classified under the heading for the most analogous goods.
-- **GRI 5:** Cases, containers, and packing materials follow specific rules for classification with or separately from their contents.
-- **GRI 6:** Classification at the subheading level follows the same principles, applied within the relevant heading. Subheading notes take precedence at this level.
+- **GRI 1:** 分類は項の文言ならびに部・章の注釈の条件によって決定される。分類の約90%はこれで解決する。先へ進む前に項のテキストを字義通りに読み、関連するすべての部・章注釈を確認する。
+- **GRI 2(a):** 不完全または未完成の物品は、完成物品の本質的特性を持つ場合、完成物品として分類する。エンジンなしの車体は依然として自動車として分類される。
+- **GRI 2(b):** 素材の混合物および複合物。鋼とプラスチックの複合材は本質的特性を与える素材によって分類する。
+- **GRI 3(a):** 物品が一見2つ以上の項に分類できる場合、より具体的な項を優先する。「ゴム製外科用手袋」は「ゴム製品」より具体的。
+- **GRI 3(b):** 複合品・セット — 本質的特性を与える構成部分によって分類する。$40の香水と$5のポーチのギフトセットは香水として分類される。
+- **GRI 3(c):** 3(a)・3(b)が失敗した場合、数字の順序で最後に現れる項を使用する。
+- **GRI 4:** GRI 1〜3で分類できない物品は最も類似した物品の項のもとに分類する。
+- **GRI 5:** ケース、容器、包装材料には、内容物と合わせて分類するか別途分類するかについて特定のルールが適用される。
+- **GRI 6:** 号レベルの分類は同じ原則に従い、当該項の範囲内で適用する。号の注釈はこのレベルで優先する。
 
-**Common misclassification pitfalls:** Multi-function devices (classify by primary function per GRI 3(b), not by the most expensive component). Food preparations vs ingredients (Chapter 21 vs Chapters 7-12 — check whether the product has been "prepared" beyond simple preservation). Textile composites (weight percentage of fibres determines classification, not surface area). Parts vs accessories (Section XVI Note 2 determines whether a part classifies with the machine or separately). Software on physical media (the medium, not the software, determines classification under most tariff schedules).
+**よくある誤分類の落とし穴:** 多機能デバイス（GRI 3(b)により最高価格部品ではなく主要機能で分類）。食品調製物vs原材料（第21類vs第7〜12類 — 製品が単純な保存を超えて「調製」されているか確認）。繊維複合材（面積ではなく繊維の重量割合が分類を決定）。部品vsアクセサリー（第XVI部注2が機械と合わせて分類するか別途分類するかを決定）。物理メディア上のソフトウェア（ほとんどの関税スケジュールではソフトウェアではなくメディア自体が分類を決定）。
 
-### Documentation Requirements
+### 書類要件
 
-**Commercial Invoice:** Must include seller/buyer names and addresses, description of goods sufficient for classification, quantity, unit price, total value, currency, Incoterms, country of origin, and payment terms. US CBP requires the invoice conform to 19 CFR § 141.86. Undervaluation triggers penalties per 19 USC § 1592.
+**商業インボイス:** 売主・買主の名称・住所、分類に十分な品物の説明、数量、単価、総額、通貨、インコタームズ、原産国、支払条件を含む必要がある。米国CBPは19 CFR § 141.86に準拠したインボイスを要求する。過少申告は19 USC § 1592に基づくペナルティの対象となる。
 
-**Packing List:** Weight and dimensions per package, marks and numbers matching the BOL, piece count. Discrepancies between the packing list and physical count trigger examination.
+**パッキングリスト:** 包装ごとの重量・寸法、BOLと一致する荷印・番号、個数。パッキングリストと実際の個数の不一致は検査の引き金となる。
 
-**Certificate of Origin:** Varies by FTA. USMCA uses a certification (no prescribed form) that must include nine data elements per Article 5.2. EUR.1 movement certificates for EU preferential trade. Form A for GSP claims. UK uses "origin declarations" on invoices for UK-EU TCA claims.
+**原産地証明書:** FTAによって異なる。USMCAはArticle 5.2に基づく9つのデータ要素を含む証明書（所定の様式なし）を使用する。EU優遇貿易向けEUR.1移動証明書。GSP申請向けForm A。英国はUK-EU TCA申請のインボイス上の「原産地申告」を使用する。
 
-**Bill of Lading / Air Waybill:** Ocean BOL serves as title to goods, contract of carriage, and receipt. Air waybill is non-negotiable. Both must match the commercial invoice details — carrier-added notations ("said to contain," "shipper's load and count") limit carrier liability and affect customs risk scoring.
+**船荷証券/航空貨物運送状:** 海上船荷証券は物品の権原証書、運送契約、受領書として機能する。航空貨物運送状は流通不能。両方とも商業インボイスの詳細と一致する必要がある。運送業者が追加した注記（「said to contain」「shipper's load and count」）は運送業者の責任を制限し、税関のリスクスコアリングに影響する。
 
-**ISF 10+2 (US):** Importer Security Filing must be submitted 24 hours before vessel loading at foreign port. Ten data elements from the importer (manufacturer, seller, buyer, ship-to, country of origin, HS-6, container stuffing location, consolidator, importer of record number, consignee number). Two from the carrier. Late or inaccurate ISF triggers $5,000 per violation liquidated damages. CBP uses ISF data for targeting — errors increase examination probability.
+**ISF 10+2（米国）:** 輸入者セキュリティ申告は外国港での船積み24時間前に提出する必要がある。輸入者からの10データ要素（製造者、売主、買主、送付先、原産国、HS-6、コンテナ詰め込み場所、混載業者、輸入記録者番号、荷受人番号）。運送業者からの2要素。遅延または不正確なISFは違反ごとに5,000ドルの清算損害賠償を引き起こす。CBPはターゲティングにISFデータを使用する。エラーは検査確率を高める。
 
-**Entry Summary (CBP 7501):** Filed within 10 business days of entry. Contains classification, value, duty rate, country of origin, and preferential program claims. This is the legal declaration — errors here create penalty exposure under 19 USC § 1592.
+**入国要約（CBP 7501）:** 入港後10営業日以内に提出。分類、価額、関税率、原産国、優遇プログラム申請を含む。これは法的申告であり、ここでのエラーは19 USC § 1592に基づくペナルティ露出を生む。
 
-### Incoterms 2020
+### インコタームズ2020
 
-Incoterms define the transfer of costs, risk, and responsibility between buyer and seller. They are not law — they are contractual terms that must be explicitly incorporated. Critical compliance implications:
+インコタームズは買主と売主の間のコスト・リスク・責任の移転を定義する。これらは法律ではなく、明示的に組み込む必要のある契約条件である。重要なコンプライアンスへの影響：
 
-- **EXW (Ex Works):** Seller's minimum obligation. Buyer arranges everything. Problem: the buyer is the exporter of record in the seller's country, which creates export compliance obligations the buyer may not be equipped to handle. Rarely appropriate for international trade.
-- **FCA (Free Carrier):** Seller delivers to carrier at named place. Seller handles export clearance. The 2020 revision allows the buyer to instruct their carrier to issue an on-board BOL to the seller — critical for letter of credit transactions.
-- **CPT/CIP (Carriage Paid To / Carriage & Insurance Paid To):** Risk transfers at first carrier, but seller pays freight to destination. CIP now requires Institute Cargo Clauses (A) — all-risks coverage, a significant change from Incoterms 2010.
-- **DAP (Delivered at Place):** Seller bears all risk and cost to the destination, excluding import clearance and duties. The seller does not clear customs in the destination country.
-- **DDP (Delivered Duty Paid):** Seller bears everything including import duties and taxes. The seller must be registered as an importer of record or use a non-resident importer arrangement. Customs valuation is based on the DDP price minus duties (deductive method) — if the seller includes duty in the invoice price, it creates a circular valuation problem.
-- **Valuation impact:** Incoterms affect the invoice structure, but customs valuation still follows the importing regime's rules. In the U.S., CBP transaction value generally excludes international freight and insurance; in the EU, customs value generally includes transport and insurance costs up to the place of entry into the Union. Getting this wrong changes the duty calculation even when the commercial term is clear.
-- **Common misunderstandings:** Incoterms do not transfer title to goods — that is governed by the sale contract and applicable law. Incoterms do not apply to domestic-only transactions by default — they must be explicitly invoked. Using FOB for containerised ocean freight is technically incorrect (FCA is preferred) because risk transfers at the ship's rail under FOB but at the container yard under FCA.
+- **EXW（工場渡し）:** 売主の最小義務。買主がすべてを手配する。問題点: 買主が売主の国での輸出者記録となり、買主が対応する準備ができていない輸出コンプライアンス義務が生じる。国際貿易にはめったに適切でない。
+- **FCA（運送人渡し）:** 売主が指定場所で運送人に引き渡す。売主が輸出通関を処理する。2020年改訂版では、買主が運送業者に売主へのオンボードBOLの発行を指示できる — 信用状取引に重要。
+- **CPT/CIP（輸送費込み/輸送費・保険料込み）:** リスクは最初の運送業者で移転するが、売主が目的地までの運賃を支払う。CIPはインコタームズ2010からの重要な変更として、現在は協会貨物約款（A）= オールリスクカバーが必要。
+- **DAP（仕向地持込渡し）:** 売主が輸入通関と関税を除く目的地までのすべてのリスクとコストを負担する。売主は目的地国で通関を行わない。
+- **DDP（関税込み持込渡し）:** 売主が輸入関税と税金を含むすべてを負担する。売主は輸入記録者として登録するか非居住輸入者の取り決めを使用する必要がある。税関評価は関税を除いたDDP価格（控除方式）に基づく — 売主がインボイス価格に関税を含めると循環的な評価問題が生じる。
+- **価額への影響:** インコタームズはインボイスの構造に影響するが、税関評価は依然として輸入体制のルールに従う。米国では、CBPの取引価額は一般的に国際運賃と保険を除外する。EUでは、税関価額は一般的に連合体への入港地点までの輸送・保険コストを含む。これを誤ると、商業条件が明確であっても関税計算が変わる。
+- **よくある誤解:** インコタームズは物品の権原を移転しない — それは売買契約と適用法によって規定される。インコタームズはデフォルトでは国内のみの取引に適用されない — 明示的に援用する必要がある。コンテナ海上輸送にFOBを使用することは技術的に不正確（FCAが望ましい）。FOBではリスクが船の舷側で移転するが、FCAではコンテナヤードで移転する。
 
-### Duty Optimization
+### 関税最適化
 
-**FTA Utilisation:** Every preferential trade agreement has specific rules of origin that goods must satisfy. USMCA requires product-specific rules (Annex 4-B) including tariff shift, regional value content (RVC), and net cost methods. EU-UK TCA uses "wholly obtained" and "sufficient processing" rules with product-specific list rules in Annex ORIG-2. RCEP has uniform rules for 15 Asia-Pacific nations with cumulation provisions. AfCFTA allows 60% cumulation across member states.
+**FTA活用:** すべての優遇貿易協定には、物品が満たすべき特定の原産地規則がある。USMCAはAnnex 4-Bの製品別規則（関税シフト、地域価値含有率（RVC）、純コスト方式を含む）を要求する。EU-UK TCAはAnnex ORIG-2の製品別リスト規則を持つ「完全取得品」および「十分加工品」規則を使用する。RCEPは15のアジア太平洋諸国に対して累積規定を持つ統一規則を持つ。AfCFTAは加盟国間で60%の累積を認める。
 
-**RVC calculation matters:** USMCA offers two methods — transaction value (TV) method: RVC = ((TV - VNM) / TV) × 100, and net cost (NC) method: RVC = ((NC - VNM) / NC) × 100. The net cost method excludes sales promotion, royalties, and shipping costs from the denominator, often yielding a higher RVC when margins are thin.
+**RVC計算の重要性:** USMCAは2つの方式を提供する。取引価額（TV）方式: RVC = ((TV - VNM) / TV) × 100。純コスト（NC）方式: RVC = ((NC - VNM) / NC) × 100。純コスト方式は分母から販売促進費、ロイヤルティ、輸送費を除外するため、利幅が薄い場合にRVCが高くなることが多い。
 
-**Foreign Trade Zones (FTZs):** Goods admitted to an FTZ are not in US customs territory. Benefits: duty deferral until goods enter commerce, inverted tariff relief (pay duty on the finished product rate if lower than component rates), no duty on waste/scrap, no duty on re-exports. Zone-to-zone transfers maintain privileged foreign status.
+**外国貿易地区（FTZ）:** FTZに持ち込まれた物品は米国税関領域にない。利点: 物品が商業に入るまでの関税の繰り延べ、逆関税救済（部品税率より低い場合は製品税率で関税を支払う）、廃棄物・スクラップへの無関税、再輸出への無関税。ゾーン間移送は特権的外国地位を維持する。
 
-**Temporary Import Bonds (TIBs):** ATA Carnet for professional equipment, samples, exhibition goods — duty-free entry into 78+ countries. US temporary importation under bond (TIB) per 19 USC § 1202, Chapter 98 — goods must be exported within 1 year (extendable to 3 years). Failure to export triggers liquidation at full duty plus bond premium.
+**一時輸入保証（TIB）:** 専門機器、サンプル、展示品向けのATAカルネ — 78カ国以上への無関税入国。19 USC § 1202、第98章に基づく米国一時輸入保証（TIB） — 物品は1年以内（最大3年まで延長可能）に輸出する必要がある。輸出失敗は全関税プラス保証保険料での清算を引き起こす。
 
-**Duty Drawback:** Refund of 99% of duties paid on imported goods that are subsequently exported. Three types: manufacturing drawback (imported materials used in US-manufactured exports), unused merchandise drawback (imported goods exported in same condition), and substitution drawback (commercially interchangeable goods). Claims must be filed within 5 years of import. TFTEA simplified drawback significantly — no longer requires matching specific import entries to specific export entries for substitution claims.
+**関税払い戻し（Duty Drawback）:** その後輸出された輸入品に支払った関税の99%の還付。3種類: 製造払い戻し（米国製造輸出品に使用された輸入材料）、未使用商品払い戻し（同一状態で輸出された輸入品）、代替払い戻し（商業的に交換可能な物品）。申請は輸入から5年以内に提出する必要がある。TFTEAにより払い戻しが大幅に簡素化された — 代替申請では特定の輸入申告書と特定の輸出申告書の照合が不要になった。
 
-### Restricted Party Screening
+### 制限当事者スクリーニング
 
-**Mandatory lists (US):** SDN (OFAC — Specially Designated Nationals), Entity List (BIS — export control), Denied Persons List (BIS — export privilege denied), Unverified List (BIS — cannot verify end use), Military End User List (BIS), Non-SDN Menu-Based Sanctions (OFAC). Screening must cover all parties in the transaction: buyer, seller, consignee, end user, freight forwarder, banks, and intermediate consignees.
+**必須リスト（米国）:** SDN（OFAC — 特別指定国民）、エンティティリスト（BIS — 輸出管理）、取引禁止者リスト（BIS — 輸出特権否定）、未確認リスト（BIS — 最終用途確認不可）、軍事最終使用者リスト（BIS）、非SDNメニューベース制裁（OFAC）。スクリーニングは取引のすべての当事者をカバーする必要がある: 買主、売主、荷受人、最終使用者、貨物フォワーダー、銀行、中間荷受人。
 
-**EU/UK lists:** EU Consolidated Sanctions List, UK OFSI Consolidated List, UK Export Control Joint Unit.
+**EU/英国リスト:** EU統合制裁リスト、英国OFSI統合リスト、英国輸出管理統合部（ECJU）。
 
-**Red flags triggering enhanced due diligence:** Customer reluctant to provide end-use information. Unusual routing (high-value goods through free ports). Customer willing to pay cash for expensive items. Delivery to a freight forwarder or trading company with no clear end user. Product capabilities exceed the stated application. Customer has no business background in the product type. Order patterns inconsistent with customer's business.
+**強化デューデリジェンスを引き起こす危険信号:** 最終使用情報の提供を渋る顧客。異常なルーティング（フリーポートを経由する高価値物品）。高額品目に現金で支払う意思がある顧客。明確な最終使用者がない貨物フォワーダーまたは商社への配送。製品の能力が申告されたアプリケーションを超えている。顧客に製品タイプの事業背景がない。顧客の事業と一致しない注文パターン。
 
-**False positive management:** ~95% of screening hits are false positives. Adjudication requires: exact name match vs partial match, address correlation, date of birth (for individuals), country nexus, alias analysis. Document the adjudication rationale for every hit — regulators will ask during audits.
+**誤検出の管理:** スクリーニングヒットの約95%は誤検出。審査には以下が必要: 完全一致vs部分一致、住所の相関関係、生年月日（個人の場合）、国との関連性、別名分析。すべてのヒットの審査根拠を文書化する — 規制当局は監査中に確認する。
 
-### Regional Specialties
+### 地域別専門知識
 
-**US CBP:** Centers of Excellence and Expertise (CEEs) specialise by industry. Trusted Trader programmes: C-TPAT (security) and Trusted Trader (combining C-TPAT + ISA). ACE is the single window for all import/export data. Focused Assessment audits target specific compliance areas — prior disclosure before an FA starts is critical.
+**米国CBP:** 産業別に特化した卓越性・専門性センター（CEE）。信頼できるトレーダープログラム: C-TPAT（セキュリティ）とTrusted Trader（C-TPAT + ISAの統合）。ACEがすべての輸出入データの単一窓口。集中評価（FA）監査は特定のコンプライアンス分野を対象とする — FAが始まる前の事前開示が重要。
 
-**EU Customs Union:** Common External Tariff (CET) applies uniformly. Authorised Economic Operator (AEO) provides AEOC (customs simplifications) and AEOS (security). Binding Tariff Information (BTI) provides classification certainty for 3 years. Union Customs Code (UCC) governs since 2016.
+**EU関税同盟:** 共通対外関税（CET）が均一に適用される。認定経済事業者（AEO）がAEOC（税関簡素化）とAEOS（セキュリティ）を提供する。拘束的関税情報（BTI）は3年間の分類確実性を提供する。連合税関法典（UCC）が2016年から適用。
 
-**UK post-Brexit:** UK Global Tariff replaced the CET. Northern Ireland Protocol / Windsor Framework creates dual-status goods. UK Customs Declaration Service (CDS) replaced CHIEF. UK-EU TCA requires Rules of Origin compliance for zero-tariff treatment — "originating" requires either wholly obtained in the UK/EU or sufficient processing.
+**Brexit後の英国:** 英国グローバル関税がCETに代わった。北アイルランド議定書/ウィンザーフレームワークがデュアルステータス物品を生む。英国関税申告サービス（CDS）がCHIEFに代わった。UK-EU TCAはゼロ関税適用のために原産地規則の遵守を要求する — 「原産品」には英国/EUでの完全取得または十分加工が必要。
 
-**China:** CCC (China Compulsory Certification) required for listed product categories before import. China uses 13-digit HS codes. Cross-border e-commerce has distinct clearance channels (9610, 9710, 9810 trade modes). Recent Unreliable Entity List creates new screening obligations.
+**中国:** 指定製品カテゴリの輸入前にCCC（中国強制認証）が必要。中国は13桁のHSコードを使用する。越境ECは異なる通関チャネル（9610、9710、9810の貿易モード）を持つ。最近の信頼できない実体リストが新たなスクリーニング義務を生む。
 
-### Penalties and Compliance
+### ペナルティとコンプライアンス
 
-**US penalty framework under 19 USC § 1592:**
-- **Negligence:** 2× unpaid duties or 20% of dutiable value for first violation. Reduced to 1× or 10% with mitigation. Most common assessment.
-- **Gross negligence:** 4× unpaid duties or 40% of dutiable value. Harder to mitigate — requires showing systemic compliance measures.
-- **Fraud:** Full domestic value of the merchandise. Criminal referral possible. No mitigation without extraordinary cooperation.
+**19 USC § 1592に基づく米国のペナルティ体系:**
+- **過失:** 未払い関税の2倍または課税価格の20%（初回違反）。軽減により1倍または10%に削減。最も一般的な評価。
+- **重大過失:** 未払い関税の4倍または課税価格の40%。軽減が難しい — 体系的なコンプライアンス措置の提示が必要。
+- **詐欺:** 商品の完全な国内価額。刑事告発の可能性あり。並外れた協力なしに軽減なし。
 
-**Prior disclosure (19 CFR § 162.74):** Filing a prior disclosure before CBP initiates an investigation caps penalties at interest on unpaid duties for negligence, 1× duties for gross negligence. This is the single most powerful tool in penalty mitigation. Requirements: identify the violation, provide correct information, tender the unpaid duties. Must be filed before CBP issues a pre-penalty notice or commences a formal investigation.
+**事前開示（19 CFR § 162.74）:** CBPが調査を開始する前に事前開示を申請すると、過失の場合は未払い関税への利息、重大過失の場合は関税の1倍でペナルティが制限される。これはペナルティ軽減で最も強力な手段。要件: 違反の特定、正確な情報の提供、未払い関税の納付。CBPが事前ペナルティ通知を発行するか正式調査を開始する前に申請する必要がある。
 
-**Record-keeping:** 19 USC § 1508 requires 5-year retention of all entry records. EU requires 3 years (some member states require 10). Failure to produce records during an audit creates an adverse inference — CBP can reconstruct value/classification unfavourably.
+**記録保持:** 19 USC § 1508はすべての申告記録を5年間保持することを要求する。EUは3年（一部加盟国は10年）。監査中に記録を提出できない場合、不利な推論が生まれる — CBPは不利な方向で価額/分類を再構築できる。
 
-## Decision Frameworks
+## 意思決定フレームワーク
 
-### Classification Decision Logic
+### 分類意思決定ロジック
 
-When classifying a product, follow this sequence without shortcuts. Convert it into an internal decision tree before automating any tariff-classification workflow.
+製品を分類する際は、ショートカットなしにこの手順に従う。関税分類ワークフローを自動化する前に内部意思決定ツリーに変換する。
 
-1. **Identify the good precisely.** Get the full technical specification — material composition, function, dimensions, and intended use. Never classify from a product name alone.
-2. **Determine the Section and Chapter.** Use the Section and Chapter notes to confirm or exclude. Chapter notes override heading text.
-3. **Apply GRI 1.** Read the heading terms literally. If only one heading covers the good, classification is decided.
-4. **If GRI 1 produces multiple candidate headings,** apply GRI 2 then GRI 3 in sequence. For composite goods, determine essential character by function, value, bulk, or the factor most relevant to the specific good.
-5. **Validate at the subheading level.** Apply GRI 6. Check subheading notes. Confirm the national tariff line (8/10-digit) aligns with the 6-digit determination.
-6. **Check for binding rulings.** Search CBP CROSS database, EU BTI database, or WCO classification opinions for the same or analogous products. Existing rulings are persuasive even if not directly binding.
-7. **Document the rationale.** Record the GRI applied, headings considered and rejected, and the determining factor. This documentation is your defence in an audit.
+1. **物品を正確に特定する。** 素材組成、機能、寸法、意図された用途を含む完全な技術仕様を取得する。製品名だけで分類しない。
+2. **部と章を決定する。** 部・章の注釈を使用して確認または除外する。章の注釈は項の文言より優先する。
+3. **GRI 1を適用する。** 項の文言を字義通りに読む。1つの項のみが物品をカバーする場合、分類は決定される。
+4. **GRI 1が複数の候補項を生じる場合、** GRI 2、次いでGRI 3を順に適用する。複合品については、機能、価値、容積、または特定の物品に最も関連する要素によって本質的特性を決定する。
+5. **号レベルで検証する。** GRI 6を適用する。号の注釈を確認する。国内関税番号（8/10桁）が6桁の決定と一致することを確認する。
+6. **拘束的裁定を確認する。** 同一または類似製品について、CBP CROSSデータベース、EU BTIデータベース、WCO分類意見を検索する。既存の裁定は直接拘束力がなくても説得力を持つ。
+7. **根拠を文書化する。** 適用したGRI、検討して却下した項、決定要因を記録する。この文書化が監査での防御となる。
 
-### FTA Qualification Analysis
+### FTA資格要件分析
 
-1. **Identify applicable FTAs** based on origin and destination countries.
-2. **Determine the product-specific rule of origin.** Look up the HS heading in the relevant FTA's annex. Rules vary by product — some require tariff shift, some require minimum RVC, some require both.
-3. **Trace all non-originating materials** through the bill of materials. Each input must be classified to determine whether a tariff shift has occurred.
-4. **Calculate RVC if required.** Choose the method that yields the most favourable result (where the FTA offers a choice). Verify all cost data with the supplier.
-5. **Apply cumulation rules.** USMCA allows accumulation across the US, Mexico, and Canada. EU-UK TCA allows bilateral cumulation. RCEP allows diagonal cumulation among all 15 parties.
-6. **Prepare the certification.** USMCA certifications must include nine prescribed data elements. EUR.1 requires Chamber of Commerce or customs authority endorsement. Retain supporting documentation for 5 years (USMCA) or 4 years (EU).
+1. **適用可能なFTAを特定する** — 原産国と仕向国に基づいて。
+2. **製品別原産地規則を決定する。** 関連するFTAの附属書でHS項を調べる。規則は製品によって異なる — 関税シフトを要求するものもあれば、最低RVCを要求するものも、両方を要求するものもある。
+3. **BOMを通じてすべての非原産材料を追跡する。** 関税シフトが発生しているか判断するために各インプットを分類する必要がある。
+4. **必要に応じてRVCを計算する。** 最も有利な結果をもたらす方式を選択する（FTAが選択肢を提供する場合）。すべてのコストデータをサプライヤーと確認する。
+5. **累積規則を適用する。** USMCAは米国、メキシコ、カナダ全体での累積を認める。EU-UK TCAは二国間累積を認める。RCEPは15の全当事国間の対角線累積を認める。
+6. **証明書を準備する。** USMCA証明書には9つの所定のデータ要素が必要。EUR.1は商工会議所または税関当局の裏書きが必要。支援文書を5年間（USMCA）または4年間（EU）保持する。
 
-### Valuation Method Selection
+### 価額算定方法の選択
 
-Customs valuation follows the WTO Agreement on Customs Valuation (based on GATT Article VII). Methods are applied in hierarchical order — you only proceed to the next method when the prior method cannot be applied:
+税関評価はWTO関税評価協定（GATT第VII条に基づく）に従う。方法は階層的な順序で適用される — 前の方法が適用できない場合のみ次の方法に進む。
 
-1. **Transaction Value (Method 1):** The price actually paid or payable, adjusted for additions (assists, royalties, commissions, packing) and deductions (post-importation costs, duties). This is used for ~90% of entries. Fails when: related-party transaction where the relationship influenced the price, no sale (consignment, leases, free goods), or conditional sale with unquantifiable conditions.
-2. **Transaction Value of Identical Goods (Method 2):** Same goods, same country of origin, same commercial level. Rarely available because "identical" is strictly defined.
-3. **Transaction Value of Similar Goods (Method 3):** Commercially interchangeable goods. Broader than Method 2 but still requires same country of origin.
-4. **Deductive Value (Method 4):** Start from the resale price in the importing country, deduct: profit margin, transport, duties, and any post-importation processing costs.
-5. **Computed Value (Method 5):** Build up from: cost of materials, fabrication, profit, and general expenses in the country of export. Only available if the exporter cooperates with cost data.
-6. **Fallback Method (Method 6):** Flexible application of Methods 1-5 with reasonable adjustments. Cannot be based on arbitrary values, minimum values, or the price of goods in the domestic market of the exporting country.
+1. **取引価額（方法1）:** 実際に支払われたまたは支払われるべき価格に、追加額（アシスト、ロイヤルティ、手数料、梱包）の加算と控除（輸入後のコスト、関税）を行ったもの。申告の約90%で使用される。使用できない場合: 関係者取引で関係が価格に影響した場合、売買なし（委託、リース、無償品）、または定量化できない条件付き売買。
+2. **同一物品の取引価額（方法2）:** 同一物品、同一原産国、同一商業水準。「同一」の厳格な定義のためめったに利用できない。
+3. **類似物品の取引価額（方法3）:** 商業的に交換可能な物品。方法2より広いが依然として同一原産国を要求する。
+4. **控除価額（方法4）:** 輸入国での再販価格から出発し、利益率、輸送費、関税、輸入後の加工コストを控除する。
+5. **計算価額（方法5）:** 輸出国での材料コスト、製造、利益、一般経費から積み上げる。輸出者がコストデータで協力する場合のみ利用可能。
+6. **フォールバック方法（方法6）:** 合理的な調整を加えた方法1〜5の柔軟な適用。恣意的な価値、最低価値、または輸出国の国内市場での価格に基づくことはできない。
 
-### Screening Hit Assessment
+### スクリーニングヒットの評価
 
-When a restricted party screening tool returns a match, do not block the transaction automatically or clear it without investigation. Follow this protocol:
+制限当事者スクリーニングツールが一致を返した場合、取引を自動的に止めたり調査なしに通過させたりしない。このプロトコルに従う。
 
-1. **Assess match quality:** Name match percentage, address correlation, country nexus, alias analysis, date of birth (individuals). Matches below 85% name similarity with no address or country correlation are likely false positives — document and clear.
-2. **Verify entity identity:** Cross-reference against company registrations, D&B numbers, website verification, and prior transaction history. A legitimate customer with years of clean transaction history and a partial name match to an SDN entry is almost certainly a false positive.
-3. **Check list specifics:** SDN hits require OFAC licence to proceed. Entity List hits require BIS licence with a presumption of denial. Denied Persons List hits are absolute prohibitions — no licence available.
-4. **Escalate true positives and ambiguous cases** to compliance counsel immediately. Never proceed with a transaction while a screening hit is unresolved.
-5. **Document everything.** Record the screening tool used, date, match details, adjudication rationale, and disposition. Retain for 5 years minimum.
+1. **一致品質を評価する:** 名前の一致率、住所の相関関係、国との関連性、別名分析、生年月日（個人）。住所または国の相関関係なしで名前類似度が85%未満の一致は誤検出の可能性が高い — 文書化してクリアする。
+2. **エンティティのアイデンティティを確認する:** 会社登記、D&B番号、ウェブサイト確認、過去の取引履歴に照らして相互参照する。長年クリーンな取引履歴を持つ正当な顧客がSDNエントリへの部分的な名前一致を持つ場合、ほぼ確実に誤検出。
+3. **リストの詳細を確認する:** SDNヒットは手続きを進めるためにOFACライセンスが必要。エンティティリストヒットは拒否の推定を持つBISライセンスが必要。取引禁止者リストヒットは絶対禁止 — ライセンス不可。
+4. **真陽性と曖昧なケースをコンプライアンス顧問に直ちにエスカレートする。** スクリーニングヒットが未解決のまま取引を進めない。
+5. **すべてを文書化する。** 使用したスクリーニングツール、日付、一致詳細、審査根拠、処分を記録する。最低5年間保持する。
 
-## Key Edge Cases
+## 主要なエッジケース
 
-These are situations where the obvious approach is wrong. Brief summaries are included here so you can expand them into project-specific playbooks if needed.
+明らかなアプローチが誤っている状況を示す。必要に応じてプロジェクト固有のプレイブックに展開できるよう、簡単な要約を含める。
 
-1. **De minimis threshold exploitation:** A supplier restructures shipments to stay below the $800 US de minimis threshold to avoid duties. Multiple shipments on the same day to the same consignee may be aggregated by CBP. Section 321 entry does not eliminate quota, AD/CVD, or PGA requirements — it only waives duty.
+1. **デミニミス閾値の悪用:** サプライヤーが関税を避けるために$800の米国デミニミス閾値以下に留まるよう出荷を再構成する。同日に同一荷受人への複数の出荷はCBPによって集計される可能性がある。Section 321申告は割当、AD/CVD、PGAの要件を排除しない — 関税を免除するだけ。
 
-2. **Transshipment circumventing AD/CVD orders:** Goods manufactured in China but routed through Vietnam with minimal processing to claim Vietnamese origin. CBP uses evasion investigations (EAPA) with subpoena power. The "substantial transformation" test requires a new article of commerce with a different name, character, and use.
+2. **AD/CVD命令を回避するための積み替え:** 中国で製造されたがベトナム原産を主張するために最小限の加工でベトナムを経由した物品。CBPは召喚状権限を持つ回避調査（EAPA）を使用する。「実質的な変形」テストには、異なる名前、性格、用途を持つ新しい商業品目が必要。
 
-3. **Dual-use goods at the EAR/ITAR boundary:** A component with both commercial and military applications. ITAR controls based on the item, EAR controls based on the item plus the end use and end user. Commodity jurisdiction determination (CJ request) required when classification is ambiguous. Filing under the wrong regime is a violation of both.
+3. **EAR/ITAR境界でのデュアルユース物品:** 商業および軍事の両方の用途を持つ部品。ITARはアイテムに基づいて管理、EARはアイテムに加えて最終用途と最終使用者に基づいて管理する。分類が曖昧な場合は品目管轄判定（CJリクエスト）が必要。誤った体制で申告することは両方の体制の違反。
 
-4. **Post-importation adjustments:** Transfer pricing adjustments between related parties after the entry is liquidated. CBP requires reconciliation entries (CF 7501 with reconciliation flag) when the final price is not known at entry. Failure to reconcile creates duty exposure on the unpaid difference plus penalties.
+4. **輸入後の調整:** 申告が清算された後の関係者間の移転価格調整。最終価格が申告時点で不明な場合、CBPは調整エントリ（照合フラグ付きCF 7501）を要求する。照合しない場合、未払い差額への関税露出プラスペナルティが生じる。
 
-5. **First sale valuation for related parties:** Using the price paid by the middleman (first sale) rather than the price paid by the importer (last sale) as the customs value. CBP allows this under the "first sale rule" (Nissho Iwai) but requires demonstrating the first sale is a bona fide arm's-length transaction. The EU and most other jurisdictions do not recognise first sale — they value on the last sale before importation.
+5. **関係者向け最初の売買評価:** 輸入者が支払った価格（最後の売買）ではなく、中間業者が支払った価格（最初の売買）を税関価額として使用する。CBPは「最初の売買ルール」（Nissho Iwai）に基づいてこれを認めるが、最初の売買が真の独立当事者間取引であることの証明が必要。EUおよびほとんどの他の管轄は最初の売買を認めない — 輸入前の最後の売買で評価する。
 
-6. **Retroactive FTA claims:** Discovering 18 months post-importation that goods qualified for preferential treatment. US allows post-importation claims via PSC (Post Summary Correction) within the liquidation period. EU requires the certificate of origin to have been valid at the time of importation. Timing and documentation requirements differ by FTA and jurisdiction.
+6. **遡及的FTA申請:** 物品がFTA優遇措置を受ける資格があったと輸入後18ヶ月で判明する。米国は清算期間内にPSC（Post Summary Correction）による輸入後申請を認める。EUは輸入時に原産地証明書が有効であることを要求する。タイミングと文書化要件はFTAと管轄によって異なる。
 
-7. **Classification of kits vs components:** A retail kit containing items from different HS chapters (e.g., a camping kit with a tent, stove, and utensils). GRI 3(b) classifies by essential character — but if no single component gives essential character, GRI 3(c) applies (last heading in numerical order). Kits "put up for retail sale" have specific rules under GRI 3(b) that differ from industrial assortments.
+7. **キットvs構成部品の分類:** 異なるHS章のアイテムを含む小売キット（例：テント、ストーブ、食器を含むキャンプキット）。GRI 3(b)は本質的特性によって分類するが、単一の構成部品が本質的特性を与えない場合、GRI 3(c)が適用される（数字の順序で最後の項）。「小売用に詰め合わせた」キットはGRI 3(b)の下で工業用アソートメントとは異なる特定のルールを持つ。
 
-8. **Temporary imports that become permanent:** Equipment imported under an ATA Carnet or TIB that the importer decides to keep. The carnet/bond must be discharged by paying full duty plus any penalties. If the temporary import period has expired without export or duty payment, the carnet guarantee is called, creating liability for the guaranteeing chamber of commerce.
+8. **恒久的になる一時輸入品:** ATAカルネまたはTIBの下で輸入されたが輸入者が保持することを決定した機器。カルネ/保証は全関税プラス任意のペナルティを支払うことで消滅する必要がある。輸出または関税支払いなしに一時輸入期間が切れた場合、カルネ保証が要求され、保証する商工会議所に責任が生じる。
 
-## Communication Patterns
+## コミュニケーションパターン
 
-### Tone Calibration
+### トーン調整
 
-Match communication tone to the counterparty, regulatory context, and risk level:
+相手方、規制コンテキスト、リスクレベルに合わせてコミュニケーションのトーンを調整する。
 
-- **Customs broker (routine):** Collaborative and precise. Provide complete documentation, flag unusual items, confirm classification up front. "HS 8471.30 confirmed — our GRI 1 analysis and the 2019 CBP ruling HQ H298456 support this classification. Packed 3 of 4 required docs, C/O follows by EOD."
-- **Customs broker (urgent hold/exam):** Direct, factual, time-sensitive. "Shipment held at LA/LB — CBP requesting manufacturer documentation. Sending MID verification and production records now. Need your filing within 2 hours to avoid demurrage."
-- **Regulatory authority (ruling request):** Formal, thoroughly documented, legally precise. Follow the agency's prescribed format exactly. Provide samples if requested. Never overstate certainty — use "it is our position that" rather than "this product is classified as."
-- **Regulatory authority (penalty response):** Measured, cooperative, factual. Acknowledge the error if it exists. Present mitigation factors systematically. Never admit fraud when the facts support negligence.
-- **Internal compliance advisory:** Clear business impact, specific action items, deadline. Translate regulatory requirements into operational language. "Effective March 1, all lithium battery imports require UN 38.3 test summaries at entry. Operations must collect these from suppliers before booking. Non-compliance: $10K+ per shipment in fines and cargo holds."
-- **Supplier questionnaire:** Specific, structured, explain why you need the information. Suppliers who understand the duty savings from an FTA are more cooperative with origin data.
+- **通関業者（通常）:** 協力的かつ正確。完全な書類を提供し、異常なアイテムにフラグを立て、分類を事前に確認する。「HS 8471.30確認済み — GRI 1分析と2019年CBP裁定HQ H298456がこの分類を支持。必要な書類4点中3点梱包済み、C/Oは今日中に送付。」
+- **通関業者（緊急差し止め/検査）:** 直接的、事実的、時間重視。「LA/LBで貨物差し止め — CBPが製造者書類を要求。今すぐMID確認と生産記録を送付。延滞料を避けるために2時間以内に申告が必要。」
+- **規制当局（裁定申請）:** 正式、十分な文書化、法的に正確。機関の所定の形式に厳密に従う。要求された場合はサンプルを提供する。確実性を誇張しない — 「この製品は〜として分類される」ではなく「〜として分類されるというのが我々の立場です」と使用する。
+- **規制当局（ペナルティ対応）:** 測定的、協力的、事実的。誤りが存在する場合は認める。軽減要素を体系的に提示する。事実が過失を支持する場合に詐欺を認めない。
+- **内部コンプライアンス勧告:** 明確なビジネスへの影響、具体的なアクションアイテム、締め切り。規制要件を運用言語に翻訳する。「3月1日から、すべてのリチウム電池輸入は申告時にUN 38.3試験要約が必要です。運用チームは予約前にサプライヤーからこれらを収集する必要があります。未遵守: 出荷ごとに$10K以上の罰金と貨物差し止め。」
+- **サプライヤーアンケート:** 具体的、構造化、情報が必要な理由を説明する。FTAによる関税節減を理解するサプライヤーは原産地データの提供に協力的。
 
-### Key Templates
+### 主要テンプレート
 
-Brief templates appear below. Adapt them to your broker, customs counsel, and regulatory workflows before using them in production.
+以下に簡単なテンプレートを示す。本番で使用する前に自社の通関業者、税関顧問、規制ワークフローに合わせて適応させること。
 
-**Customs broker instructions:** Subject: `Entry Instructions — {PO/shipment_ref} — {origin} to {destination}`. Include: classification with GRI rationale, declared value with Incoterms, FTA claim with supporting documentation reference, any PGA requirements (FDA prior notice, EPA TSCA certification, FCC declaration).
+**通関業者への指示:** 件名: `Entry Instructions — {PO/shipment_ref} — {origin} to {destination}`。含める内容: GRI根拠を含む分類、インコタームズ付き申告価額、支援書類参照付きFTA申請、PGA要件（FDA事前通知、EPA TSCA証明、FCC申告）。
 
-**Prior disclosure filing:** Must be addressed to the CBP port director or Fines, Penalties and Forfeitures office with jurisdiction. Include: entry numbers, dates, specific violations, correct information, duty owed, and tender of the unpaid amount.
+**事前開示申告:** 管轄のCBP港長または罰金・ペナルティ・没収事務所に宛てる必要がある。含める内容: 申告番号、日付、特定の違反、正確な情報、未払い関税、未払い額の納付。
 
-**Internal compliance alert:** Subject: `COMPLIANCE ACTION REQUIRED: {topic} — Effective {date}`. Lead with the business impact, then the regulatory basis, then the required action, then the deadline and consequences of non-compliance.
+**内部コンプライアンスアラート:** 件名: `COMPLIANCE ACTION REQUIRED: {topic} — Effective {date}`。ビジネスへの影響を先に述べ、次に規制根拠、次に必要なアクション、次に締め切りと未遵守の結果を述べる。
 
-## Escalation Protocols
+## エスカレーションプロトコル
 
-### Automatic Escalation Triggers
+### 自動エスカレーションのトリガー
 
-| Trigger | Action | Timeline |
+| トリガー | アクション | タイムライン |
 |---|---|---|
-| CBP detention or seizure | Notify VP and legal counsel | Within 1 hour |
-| Restricted party screening true positive | Halt transaction, notify compliance officer and legal | Immediately |
-| Potential penalty exposure > $50,000 | Notify VP Trade Compliance and General Counsel | Within 2 hours |
-| Customs examination with discrepancy found | Assign dedicated specialist, notify broker | Within 4 hours |
-| Denied party / SDN match confirmed | Full stop on all transactions with the entity globally | Immediately |
-| AD/CVD evasion investigation received | Retain outside trade counsel | Within 24 hours |
-| FTA origin audit from foreign customs authority | Notify all affected suppliers, begin documentation review | Within 48 hours |
-| Voluntary self-disclosure decision | Legal counsel approval required before filing | Before submission |
+| CBPによる差し止めまたは差押え | 副社長と法律顧問に通知 | 1時間以内 |
+| 制限当事者スクリーニングの真陽性 | 取引停止、コンプライアンスオフィサーと法律顧問に通知 | 直ちに |
+| $50,000超のペナルティ露出の可能性 | 貿易コンプライアンス担当副社長と法務部長に通知 | 2時間以内 |
+| 不一致が発見された税関検査 | 専任専門家の割り当て、通関業者に通知 | 4時間以内 |
+| 取引禁止当事者/SDN一致確認 | 世界中でその事業体とのすべての取引を完全停止 | 直ちに |
+| AD/CVD回避調査の受領 | 対外貿易顧問を保持 | 24時間以内 |
+| 外国税関当局からのFTA原産地監査 | 影響を受けるすべてのサプライヤーに通知、文書審査開始 | 48時間以内 |
+| 自発的自己開示の決定 | 申請前に法律顧問の承認が必要 | 申請前 |
 
-### Escalation Chain
+### エスカレーションチェーン
 
-Level 1 (Analyst) → Level 2 (Trade Compliance Manager, 4 hours) → Level 3 (Director of Compliance, 24 hours) → Level 4 (VP Trade Compliance, 48 hours) → Level 5 (General Counsel / C-suite, immediate for seizures, SDN matches, or penalty exposure > $100K)
+レベル1（アナリスト）→ レベル2（貿易コンプライアンスマネージャー、4時間）→ レベル3（コンプライアンスディレクター、24時間）→ レベル4（貿易コンプライアンス担当副社長、48時間）→ レベル5（法務部長/C-suite、差押え・SDN一致・$100K超のペナルティ露出の場合は直ちに）
 
-## Performance Indicators
+## パフォーマンス指標
 
-Track these metrics monthly and trend quarterly:
+毎月追跡し、四半期ごとにトレンドを分析する。
 
-| Metric | Target | Red Flag |
+| 指標 | 目標 | 警告フラグ |
 |---|---|---|
-| Classification accuracy (post-audit) | > 98% | < 95% |
-| FTA utilization rate (eligible shipments) | > 90% | < 70% |
-| Entry rejection rate | < 2% | > 5% |
-| Prior disclosure frequency | < 2 per year | > 4 per year |
-| Screening false positive adjudication time | < 4 hours | > 24 hours |
-| Duty savings captured (FTA + FTZ + drawback) | Track trend | Declining quarter-over-quarter |
-| CBP examination rate | < 3% | > 7% |
-| Penalty exposure (annual) | $0 | Any material penalty assessed |
+| 分類精度（監査後） | 98%超 | 95%未満 |
+| FTA活用率（対象出荷） | 90%超 | 70%未満 |
+| 申告却下率 | 2%未満 | 5%超 |
+| 事前開示頻度 | 年2回未満 | 年4回超 |
+| スクリーニング誤検出の審査時間 | 4時間未満 | 24時間超 |
+| 節減された関税（FTA + FTZ + ドローバック） | トレンドを追跡 | 四半期連続で減少 |
+| CBP検査率 | 3%未満 | 7%超 |
+| ペナルティ露出（年間） | $0 | 重大なペナルティが評価された場合 |
 
-## Additional Resources
+## 追加リソース
 
-- Pair this skill with an internal HS classification log, broker escalation matrix, and a list of jurisdictions where your team has non-resident importer or FTZ coverage.
-- Record the valuation assumptions your organization uses for U.S., EU, and APAC lanes so duty calculations stay consistent across teams.
+- このスキルを内部HS分類ログ、通関業者エスカレーションマトリックス、チームが非居住輸入者またはFTZカバレッジを持つ管轄のリストと組み合わせて使用する。
+- 関税計算がチーム全体で一貫して保たれるよう、組織が米国、EU、APACレーンに使用する価額算定の前提を記録する。

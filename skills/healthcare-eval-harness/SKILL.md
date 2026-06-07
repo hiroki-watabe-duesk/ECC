@@ -1,60 +1,60 @@
 ---
 name: healthcare-eval-harness
-description: Patient safety evaluation harness for healthcare application deployments. Automated test suites for CDSS accuracy, PHI exposure, clinical workflow integrity, and integration compliance. Blocks deployments on safety failures.
+description: 医療アプリケーションのデプロイメントに向けた患者安全評価ハーネス。CDSS精度、PHI露出、臨床ワークフロー整合性、統合コンプライアンスの自動テストスイート。安全性の失敗時はデプロイをブロックします。
 origin: Health1 Super Speciality Hospitals — contributed by Dr. Keyur Patel
 version: "1.0.0"
 ---
 
-# Healthcare Eval Harness — Patient Safety Verification
+# Healthcare Eval Harness — 患者安全検証
 
-Automated verification system for healthcare application deployments. A single CRITICAL failure blocks deployment. Patient safety is non-negotiable.
+医療アプリケーションのデプロイメントに向けた自動検証システム。CRITICAL 判定の失敗が1件でもあるとデプロイはブロックされます。患者の安全は絶対です。
 
-> **Note:** Examples use Jest as the reference test runner. Adapt commands for your framework (Vitest, pytest, PHPUnit, etc.) — the test categories and pass thresholds are framework-agnostic.
+> **注意:** サンプルでは Jest をリファレンステストランナーとして使用しています。お使いのフレームワーク（Vitest、pytest、PHPUnit 等）に合わせてコマンドを適宜変更してください。テストカテゴリと合格閾値はフレームワークに依存しません。
 
-## When to Use
+## いつ使うか
 
-- Before any deployment of EMR/EHR applications
-- After modifying CDSS logic (drug interactions, dose validation, scoring)
-- After changing database schemas that touch patient data
-- After modifying authentication or access control
-- During CI/CD pipeline configuration for healthcare apps
-- After resolving merge conflicts in clinical modules
+- EMR/EHR アプリケーションのデプロイ前
+- CDSS ロジック（薬物相互作用、用量バリデーション、スコアリング）を変更した後
+- 患者データに触れるデータベーススキーマを変更した後
+- 認証やアクセス制御を変更した後
+- 医療アプリの CI/CD パイプライン設定時
+- 臨床モジュールのマージコンフリクト解消後
 
-## How It Works
+## 仕組み
 
-The eval harness runs five test categories in order. The first three (CDSS Accuracy, PHI Exposure, Data Integrity) are CRITICAL gates requiring 100% pass rate — a single failure blocks deployment. The remaining two (Clinical Workflow, Integration) are HIGH gates requiring 95%+ pass rate.
+評価ハーネスは5つのテストカテゴリを順番に実行します。最初の3つ（CDSS 精度、PHI 露出、データ整合性）は CRITICAL ゲートで、合格率 100% が必要です。1件でも失敗するとデプロイがブロックされます。残り2つ（臨床ワークフロー、統合）は HIGH ゲートで、95% 以上の合格率が必要です。
 
-Each category maps to a Jest test path pattern. The CI pipeline runs CRITICAL gates with `--bail` (stop on first failure) and enforces coverage thresholds with `--coverage --coverageThreshold`.
+各カテゴリは Jest のテストパスパターンに対応します。CI パイプラインは CRITICAL ゲートに `--bail`（最初の失敗で停止）を指定して実行し、`--coverage --coverageThreshold` でカバレッジ閾値を強制します。
 
-### Eval Categories
+### 評価カテゴリ
 
-**1. CDSS Accuracy (CRITICAL — 100% required)**
+**1. CDSS 精度（CRITICAL — 100% 必須）**
 
-Tests all clinical decision support logic: drug interaction pairs (both directions), dose validation rules, clinical scoring vs published specs, no false negatives, no silent failures.
+すべての臨床判断支援ロジックをテストします。薬物相互作用ペア（双方向）、用量バリデーションルール、公開された仕様に対する臨床スコアリング、偽陰性なし、サイレントな失敗なし。
 
 ```bash
 npx jest --testPathPattern='tests/cdss' --bail --ci --coverage
 ```
 
-**2. PHI Exposure (CRITICAL — 100% required)**
+**2. PHI 露出（CRITICAL — 100% 必須）**
 
-Tests for protected health information leaks: API error responses, console output, URL parameters, browser storage, cross-facility isolation, unauthenticated access, service role key absence.
+保護された医療情報の漏洩をテストします。API エラーレスポンス、コンソール出力、URL パラメータ、ブラウザストレージ、施設間分離、未認証アクセス、サービスロールキーの不在。
 
 ```bash
 npx jest --testPathPattern='tests/security/phi' --bail --ci
 ```
 
-**3. Data Integrity (CRITICAL — 100% required)**
+**3. データ整合性（CRITICAL — 100% 必須）**
 
-Tests clinical data safety: locked encounters, audit trail entries, cascade delete protection, concurrent edit handling, no orphaned records.
+臨床データの安全性をテストします。ロックされたエンカウンター、監査証跡エントリ、カスケード削除保護、同時編集処理、孤立レコードなし。
 
 ```bash
 npx jest --testPathPattern='tests/data-integrity' --bail --ci
 ```
 
-**4. Clinical Workflow (HIGH — 95%+ required)**
+**4. 臨床ワークフロー（HIGH — 95% 以上必須）**
 
-Tests end-to-end flows: encounter lifecycle, template rendering, medication sets, drug/diagnosis search, prescription PDF, red flag alerts.
+エンドツーエンドのフローをテストします。エンカウンターライフサイクル、テンプレートレンダリング、薬剤セット、薬剤・診断検索、処方箋 PDF、レッドフラグアラート。
 
 ```bash
 tmp_json=$(mktemp)
@@ -69,9 +69,9 @@ rate=$(echo "scale=2; $passed * 100 / $total" | bc)
 echo "Clinical pass rate: ${rate}% ($passed/$total)"
 ```
 
-**5. Integration Compliance (HIGH — 95%+ required)**
+**5. 統合コンプライアンス（HIGH — 95% 以上必須）**
 
-Tests external systems: HL7 message parsing (v2.x), FHIR validation, lab result mapping, malformed message handling.
+外部システムをテストします。HL7 メッセージ解析（v2.x）、FHIR バリデーション、検査結果マッピング、不正なメッセージ処理。
 
 ```bash
 tmp_json=$(mktemp)
@@ -86,17 +86,17 @@ rate=$(echo "scale=2; $passed * 100 / $total" | bc)
 echo "Integration pass rate: ${rate}% ($passed/$total)"
 ```
 
-### Pass/Fail Matrix
+### 合否マトリクス
 
-| Category | Threshold | On Failure |
+| カテゴリ | 閾値 | 失敗時 |
 |----------|-----------|------------|
-| CDSS Accuracy | 100% | **BLOCK deployment** |
-| PHI Exposure | 100% | **BLOCK deployment** |
-| Data Integrity | 100% | **BLOCK deployment** |
-| Clinical Workflow | 95%+ | WARN, allow with review |
-| Integration | 95%+ | WARN, allow with review |
+| CDSS 精度 | 100% | **デプロイをブロック** |
+| PHI 露出 | 100% | **デプロイをブロック** |
+| データ整合性 | 100% | **デプロイをブロック** |
+| 臨床ワークフロー | 95% 以上 | 警告、レビューを経て許可 |
+| 統合 | 95% 以上 | 警告、レビューを経て許可 |
 
-### CI/CD Integration
+### CI/CD 統合
 
 ```yaml
 name: Healthcare Safety Gate
@@ -112,7 +112,7 @@ jobs:
           node-version: '20'
       - run: npm ci
 
-      # CRITICAL gates — 100% required, bail on first failure
+      # CRITICAL ゲート — 100% 必須、最初の失敗で停止
       - name: CDSS Accuracy
         run: npx jest --testPathPattern='tests/cdss' --bail --ci --coverage --coverageThreshold='{"global":{"branches":80,"functions":80,"lines":80}}'
 
@@ -122,8 +122,8 @@ jobs:
       - name: Data Integrity
         run: npx jest --testPathPattern='tests/data-integrity' --bail --ci
 
-      # HIGH gates — 95%+ required, custom threshold check
-      # HIGH gates — 95%+ required
+      # HIGH ゲート — 95% 以上必須、カスタム閾値チェック
+      # HIGH ゲート — 95% 以上必須
       - name: Clinical Workflows
         run: |
           TMP_JSON=$(mktemp)
@@ -155,18 +155,18 @@ jobs:
           fi
 ```
 
-### Anti-Patterns
+### アンチパターン
 
-- Skipping CDSS tests "because they passed last time"
-- Setting CRITICAL thresholds below 100%
-- Using `--no-bail` on CRITICAL test suites
-- Mocking the CDSS engine in integration tests (must test real logic)
-- Allowing deployments when safety gate is red
-- Running tests without `--coverage` on CDSS suites
+- 「前回通過したから」という理由で CDSS テストをスキップする
+- CRITICAL 閾値を 100% 未満に設定する
+- CRITICAL テストスイートで `--no-bail` を使用する
+- 統合テストで CDSS エンジンをモック化する（実際のロジックをテストしなければならない）
+- 安全ゲートがレッドの状態でデプロイを許可する
+- CDSS スイートで `--coverage` なしでテストを実行する
 
-## Examples
+## 使用例
 
-### Example 1: Run All Critical Gates Locally
+### 例 1: すべての CRITICAL ゲートをローカルで実行する
 
 ```bash
 npx jest --testPathPattern='tests/cdss' --bail --ci --coverage && \
@@ -174,7 +174,7 @@ npx jest --testPathPattern='tests/security/phi' --bail --ci && \
 npx jest --testPathPattern='tests/data-integrity' --bail --ci
 ```
 
-### Example 2: Check HIGH Gate Pass Rate
+### 例 2: HIGH ゲートの合格率を確認する
 
 ```bash
 tmp_json=$(mktemp)
@@ -184,10 +184,10 @@ jq '{
   total: (.numTotalTests // 0),
   rate: (if (.numTotalTests // 0) == 0 then 0 else ((.numPassedTests // 0) / (.numTotalTests // 1) * 100) end)
 }' "$tmp_json"
-# Expected: { "passed": 21, "total": 22, "rate": 95.45 }
+# 期待値: { "passed": 21, "total": 22, "rate": 95.45 }
 ```
 
-### Example 3: Eval Report
+### 例 3: 評価レポート
 
 ```
 ## Healthcare Eval: 2026-03-27 [commit abc1234]

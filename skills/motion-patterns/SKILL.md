@@ -1,99 +1,99 @@
 ---
 name: motion-patterns
-description: Production-ready animation patterns for React / Next.js — button, modal, toast, stagger, page transitions, exit animations, scroll, and layout — built on motion-foundations tokens and springs.
+description: React / Next.js 向けのプロダクション対応アニメーションパターン — ボタン、モーダル、トースト、スタガー、ページトランジション、退場アニメーション、スクロール、レイアウト — motion-foundations トークンとスプリングで構築。
 version: 1.0
 tags: [motion, animation, ui-patterns]
 category: frontend
 author: jeff
 ---
 
-# Motion Patterns
+# モーションパターン
 
-Copy-paste patterns for the most common UI animation needs.
-Every pattern here is built on `motion-foundations` tokens and springs.
-Do not define new duration or easing values here — import them.
+最も一般的な UI アニメーションニーズのためのコピー＆ペーストパターン。
+ここにあるすべてのパターンは `motion-foundations` トークンとスプリングで構築されています。
+ここに新しい duration または easing の値を定義しないでください — インポートして使用してください。
 
-## When to Activate
+## アクティブにするタイミング
 
-- Animating a button, card, modal, or toast notification
-- Building list entrances with stagger
-- Setting up page transitions in Next.js App Router
-- Adding entrance or exit animations to conditional content
-- Implementing scroll-reveal, scroll-linked progress, or sticky story sections
-- Building expanding cards, accordions, or shared-element transitions
+- ボタン、カード、モーダル、またはトースト通知をアニメーションさせるとき
+- スタガーを使ったリストのエントランスを構築するとき
+- Next.js App Router でページトランジションを設定するとき
+- 条件付きコンテンツにエントランスまたは退場アニメーションを追加するとき
+- スクロール表示、スクロール連動プログレス、またはスティッキーストーリーセクションを実装するとき
+- 展開カード、アコーディオン、または共有要素トランジションを構築するとき
 
-## Outputs
+## 出力
 
-This skill produces:
+このスキルは以下を生成します:
 
-- Accessible, SSR-safe animation for all standard UI components
-- `AnimatePresence`-wrapped conditional renders with correct exit behavior
-- Page transition wrapper component for Next.js App Router
-- Scroll-reveal and scroll-linked patterns using `useScroll` + `useTransform`
-- Layout animation patterns (`layout`, `layoutId`) for expanding and crossfading elements
+- すべての標準 UI コンポーネントに対するアクセシブルで SSR セーフなアニメーション
+- 正しい退場動作を持つ `AnimatePresence` でラップされた条件付きレンダー
+- Next.js App Router 向けのページトランジションラッパーコンポーネント
+- `useScroll` + `useTransform` を使用したスクロール表示とスクロール連動パターン
+- 展開とクロスフェードのためのレイアウトアニメーションパターン（`layout`、`layoutId`）
 
-## Principles
+## 原則
 
-- Every pattern imports from `motion-foundations`. No raw numbers.
-- Every conditional render is wrapped in `AnimatePresence` with a `key`.
-- Exit animations are always defined alongside enter animations — never as an afterthought.
-- `layout` is used only for small, isolated shifts. Large subtrees get explicit transforms.
+- すべてのパターンは `motion-foundations` からインポートします。生の数値は使用しません。
+- すべての条件付きレンダーは `key` を持つ `AnimatePresence` でラップされます。
+- 退場アニメーションは常にエントランスアニメーションと一緒に定義されます — 後付けにしません。
+- `layout` は小さく孤立した変化のみに使用します。大きなサブツリーには明示的なトランスフォームを使用します。
 
-## Rules
+## ルール
 
-1. **Always wrap conditional renders in `AnimatePresence` with a `key`** on the direct child. Without a key, exit animations never fire.
-2. **Always define `exit` when defining `initial` + `animate`.** An animation without an exit is incomplete.
-3. **Use `mode="wait"` on page transitions.** Enter must not start until exit completes.
-4. **Never use `layout` on subtrees with more than ~5 children or deeply nested DOM.** Use explicit `x`/`y` transforms instead.
-5. **Stagger interval must stay between `0.05s` and `0.10s`.** Below feels mechanical; above feels sluggish.
-6. **Modals must always include:** focus trap, Escape-key close, scroll lock, `role="dialog"`, `aria-modal="true"`.
-7. **Scroll reveals use `viewport={{ once: true }}`.** Repeating on scroll-out is distracting, not informative.
-8. **All token values are imported from `motion-foundations`.** No inline numbers.
+1. **常に `AnimatePresence` で条件付きレンダーをラップし、直接の子に `key` を付ける。** key がなければ退場アニメーションは実行されません。
+2. **`initial` + `animate` を定義する場合は常に `exit` も定義する。** 退場のないアニメーションは不完全です。
+3. **ページトランジションには `mode="wait"` を使用する。** 退場が完了するまでエントランスを開始しないでください。
+4. **5 つ以上の子または深くネストされた DOM を持つサブツリーには `layout` を使用しない。** 代わりに明示的な `x`/`y` トランスフォームを使用してください。
+5. **スタガーインターバルは `0.05s` から `0.10s` の間に維持する。** 以下では機械的に感じ、以上では緩慢に感じます。
+6. **モーダルには常に以下を含める:** フォーカストラップ、Escape キーによるクローズ、スクロールロック、`role="dialog"`、`aria-modal="true"`。
+7. **スクロール表示には `viewport={{ once: true }}` を使用する。** スクロールアウト時に繰り返すのは有益ではなく、気が散ります。
+8. **すべてのトークン値は `motion-foundations` からインポートする。** インライン数値は使用しません。
 
-## Decision Guidance
+## 判断ガイダンス
 
-### Choosing the right pattern
+### 適切なパターンの選択
 
-| Situation | Pattern |
+| 状況 | パターン |
 | ---------------------------------------- | ---------------------- |
-| Element appears / disappears             | `AnimatePresence`      |
-| List of items loading in sequence        | Stagger variants       |
-| Navigating between routes                | Page transition wrapper|
-| Element changes size in place            | `layout` prop          |
-| Same element moves across page contexts  | `layoutId`             |
-| Element enters when scrolled into view   | `whileInView`          |
-| Value tied to scroll position            | `useScroll` + `useTransform` |
+| 要素が現れる / 消える                    | `AnimatePresence`      |
+| アイテムのリストが順番に読み込まれる     | スタガーバリアント     |
+| ルート間のナビゲーション                 | ページトランジションラッパー |
+| 要素がその場でサイズ変化する             | `layout` プロップ      |
+| 同じ要素がページコンテキストをまたいで移動 | `layoutId`           |
+| スクロールして表示エリアに入ったときに要素が現れる | `whileInView`  |
+| 値がスクロール位置に連動する             | `useScroll` + `useTransform` |
 
-### When to use `mode="wait"` vs `mode="sync"`
+### `mode="wait"` と `mode="sync"` の使い分け
 
-| Mode | Use when |
+| モード | 使用するとき |
 | ------- | --------------------------------------- |
-| `wait` | Page transitions, content swaps (one at a time) |
-| `sync` | Stacked notifications, list items (overlap is fine) |
-| `popLayout` | Items removed from a reflow list |
+| `wait` | ページトランジション、コンテンツのスワップ（一度に一つ） |
+| `sync` | 積み重ねられた通知、リストアイテム（重なりが許容される） |
+| `popLayout` | リフローリストから削除されるアイテム |
 
-## Core Concepts
+## 中核コンセプト
 
-### AnimatePresence contract
+### AnimatePresence コントラクト
 
-Three things must always be true:
+常に以下の 3 つが満たされている必要があります:
 
-1. `AnimatePresence` wraps the conditional
-2. The direct child has a `key`
-3. The child has an `exit` prop
+1. `AnimatePresence` が条件をラップしている
+2. 直接の子に `key` がある
+3. 子に `exit` プロップがある
 
-Miss any one of these and the exit animation silently fails.
+これらのうちいずれか 1 つでも欠けると、退場アニメーションはサイレントに失敗します。
 
-### layout vs layoutId
+### layout と layoutId の比較
 
-- `layout` — animates the element's own size/position change in place
-- `layoutId` — links two separate elements, crossfading between them across renders
+- `layout` — 要素自身のサイズ/位置変化をその場でアニメーションする
+- `layoutId` — 2 つの別々の要素を連結し、レンダー間でクロスフェードする
 
-Use `layout="position"` on text inside an expanding container to prevent text reflow from animating.
+展開するコンテナ内のテキストに `layout="position"` を使用して、テキストのリフローがアニメーションしないようにします。
 
-## Code Examples
+## コード例
 
-### Button feedback
+### ボタンフィードバック
 
 ```tsx
 "use client"
@@ -107,7 +107,7 @@ import { springs, motionTokens } from "@/lib/motion-tokens"
 />
 ```
 
-### Stagger list
+### スタガーリスト
 
 ```tsx
 "use client"
@@ -136,7 +136,7 @@ const item = {
 </motion.ul>
 ```
 
-### Modal
+### モーダル
 
 ```tsx
 "use client"
@@ -182,7 +182,7 @@ export function Modal({ onClose }: { onClose: () => void }) {
 }
 ```
 
-### Toast stack
+### トーストスタック
 
 ```tsx
 "use client"
@@ -211,7 +211,7 @@ import { motionTokens, springs } from "@/lib/motion-tokens"
 </AnimatePresence>
 ```
 
-### Page transition (Next.js App Router)
+### ページトランジション（Next.js App Router）
 
 ```tsx
 // components/page-transition.tsx
@@ -248,7 +248,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
 }
 ```
 
-### Scroll reveal
+### スクロール表示
 
 ```tsx
 "use client"
@@ -263,7 +263,7 @@ import { motionTokens, springs } from "@/lib/motion-tokens"
 />
 ```
 
-### Scroll progress bar
+### スクロールプログレスバー
 
 ```tsx
 "use client"
@@ -280,7 +280,7 @@ export function ScrollProgress() {
 }
 ```
 
-### Expanding card
+### 展開カード
 
 ```tsx
 "use client"
@@ -316,7 +316,7 @@ export function ExpandingCard({ title, body }: { title: string; body: string }) 
 }
 ```
 
-### Shared-element crossfade
+### 共有要素クロスフェード
 
 ```tsx
 // Source context
@@ -326,7 +326,7 @@ export function ExpandingCard({ title, body }: { title: string; body: string }) 
 <motion.img layoutId="hero-image" src={src} className="w-full rounded-xl" />
 ```
 
-### Accordion
+### アコーディオン
 
 ```tsx
 <motion.div
@@ -342,11 +342,11 @@ export function ExpandingCard({ title, body }: { title: string; body: string }) 
 </motion.div>
 ```
 
-## End-to-End Example
+## エンドツーエンドの例
 
-A staggered list that enters on mount, handles conditional presence, and
-respects reduced motion — combining tokens, springs, AnimatePresence, and
-the accessibility hook from `motion-foundations`:
+マウント時にスタガーで入場し、条件付きプレゼンスを処理し、
+reduced motion を考慮したスタガーリスト — トークン、スプリング、AnimatePresence、
+`motion-foundations` からのアクセシビリティフックを組み合わせます:
 
 ```tsx
 "use client"
@@ -405,31 +405,31 @@ export function AnimatedList({ items, onRemove }: {
 }
 ```
 
-## Constraints / Non-Goals
+## 制約 / 非目標
 
-This skill does **not** cover:
+このスキルは以下をカバーしません:
 
-- Token and spring definitions → see `motion-foundations`
-- Drag interactions, swipe gestures, reorderable lists → see `motion-advanced`
-- Text animations (word/character reveal, counters) → see `motion-advanced`
-- SVG path drawing or morphing → see `motion-advanced`
-- Custom animation hooks → see `motion-advanced`
-- CSS-only transitions not using `motion/react`
+- トークンとスプリングの定義 → `motion-foundations` を参照
+- ドラッグインタラクション、スワイプジェスチャー、並び替え可能なリスト → `motion-advanced` を参照
+- テキストアニメーション（単語/文字の表示、カウンター） → `motion-advanced` を参照
+- SVG パスの描画またはモーフィング → `motion-advanced` を参照
+- カスタムアニメーションフック → `motion-advanced` を参照
+- `motion/react` を使用しない CSS のみのトランジション
 
-## Anti-Patterns
+## アンチパターン
 
-| Anti-pattern | Rule violated | Fix |
+| アンチパターン | 違反ルール | 修正方法 |
 | -------------------------------------------- | ------- | ------------------------------------------ |
-| `AnimatePresence` child missing `key` | Rule 1 | Add stable `key` to the direct child |
-| `initial` + `animate` without `exit` | Rule 2 | Always define all three together |
-| Page transition without `mode="wait"` | Rule 3 | Add `mode="wait"` to `AnimatePresence` |
-| `layout` on a 50-item list | Rule 4 | Use `mode="popLayout"` or explicit transforms |
-| `staggerChildren: 0.2` on a 10-item list | Rule 5 | Cap at `0.08–0.10` |
-| Modal without focus trap | Rule 6 | Add `focus-trap-react` or Radix Dialog |
-| `whileInView` without `viewport={{ once: true }}` | Rule 7 | Repeating entrances distract, not inform |
-| `transition={{ duration: 0.3 }}` inline | Rule 8 | Use `motionTokens.duration.normal` |
+| `AnimatePresence` の子に `key` がない | ルール 1 | 直接の子に安定した `key` を追加する |
+| `exit` なしの `initial` + `animate` | ルール 2 | 常に 3 つをセットで定義する |
+| `mode="wait"` なしのページトランジション | ルール 3 | `AnimatePresence` に `mode="wait"` を追加する |
+| 50 アイテムリストへの `layout` | ルール 4 | `mode="popLayout"` または明示的なトランスフォームを使用する |
+| 10 アイテムリストへの `staggerChildren: 0.2` | ルール 5 | `0.08〜0.10` に制限する |
+| フォーカストラップなしのモーダル | ルール 6 | `focus-trap-react` または Radix Dialog を追加する |
+| `viewport={{ once: true }}` なしの `whileInView` | ルール 7 | 繰り返しエントランスは有益ではなく気が散る |
+| インラインの `transition={{ duration: 0.3 }}` | ルール 8 | `motionTokens.duration.normal` を使用する |
 
-## Related Skills
+## 関連スキル
 
-- **`motion-foundations`** — defines all tokens, springs, the `useSafeMotion` hook, and SSR guards that every pattern here imports. Must be set up first.
-- **`motion-advanced`** — extends these patterns with drag, gestures, SVG, text, custom hooks, and imperative sequencing. Does not redefine any patterns from this skill.
+- **`motion-foundations`** — ここにあるすべてのパターンがインポートするトークン、スプリング、`useSafeMotion` フック、SSR ガードをすべて定義しています。最初にセットアップする必要があります。
+- **`motion-advanced`** — ドラッグ、ジェスチャー、SVG、テキスト、カスタムフック、命令型シーケンスでこれらのパターンを拡張します。このスキルのパターンは再定義しません。

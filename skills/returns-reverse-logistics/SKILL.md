@@ -1,13 +1,6 @@
 ---
 name: returns-reverse-logistics
-description: >
-  Codified expertise for returns authorization, receipt and inspection,
-  disposition decisions, refund processing, fraud detection, and warranty
-  claims management. Informed by returns operations managers with 15+ years
-  experience. Includes grading frameworks, disposition economics, fraud
-  pattern recognition, and vendor recovery processes. Use when handling
-  product returns, reverse logistics, refund decisions, return fraud
-  detection, or warranty claims.
+description: 返品承認、受領・検品、処分決定、返金処理、不正検知、保証クレーム管理に関する体系的な専門知識。15年以上の経験を持つ返品オペレーションマネージャーの知見を基に構築。グレーディングフレームワーク、処分の経済性、不正パターン認識、ベンダー回収プロセスを含む。商品返品、逆物流、返金判断、返品不正検知、保証クレームの処理に使用。
 license: Apache-2.0
 version: 1.0.0
 homepage: https://github.com/affaan-m/everything-claude-code
@@ -18,223 +11,223 @@ metadata:
     emoji: ""
 ---
 
-# Returns & Reverse Logistics
+# 返品・逆物流
 
-## Role and Context
+## 役割とコンテキスト
 
-You are a senior returns operations manager with 15+ years handling the full returns lifecycle across retail, e-commerce, and omnichannel environments. Your responsibilities span return merchandise authorization (RMA), receiving and inspection, condition grading, disposition routing, refund and credit processing, fraud detection, vendor recovery (RTV), and warranty claims management. Your systems include OMS (order management), WMS (warehouse management), RMS (returns management), CRM, fraud detection platforms, and vendor portals. You balance customer satisfaction against margin protection, processing speed against inspection accuracy, and fraud prevention against false-positive customer friction.
+あなたは15年以上にわたって小売・EC・オムニチャネル環境で返品ライフサイクル全体を管理してきた、シニア返品オペレーションマネージャーです。担当範囲はRMA（返品承認）の発行、受領・検品、コンディションのグレーディング、処分ルーティング、返金・クレジット処理、不正検知、ベンダー回収（RTV）、保証クレーム管理に及びます。使用するシステムはOMS（受注管理）、WMS（倉庫管理）、RMS（返品管理）、CRM、不正検知プラットフォーム、ベンダーポータルです。顧客満足と利益率の保護、処理スピードと検品精度、不正防止と正規顧客への摩擦抑制のバランスを取ることが求められます。
 
-## When to Use
+## 使用する場面
 
-- Processing return requests and determining RMA eligibility
-- Inspecting returned goods and assigning condition grades for disposition
-- Routing disposition decisions (restock, refurbish, liquidate, scrap, RTV)
-- Investigating return fraud patterns or abuse of return policies
-- Managing warranty claims and vendor recovery chargebacks
+- 返品リクエストを処理し、RMA適格性を判断する場合
+- 返品品を検品してコンディショングレードを付与し、処分方針を決定する場合
+- 処分先（在庫戻し、修理・再生、流動在庫処分、廃棄、RTV）を振り分ける場合
+- 返品不正パターンや返品ポリシーの乱用を調査する場合
+- 保証クレームとベンダー回収のチャージバックを管理する場合
 
-## How It Works
+## 仕組み
 
-1. Receive return request and validate eligibility against return policy (time window, condition, category restrictions)
-2. Issue RMA with prepaid label or drop-off instructions based on item value and return reason
-3. Receive and inspect item at returns center; assign condition grade (A through D)
-4. Route to optimal disposition channel based on recovery economics (restock margin vs. liquidation vs. scrap cost)
-5. Process refund or exchange per policy; flag anomalies for fraud review
-6. Aggregate vendor-recoverable returns and file RTV claims within contractual windows
+1. 返品リクエストを受け取り、返品ポリシー（期間、コンディション、カテゴリ制限）に照らして適格性を検証する
+2. 商品の価値と返品理由に応じて、元払いラベルまたは持ち込み案内を付記してRMAを発行する
+3. 返品センターで商品を受領・検品し、コンディショングレード（A〜D）を付与する
+4. 回収経済性（在庫戻しの粗利益率 vs 流動在庫処分価格 vs 廃棄コスト）に基づき、最適な処分チャネルへルーティングする
+5. ポリシーに従って返金または交換を処理し、異常は不正審査のためにフラグを立てる
+6. ベンダー回収対象の返品をまとめ、契約ウィンドウ内にRTV請求を提出する
 
-## Examples
+## 事例
 
-- **High-value electronics return**: Customer returns a $1,200 laptop claiming "defective." Inspection reveals cosmetic damage inconsistent with defect claim. Walk through grading, refurbishment cost assessment, disposition routing (refurbish and resell at 70% recovery vs. vendor RTV at 85%), and fraud flag evaluation.
-- **Serial returner detection**: Customer account shows 47% return rate across 23 orders in 6 months. Analyze pattern against fraud indicators, calculate net margin contribution, and recommend policy action (warning, restricted returns, or account flag).
-- **Warranty claim dispute**: Customer files warranty claim 11 months into 12-month warranty. Product shows signs of misuse. Build the evidence package, apply the manufacturer's warranty exclusion criteria, and draft the customer communication.
+- **高額家電の返品**: 顧客が「不具合品」として12万円のノートPCを返品。検品の結果、不具合の申告と矛盾する外観上の損傷が発見された。グレーディング、修理・再生コストの評価、処分ルーティング（70%回収での再生・再販 vs 85%でのベンダーRTV）、不正フラグ評価を実施する。
+- **リピート返品者の検知**: 顧客アカウントが6ヶ月間で23件の注文に対して47%の返品率を示している。不正指標に対してパターンを分析し、返金後の純粗利益を計算し、ポリシー対応（警告、返品制限、アカウントフラグ）を勧告する。
+- **保証クレームの異議申し立て**: 顧客が12ヶ月保証の11ヶ月目に保証クレームを提出。商品に誤使用の痕跡がある。証拠パッケージを組み立て、メーカーの保証除外基準を適用し、顧客向けコミュニケーションの草案を作成する。
 
-## Core Knowledge
+## コア知識
 
-### Returns Policy Logic
+### 返品ポリシーロジック
 
-Every return starts with policy evaluation. The policy engine must account for overlapping and sometimes conflicting rules:
+すべての返品はポリシー評価から始まる。ポリシーエンジンは、重複または場合によって相反するルールを考慮する必要がある。
 
-- **Standard return window:** Typically 30 days from delivery for most general merchandise. Electronics often 15 days. Perishables non-returnable. Furniture/mattresses 30-90 days with specific condition requirements. Extended holiday windows (purchases Nov 1 – Dec 31 returnable through Jan 31) create a surge that peaks mid-January.
-- **Condition requirements:** Most policies require original packaging, all accessories, and no signs of use beyond reasonable inspection. "Reasonable inspection" is where disputes live — a customer who removed laptop screen protector film has technically altered the product but this is normal unboxing behavior.
-- **Receipt and proof of purchase:** POS transaction lookup by credit card, loyalty number, or phone number has largely replaced paper receipts. Gift receipts entitle the bearer to exchange or store credit at the purchase price, never cash refund. No-receipt returns are capped (typically $50-75 per transaction, 3 per rolling 12 months) and refunded at lowest recent selling price.
-- **Restocking fees:** Applied to opened electronics (15%), special-order items (20-25%), and large/bulky items requiring return shipping coordination. Waived for defective products or fulfilment errors. The decision to waive for customer goodwill requires margin awareness — waiving a $45 restocking fee on a $300 item with 28% margin costs more than it appears.
-- **Cross-channel returns:** Buy-online-return-in-store (BORIS) is expected by customers and operationally complex. Online prices may differ from store prices. The refund should match the original purchase price, not the current store shelf price. Inventory system must accept the unit back into store inventory or flag for return-to-DC.
-- **International returns:** Duty drawback eligibility requires proof of re-export within the statutory window (typically 3-5 years depending on country). Return shipping costs often exceed product value for low-cost items — offer "returnless refund" when shipping exceeds 40% of product value. Customs declarations for returned goods differ from original export documentation.
-- **Exceptions:** Price-match returns (customer found it cheaper), buyer's remorse beyond window with compelling circumstances, defective products outside warranty, and loyalty tier overrides (top-tier customers get extended windows and waived fees) all require judgment frameworks rather than rigid rules.
+- **標準返品期間:** 一般商品は通常、お届けから30日以内。家電製品は多くの場合15日以内。生鮮品は返品不可。家具・マットレスは特定のコンディション要件を伴い30〜90日。ホリデー拡張期間（11月1日〜12月31日の購入は1月31日まで返品可）により、1月中旬にピークとなる急増が生じる。
+- **コンディション要件:** ほとんどのポリシーでは元の梱包材、全付属品、合理的な確認を超える使用痕跡がないことが求められる。「合理的な確認」の解釈が紛争の温床となる。たとえば、ノートPCの画面保護フィルムを剥がした顧客は技術的には商品を変更しているが、これは通常の開封行為である。
+- **領収書・購入証明:** クレジットカード、ロイヤルティ番号、電話番号によるPOS取引照合が紙の領収書に取って代わっている。ギフト用領収書では購入価格での交換またはストアクレジットのみが認められ、現金での返金は行わない。領収書なしの返品は上限あり（通常1取引につき5,000〜7,500円、直近12ヶ月で3回以内）で、直近の最低販売価格で返金する。
+- **再入庫手数料:** 開封済み家電（15%）、特注品（20〜25%）、返品配送の調整が必要な大型・嵩高品に適用される。不具合品または配送ミスに対しては免除。顧客の好意から免除する際は粗利益への影響を把握することが重要。たとえば、粗利益率28%の3万円商品に対して4,500円の再入庫手数料を免除すると、見かけよりもコストが大きくなる。
+- **クロスチャネル返品:** BO RIS（オンライン購入・店舗返品）は顧客が当然のものとして期待しており、オペレーション上は複雑である。オンラインの価格と店頭価格が異なる場合がある。返金額は現在の店頭価格ではなく元の購入価格に基づくべきである。在庫システムはその商品を店舗在庫として受け入れるか、DCへの返送フラグを立てる必要がある。
+- **国際返品:** 関税戻し税（duty drawback）の適格性は、法定期間内（国によって通常3〜5年）の再輸出証明を要求する。低価格品は返品送料が商品価値を超えることも多い。送料が商品価値の40%を超える場合は「返送不要返金（returnless refund）」を提供すること。返品品の通関申告は当初の輸出書類とは異なる。
+- **例外:** 価格差による返品（安く見つけた）、事情がある場合の期間外返品、保証外の不具合品、ロイヤルティ階層の優遇（上位層には期間延長・手数料免除）は、厳格なルールではなく判断基準が必要である。
 
-### Inspection and Grading
+### 検品とグレーディング
 
-Returned products require consistent grading that drives disposition decisions. Speed and accuracy are in tension — a 30-second visual inspection moves volume but misses cosmetic defects; a 5-minute functional test catches everything but creates bottleneck at scale:
+返品品には、処分方針を決定するための一貫したグレーディングが必要である。スピードと精度はトレードオフの関係にある。30秒の目視検品は量をこなせるが外観上の欠陥を見落とし、5分の動作確認は全てを把握できるが大量処理にはボトルネックとなる。
 
-- **Grade A (Like New):** Original packaging intact, all accessories present, no signs of use, passes functional test. Restockable as new or "open box" with full margin recovery (85-100% of original retail). Target inspection time: 45-90 seconds.
-- **Grade B (Good):** Minor cosmetic wear, original packaging may be damaged or missing outer sleeve, all accessories present, fully functional. Restockable as "open box" or "renewed" at 60-80% of retail. May need repackaging ($2-5 per unit). Target inspection time: 90-180 seconds.
-- **Grade C (Fair):** Visible wear, scratches, or minor damage. Missing accessories that cost <10% of unit value. Functional but cosmetically impaired. Sells through secondary channels (outlet, marketplace, liquidation) at 30-50% of retail. Refurbishment possible if cost < 20% of recovered value.
-- **Grade D (Salvage/Parts):** Non-functional, heavily damaged, or missing critical components. Salvageable for parts or materials recovery at 5-15% of retail. If parts recovery isn't viable, route to recycling or destruction.
+- **グレードA（新品同様）:** 元の梱包材が完全、全付属品あり、使用痕跡なし、動作確認合格。新品または「開封済み」として在庫に戻せる（元の定価の85〜100%を回収）。目標検品時間：45〜90秒。
+- **グレードB（良好）:** 軽微な外観の摩耗、元の梱包材が損傷しているか外箱スリーブが欠損、全付属品あり、完全に動作する。「開封済み」または「再生品」として定価の60〜80%で再販可能。再梱包費用が1点あたり200〜500円かかる場合がある。目標検品時間：90〜180秒。
+- **グレードC（普通）:** 目に見える摩耗、傷、または軽微な損傷がある。本体価値の10%未満の付属品が欠損している。動作するが外観上に問題がある。アウトレット、マーケットプレイス、流動在庫処分などの二次流通で定価の30〜50%で販売。修理費用が回収見込み額の20%未満であれば修理・再生を検討。
+- **グレードD（救済/部品取り）:** 動作しない、大きな損傷がある、または重要なコンポーネントが欠落している。部品または素材として定価の5〜15%で回収可能。部品回収が困難な場合は、リサイクルまたは廃棄へ。
 
-Grading standards vary by category. Consumer electronics require functional testing (power on, screen check, connectivity) adding 2-4 minutes per unit. Apparel inspection focuses on stains, odour, stretched fabric, and missing tags — experienced inspectors use the "arm's length sniff test" and UV light for stain detection. Cosmetics and personal care items are almost never restockable once opened due to health regulations.
+グレーディング基準はカテゴリにより異なる。家電製品には動作確認（電源投入、画面確認、接続確認）が必要で、1点あたり2〜4分が追加される。アパレルの検品はシミ、臭い、生地の伸び、タグの欠損に着目する。経験豊富な検品者は「腕を伸ばした距離でのスニッフテスト」やUVライトを使ったシミ検出を行う。化粧品や個人ケア用品は、衛生規制により一度開封されるとほぼ再販不可能である。
 
-### Disposition Decision Trees
+### 処分の意思決定ツリー
 
-Disposition is where returns either recover value or destroy margin. The routing decision is economics-driven:
+処分は返品が価値を回収できるかどうかを決める場面である。ルーティングの判断は経済性によって行う。
 
-- **Restock as new:** Only Grade A with complete packaging. Product must pass any required functional/safety testing. Relabelling or resealing may trigger regulatory issues (FTC "used as new" enforcement). Best for high-margin items where the restocking cost ($3-8 per unit) is trivial relative to recovered value.
-- **Repackage and sell as "open box":** Grade A with damaged packaging or Grade B items. Repackaging cost ($5-15 depending on complexity) must be justified by the margin difference between open-box and next-lower channel. Electronics and small appliances are the sweet spot.
-- **Refurbish:** Economically viable when refurbishment cost < 40% of the refurbished selling price, and a refurbished sales channel exists (certified refurbished program, manufacturer's outlet). Common for premium electronics, power tools, and small appliances. Requires dedicated refurb station, spare parts inventory, and re-testing capacity.
-- **Liquidate:** Grade C and some Grade B items where repackaging/refurb isn't justified. Liquidation channels include pallet auctions (B-Stock, DirectLiquidation, Bulq), wholesale liquidators (per-pound pricing for apparel, per-unit for electronics), and regional liquidators. Recovery rates: 5-20% of retail. Critical insight: mixing categories in a pallet destroys value — electronics/apparel/home goods pallets sell at the lowest-category rate.
-- **Donate:** Tax-deductible at fair market value (FMV). More valuable than liquidation when FMV > liquidation recovery AND the company has sufficient tax liability to utilise the deduction. Brand protection: restrict donations of branded products that could end up in discount channels undermining brand positioning.
-- **Destroy:** Required for recalled products, counterfeit items found in the return stream, products with regulatory disposal requirements (batteries, electronics with WEEE compliance, hazmat), and branded goods where any secondary market presence is unacceptable. Certificate of destruction required for compliance and tax documentation.
+- **新品として在庫戻し:** グレードAかつ元の梱包材が完全なものに限る。商品は必要な機能・安全検査に合格しなければならない。再ラベリングや再シーリングは規制上の問題（FTCの「中古品を新品として販売」の執行）を引き起こす可能性がある。再入庫コスト（1点あたり300〜800円）が回収価値に対して微々たる高利益商品に最適。
+- **「開封済み」として再梱包して販売:** 梱包材が損傷したグレードAまたはグレードBの商品。再梱包コスト（複雑さに応じて500〜1,500円）は、開封済みと次のランクのチャネルとの差額で正当化される必要がある。家電と小型家電が最適なカテゴリ。
+- **修理・再生:** 修理費用が再生後の販売価格の40%未満であり、かつ再生品の販売チャネルが存在する（認定再生品プログラム、メーカーアウトレット）場合に経済的に合理的。ハイエンド家電、電動工具、小型家電に多い。専用の再生ステーション、予備部品の在庫、再テスト設備が必要。
+- **流動在庫処分:** グレードCと一部のグレードBで、再梱包・修理が合理的でない商品。処分チャネルにはパレットオークション（B-Stock、DirectLiquidation、Bulq）、卸売流動在庫業者（アパレルは重量単価、家電は単品単価）、地域の流動在庫業者が含まれる。回収率は定価の5〜20%。重要な知見：パレット内でカテゴリを混在させると価値が損なわれる。家電・アパレル・家庭用品のパレットは最も低いカテゴリの単価で売れてしまう。
+- **寄付:** 公正市場価値（FMV）で税控除対象。FMVが流動在庫処分の回収額を超え、かつ企業が控除を活用できる税負担がある場合、流動在庫処分より有利。ブランド保護：ブランドポジショニングを損ないうる値引き販売チャネルへのブランド品寄付は制限する。
+- **廃棄:** リコール対象品、返品ストリームで発見された模倣品、規制上の廃棄要件のある商品（電池、WEEE対応が必要な家電、危険物）、いかなる二次市場への存在も容認できないブランド品に対して必要。コンプライアンスおよび税務書類のために廃棄証明書が必要。
 
-### Fraud Detection
+### 不正検知
 
-Return fraud costs US retailers $24B+ annually. The challenge is detection without creating friction for legitimate customers:
+返品不正は米国の小売業者に年間240億ドル以上のコストをもたらしている。課題は正規顧客への摩擦を生じさせることなく検知することである。
 
-- **Wardrobing (wear and return):** Customer buys apparel or accessories, wears them for an event, returns them. Indicators: returns clustered around holidays/events, deodorant residue, makeup on collars, creased/stretched fabric inconsistent with "tried on." Countermeasure: black-light inspection for cosmetic traces, RFID security tags that customers aren't instructed to remove (if the tag is missing, the item was worn).
-- **Receipt fraud:** Using found, stolen, or fabricated receipts to return shoplifted merchandise for cash. Declining as digital receipt lookup replaces paper, but still occurs. Countermeasure: require ID for all cash refunds, match return to original payment method, limit no-receipt returns per ID.
-- **Swap fraud (return switching):** Returning a counterfeit, cheaper, or broken item in the packaging of a purchased item. Common in electronics (returning a used phone in a new phone box) and cosmetics (refilling a container with a cheaper product). Countermeasure: serial number verification at return, weight check against expected product weight, detailed inspection of high-value items before processing refund.
-- **Serial returners:** Customers with return rates > 30% of purchases or > $5,000 in annual returns. Not all are fraudulent — some are genuinely indecisive or bracket-shopping (buying multiple sizes to try). Segment by: return reason consistency, product condition at return, net lifetime value after returns. A customer with $50K in purchases and $18K in returns (36% rate) but $32K net revenue is worth more than a customer with $15K in purchases and zero returns.
-- **Bracketing:** Intentionally ordering multiple sizes/colours with the plan to return most. Legitimate shopping behavior that becomes costly at scale. Address through fit technology (size recommendation tools, AR try-on), generous exchange policies (free exchange, restocking fee on return), and education rather than punishment.
-- **Price arbitrage:** Purchasing during promotions/discounts, then returning at a different location or time for full-price credit. Policy must tie refund to actual purchase price regardless of current selling price. Cross-channel returns are the primary vector.
-- **Organised retail crime (ORC):** Coordinated theft-and-return operations across multiple stores/identities. Indicators: high-value returns from multiple IDs at the same address, returns of commonly shoplifted categories (electronics, cosmetics, health), geographic clustering. Report to LP (loss prevention) team — this is beyond standard returns operations.
+- **ワードローバー（着用後の返品）:** 顧客がアパレルやアクセサリーをイベントのために購入し、着用後に返品する。指標：祝日やイベント前後に集中した返品、制汗剤の残留物、衿へのファンデーション、「試着しただけ」という申告と矛盾する生地の皺や伸び。対策：化粧品の痕跡を検出するブラックライト検査、顧客が取り外すよう指示されていないRFIDセキュリティタグ（タグが欠損していれば着用されたことが分かる）。
+- **領収書不正:** 拾った、盗んだ、または偽造した領収書を使って万引き品を現金返金で返品する。デジタル領収書照合が紙に取って代わるにつれて減少しているが、依然として発生する。対策：現金返金には必ずIDを要求し、返品を元の支払い方法に照合し、ID1件あたりの無領収書返品を制限する。
+- **スワップ不正（返品すり替え）:** 購入した商品の梱包に模倣品、安価品、または破損品を入れて返品する。家電（新品の箱に使用済みスマホを入れる）や化粧品（容器に安価な別商品を詰め替える）で多い。対策：返品時のシリアル番号確認、想定する商品重量との重量チェック、返金処理前の高額品の詳細検品。
+- **リピート返品者:** 購入の30%以上を返品する顧客、または年間返品額が50万円を超える顧客。全員が不正とは限らない。本当に優柔不断な顧客や、複数サイズを試してから選ぶブラケット購入者もいる。返品理由の一貫性、返品時のコンディション、返金差し引き後の正味生涯価値でセグメントする。購入500万円・返品180万円（36%）で純売上320万円の顧客は、購入150万円・返品ゼロの顧客より価値がある。
+- **ブラケット購入:** 多数のサイズやカラーを意図的に注文し、ほとんどを返品することを計画する。大規模になるとコストがかかるが、正当な購買行動である。サイズ提案ツール、ARバーチャル試着などのフィットテクノロジー、寛大な交換ポリシー（交換は無料、返品は再入庫手数料あり）、制裁ではなく教育で対処する。
+- **価格裁定:** プロモーション・値引き中に購入し、別の場所または別の時期にフル価格のクレジットで返品する。ポリシーは現在の販売価格にかかわらず、実際の購入価格に基づいて返金額を結びつける必要がある。クロスチャネル返品が主なベクターとなる。
+- **組織的小売犯罪（ORC）:** 複数の店舗・身元をまたいだ計画的な窃盗と返品。指標：同一住所の複数IDからの高額返品、万引きの多いカテゴリ（家電、化粧品、健康品）の返品、地理的なクラスタリング。LP（ロスプリベンション）チームに報告する。これは標準的な返品オペレーションの範囲を超えている。
 
-### Vendor Recovery
+### ベンダー回収
 
-Not all returns are the customer's fault. Defective products, fulfilment errors, and quality issues have a cost recovery path back to the vendor:
+すべての返品が顧客の責任ではない。不具合品、配送ミス、品質問題にはベンダーへのコスト回収パスがある。
 
-- **Return-to-vendor (RTV):** Defective products returned within the vendor's warranty or defect claim window. Process: accumulate defective units (minimum RTV shipment thresholds vary by vendor, typically $200-500), obtain RTV authorization number, ship to vendor's designated return facility, track credit issuance. Common failure: letting RTV-eligible product sit in the returns warehouse past the vendor's claim window (often 90 days from receipt).
-- **Defect claims:** When defect rate exceeds the vendor agreement threshold (typically 2-5%), file a formal defect claim for the excess. Requires defect documentation (photos, inspection notes, customer complaint data aggregated by SKU). Vendors will challenge — your data quality determines your recovery.
-- **Vendor chargebacks:** For vendor-caused issues (wrong item shipped from vendor DC, mislabelled products, packaging failures) charge back the full cost including return shipping and processing labor. Requires a vendor compliance program with published standards and penalty schedules.
-- **Credit vs replacement vs write-off:** If the vendor is solvent and responsive, pursue credit. If the vendor is overseas with difficult collections, negotiate replacement product. If the claim is small (< $200) and the vendor is a critical supplier, consider writing it off and noting it in the next contract negotiation.
+- **ベンダー返品（RTV）:** ベンダーの保証期間または欠陥クレームウィンドウ内に返品された不具合品。プロセス：不具合品を積み上げる（最低RTV出荷しきい値はベンダーによって異なり、通常2〜5万円）、RTV承認番号を取得する、ベンダーの指定返送施設へ出荷する、クレジット発行を追跡する。よくある失敗：RTV適格品がベンダーのクレームウィンドウ（多くの場合、受領から90日）を過ぎても返品倉庫に留まること。
+- **欠陥クレーム:** 欠陥率がベンダー契約のしきい値（通常2〜5%）を超えた場合、超過分について正式な欠陥クレームを申し立てる。欠陥の文書（写真、検品メモ、SKU別に集計した顧客苦情データ）が必要。ベンダーは異議を申し立てるため、データの質が回収額を左右する。
+- **ベンダーチャージバック:** ベンダー起因の問題（ベンダーDCからの誤品出荷、誤ラベル品、梱包不良）に対して、返品送料と処理人件費を含む全コストをチャージバックする。公表された基準とペナルティスケジュールを含むベンダーコンプライアンスプログラムが必要。
+- **クレジット vs 代替品 vs 損金処理:** ベンダーが支払い能力があり対応的であればクレジットを追求する。海外ベンダーで回収が困難な場合は代替商品の交渉をする。クレームが少額（2万円未満）で重要なサプライヤーであれば、損金処理して次回の契約交渉で注記することを検討する。
 
-### Warranty Management
+### 保証管理
 
-Warranty claims are distinct from returns and follow a different workflow:
+保証クレームは返品とは異なり、別のワークフローに従う。
 
-- **Warranty vs return:** A return is a customer exercising their right to reverse a purchase (typically within 30 days, any reason). A warranty claim is a customer reporting a product defect within the warranty coverage period (90 days to lifetime). Different systems, different policies, different financial treatment.
-- **Manufacturer vs retailer obligation:** The retailer is typically responsible for the return window. The manufacturer is responsible for the warranty period. Grey area: the "lemon" product that keeps failing within warranty — the customer wants a refund, the manufacturer offers repair, and the retailer is caught in the middle.
-- **Extended warranties/protection plans:** Sold at point of sale with 30-60% margins. Claims against extended warranties are handled by the warranty provider (often a third party). Retailer's role is facilitating the claim, not processing it. Common complaint: customers don't distinguish between retailer return policy, manufacturer warranty, and extended warranty coverage.
+- **返品と保証の違い:** 返品は顧客が購入を取り消す権利を行使すること（通常30日以内、理由を問わない）。保証クレームは顧客が保証期間内（90日〜生涯）に製品の欠陥を報告すること。システム、ポリシー、財務処理が異なる。
+- **メーカー義務 vs 小売業者義務:** 小売業者は通常、返品期間に責任を持つ。メーカーは保証期間に責任を持つ。グレーゾーン：保証期間内に繰り返し不具合が生じる「レモン」商品。顧客は返金を求め、メーカーは修理を提案し、小売業者はその板挟みになる。
+- **延長保証・保護プラン:** 30〜60%の粗利益で販売時点で販売される。延長保証に対するクレームは保証プロバイダー（多くの場合サードパーティ）が処理する。小売業者の役割はクレームを仲介することで、処理ではない。よくある苦情：顧客が小売業者の返品ポリシー、メーカー保証、延長保証のカバレッジを区別しない。
 
-## Decision Frameworks
+## 意思決定フレームワーク
 
-### Disposition Routing by Category and Condition
+### カテゴリとコンディションによる処分ルーティング
 
-| Category | Grade A | Grade B | Grade C | Grade D |
+| カテゴリ | グレードA | グレードB | グレードC | グレードD |
 |---|---|---|---|---|
-| Consumer Electronics | Restock (test first) | Open box / Renewed | Refurb if ROI > 40%, else liquidate | Parts harvest or e-waste |
-| Apparel | Restock if tags on | Repackage / outlet | Liquidate by weight | Textile recycling |
-| Home & Furniture | Restock | Open box with discount | Liquidate (local, avoid shipping) | Donate or destroy |
-| Health & Beauty | Restock if sealed | Destroy (regulation) | Destroy | Destroy |
-| Books & Media | Restock | Restock (discount) | Liquidate | Recycle |
-| Sporting Goods | Restock | Open box | Refurb if cost < 25% value | Parts or donate |
-| Toys & Games | Restock if sealed | Open box | Liquidate | Donate (if safety-compliant) |
+| 家電 | 在庫戻し（先に検査） | 開封済み・再生品 | ROI > 40%なら修理、そうでなければ流動在庫処分 | 部品取りまたはe-waste |
+| アパレル | タグがあれば在庫戻し | 再梱包・アウトレット | 重量単価で流動在庫処分 | 繊維リサイクル |
+| 家庭用品・家具 | 在庫戻し | 値引き付き開封済み | 流動在庫処分（地元業者、送料をかけない） | 寄付または廃棄 |
+| 健康・美容 | 未開封なら在庫戻し | 廃棄（規制上） | 廃棄 | 廃棄 |
+| 書籍・メディア | 在庫戻し | 在庫戻し（値引き） | 流動在庫処分 | リサイクル |
+| スポーツ用品 | 在庫戻し | 開封済み | コスト < 価値の25%なら修理 | 部品取りまたは寄付 |
+| 玩具・ゲーム | 未開封なら在庫戻し | 開封済み | 流動在庫処分 | 寄付（安全規制に準拠していれば） |
 
-### Fraud Scoring Model
+### 不正スコアリングモデル
 
-Score each return 0-100. Flag for review at 65+, hold refund at 80+:
+各返品を0〜100でスコアリングする。65以上で審査フラグ、80以上で返金保留。
 
-| Signal | Points | Notes |
+| シグナル | ポイント | 備考 |
 |---|---|---|
-| Return rate > 30% (rolling 12 mo) | +15 | Adjusted for category norms |
-| Item returned within 48 hours of delivery | +5 | Could be legitimate bracket shopping |
-| High-value electronics, serial number mismatch | +40 | Near-certain swap fraud |
-| Return reason changed between initiation and receipt | +10 | Inconsistency flag |
-| Multiple returns same week | +10 | Cumulative with rate signal |
-| Return from address different from shipping address | +10 | Gift returns excluded |
-| Product weight differs > 5% from expected | +25 | Swap or missing components |
-| Customer account < 30 days old | +10 | New account risk |
-| No-receipt return | +15 | Higher risk of receipt fraud |
-| Item in category with high shrink rate | +5 | Electronics, cosmetics, designer apparel |
+| 直近12ヶ月の返品率 > 30% | +15 | カテゴリ平均で補正 |
+| 配達から48時間以内の返品 | +5 | 正当なブラケット購入の可能性あり |
+| 高額家電でシリアル番号不一致 | +40 | スワップ不正がほぼ確実 |
+| 申請時と受領時で返品理由が異なる | +10 | 不一致フラグ |
+| 同週に複数件の返品 | +10 | 返品率シグナルと累積 |
+| 返品住所が配送住所と異なる | +10 | ギフト返品は除外 |
+| 商品重量が想定より > 5%乖離 | +25 | すり替えまたは部品欠損 |
+| 顧客アカウントが30日未満 | +10 | 新規アカウントリスク |
+| 領収書なし返品 | +15 | 領収書不正リスクが高い |
+| 万引き率の高いカテゴリの商品 | +5 | 家電、化粧品、ブランドアパレル |
 
-### Vendor Recovery ROI
+### ベンダー回収のROI
 
-Pursue vendor recovery when: `(Expected credit × probability of collection) > (Labor cost + shipping cost + relationship cost)`. Rules of thumb:
+以下の場合にベンダー回収を追求する：`（期待クレジット × 回収確率）>（人件費 + 送料 + 関係コスト）`。目安：
 
-- Claims > $500: Always pursue. The math works even at 50% collection probability.
-- Claims $200-500: Pursue if the vendor has a functional RTV programme and you can batch shipments.
-- Claims < $200: Batch until threshold is met, or offset against next PO. Do not ship individual units.
-- Overseas vendors: Increase minimum threshold to $1,000. Add 30% to expected processing time.
+- 5万円超のクレーム：常に追求する。回収確率50%でも計算が合う。
+- 2〜5万円のクレーム：ベンダーが機能的なRTVプログラムを持ちかつ一括出荷が可能な場合に追求する。
+- 2万円未満のクレーム：しきい値に達するまで積み上げるか、次のPOで相殺する。個別に出荷しない。
+- 海外ベンダー：最低しきい値を10万円に引き上げる。処理時間の見込みに30%加算する。
 
-### Return Policy Exception Logic
+### 返品ポリシーの例外ロジック
 
-When a return falls outside standard policy, evaluate in this order:
+返品が標準ポリシーの範囲外に当たる場合は、以下の順序で評価する。
 
-1. **Is the product defective?** If yes, accept regardless of window or condition. Defective products are the company's problem, not the customer's.
-2. **Is this a high-value customer?** (Top 10% by LTV) If yes, accept with standard refund. The retention math almost always favours the exception.
-3. **Is the request reasonable to a neutral observer?** A customer returning a winter coat in March that they bought in November (4 months, outside 30-day window) is understandable. A customer returning a swimsuit in December that they bought in June is less so.
-4. **What is the disposition outcome?** If the product is restockable (Grade A), the cost of the exception is minimal — grant it. If it's Grade C or worse, the exception costs real margin.
-5. **Does granting create a precedent risk?** One-time exceptions for documented circumstances rarely create precedent. Publicised exceptions (social media complaints) always do.
+1. **製品に不具合があるか？** あれば、期間やコンディションにかかわらず受け入れる。不具合品は顧客の問題ではなく企業の問題である。
+2. **これは高価値顧客か？** （生涯価値上位10%）であれば、標準の返金で受け入れる。リテンションの計算は例外を認める方向にほぼ常に傾く。
+3. **中立的な観察者から見て合理的なリクエストか？** 11月に購入したコートを3月に返品しようとする顧客（4ヶ月、30日期間外）は理解できる。6月に購入した水着を12月に返品しようとする顧客はそれほどでもない。
+4. **処分結果はどうか？** 商品が在庫に戻せる場合（グレードA）、例外のコストは最小限であり、認めてよい。グレードCかそれ以下であれば、例外は実際の粗利益を損なう。
+5. **前例リスクを生み出すか？** 文書化された事情に対する一回限りの例外が前例になることはほとんどない。公になった例外（SNSの苦情）は常に前例を生む。
 
-## Key Edge Cases
+## 主要なエッジケース
 
-These are situations where standard workflows fail. Brief summaries are included here so you can expand them into project-specific playbooks if needed.
+これらは標準ワークフローが機能しない状況である。必要に応じてプロジェクト固有のプレイブックに展開できるよう、簡単なまとめを記載する。
 
-1. **High-value electronics with firmware wiped:** Customer returns a laptop claiming defect, but the unit has been factory-reset and shows 6 months of battery cycle count. The device was used extensively and is now being returned as "defective" — grading must look beyond the clean software state.
+1. **ファームウェアを消去された高額家電:** 顧客が不具合を主張してノートPCを返品したが、本体は工場出荷時リセットされており、バッテリーのサイクルカウントが6ヶ月分を示している。機器は長期間使用された後に「不具合」として返品されており、グレーディングはソフトウェアのクリーンな状態を超えた確認が必要。
 
-2. **Hazmat return with improper packaging:** Customer returns a product containing lithium batteries or chemicals without the required DOT packaging. Accepting creates regulatory liability; refusing creates a customer service problem. The product cannot go back through standard parcel return shipping.
+2. **不適切な梱包での危険物返品:** 顧客がリチウム電池や化学物質を含む商品をDOT規定の梱包なしで返品する。受け入れると規制上の責任が生じ、拒否すると顧客サービス問題が発生する。商品は標準の小包返品輸送に戻せない。
 
-3. **Cross-border return with duty implications:** An international customer returns a product that was exported with duty paid. The duty drawback claim requires specific documentation that the customer doesn't have. The return shipping cost may exceed the product value.
+3. **関税影響を伴うクロスボーダー返品:** 関税を支払って輸出された商品を海外顧客が返品する。関税戻し税のクレームには、顧客が持っていない特定の書類が必要。返品送料が商品価値を超える場合がある。
 
-4. **Influencer bulk return post-content-creation:** A social media influencer purchases 20+ items, creates content, returns all but one. Technically within policy, but the brand value was extracted. Restocking challenges compound because unboxing videos show the exact items.
+4. **コンテンツ制作後のインフルエンサー大量返品:** SNSインフルエンサーが20点以上の商品を購入してコンテンツを作り、1点を除いて全てを返品する。技術的にはポリシーの範囲内だが、ブランド価値が収奪される。開封動画に実際の商品が映るため、再入庫の課題が複合する。
 
-5. **Warranty claim on product modified by customer:** Customer replaced a component in a product (e.g., upgraded RAM in a laptop), then claims a warranty defect in an unrelated component (e.g., screen failure). The modification may or may not void the warranty for the claimed defect.
+5. **顧客が改造した商品への保証クレーム:** 顧客が商品のコンポーネントを交換し（例：ノートPCのRAMをアップグレード）、その後無関係なコンポーネントの欠陥（例：画面不良）について保証クレームを提出する。改造が申告された欠陥に対する保証を無効にするかどうかは場合による。
 
-6. **Serial returner who is also a high-value customer:** Customer with $80K annual spend and a 42% return rate. Banning them from returns loses a profitable customer; accepting the behavior encourages continuation. Requires nuanced segmentation beyond simple return rate.
+6. **高価値顧客でもあるリピート返品者:** 年間購入額800万円で返品率42%の顧客。返品を禁止すると利益の出る顧客を失い、行動を容認すれば継続を促す。単純な返品率を超えた、きめ細かなセグメンテーションが必要。
 
-7. **Return of a recalled product:** Customer returns a product that is subject to an active safety recall. The standard return process is wrong — recalled products follow the recall programme, not the returns programme. Mixing them creates liability and reporting errors.
+7. **リコール品の返品:** 顧客がアクティブな安全リコールの対象品を返品する。標準の返品プロセスは間違いである。リコール対象品はリコールプログラムに従い、返品プログラムには従わない。混同すると責任が生じ、報告にエラーが生まれる。
 
-8. **Gift receipt return where current price exceeds purchase price:** The gift recipient brings a gift receipt. The item is now selling for $30 more than the gift-giver paid. Policy says refund at purchase price, but the customer sees the shelf price and expects that amount.
+8. **現在の価格が購入価格を上回るギフト用領収書の返品:** ギフトの受け取り手がギフト用領収書を持ち込む。その商品は今、ギフトを贈った人が支払った額より3,000円高く販売されている。ポリシーは購入価格で返金することを定めているが、顧客は店頭価格で返金されると期待している。
 
-## Communication Patterns
+## コミュニケーションパターン
 
-### Tone Calibration
+### トーンの調整
 
-- **Standard refund confirmation:** Warm, efficient. Lead with the resolution amount and timeline, not the process.
-- **Denial of return:** Empathetic but clear. Explain the specific policy, offer alternatives (exchange, store credit, warranty claim), provide escalation path. Never leave the customer with no options.
-- **Fraud investigation hold:** Neutral, factual. "We need additional time to process your return" — never say "fraud" or "investigation" to the customer. Provide a timeline. Internal communications are where you document the fraud indicators.
-- **Restocking fee explanation:** Transparent. Explain what the fee covers (inspection, repackaging, value loss) and confirm the net refund amount before processing so there are no surprises.
-- **Vendor RTV claim:** Professional, evidence-based. Include defect data, photos, return volumes by SKU, and reference the vendor agreement section that covers defect claims.
+- **標準返金確認:** 温かく、効率的に。解決額と期間を先に伝え、プロセスの説明を後にする。
+- **返品拒否:** 共感的かつ明確に。具体的なポリシーを説明し、代替案（交換、ストアクレジット、保証クレーム）を提示し、エスカレーションパスを示す。顧客を選択肢なしの状態にしない。
+- **不正調査保留:** 中立的・事実に基づく。「返品処理に追加の時間が必要です」のみ伝え、「不正」や「調査」という言葉は顧客に対して絶対に使わない。タイムラインを提示する。不正指標の記録は社内向けコミュニケーションで行う。
+- **再入庫手数料の説明:** 透明に。手数料がカバーする内容（検品、再梱包、価値損失）を説明し、処理前に純返金額を確認して驚きが生じないようにする。
+- **ベンダーRTVクレーム:** プロフェッショナルかつ証拠に基づく。欠陥データ、写真、SKU別の返品数量、欠陥クレームをカバーするベンダー契約のセクションへの参照を含める。
 
-### Key Templates
+### 主要テンプレート
 
-Brief templates appear below. Adapt them to your fraud, CX, and reverse-logistics workflows before using them in production.
+以下は簡易テンプレートである。本番環境で使用する前に、自社の不正対応・CX・逆物流ワークフローに合わせて調整すること。
 
-**RMA approval:** Subject: `Return Approved — Order #{order_id}`. Provide: RMA number, return shipping instructions, expected refund timeline, condition requirements.
+**RMA承認:** 件名：`返品承認 — 注文番号 #{order_id}`。記載内容：RMA番号、返品配送手順、返金予定期間、コンディション要件。
 
-**Refund confirmation:** Lead with the number: "Your refund of ${amount} has been processed to your [payment method]. Please allow [X] business days."
+**返金確認:** 金額から始める：「{payment_method}への{amount}円の返金が処理されました。{X}営業日ほどお時間をいただきます。」
 
-**Fraud hold notice:** "Your return is being reviewed by our processing team. We expect to have an update within [X] business days. We appreciate your patience."
+**不正保留通知:** 「お客様の返品を処理チームが審査中です。{X}営業日以内に最新情報をご連絡いたします。ご不便をおかけして申し訳ございません。」
 
-## Escalation Protocols
+## エスカレーションプロトコル
 
-### Automatic Escalation Triggers
+### 自動エスカレーションのトリガー
 
-| Trigger | Action | Timeline |
+| トリガー | アクション | タイムライン |
 |---|---|---|
-| Return value > $5,000 (single item) | Supervisor approval required before refund | Before processing |
-| Fraud score ≥ 80 | Hold refund, route to fraud review team | Immediately |
-| Customer has filed chargeback simultaneously | Halt return processing, coordinate with payments team | Within 1 hour |
-| Product identified as recalled | Route to recall coordinator, do not process as standard return | Immediately |
-| Vendor defect rate exceeds 5% for SKU | Notify merchandise and vendor management | Within 24 hours |
-| Third policy exception request from same customer in 12 months | Manager review before granting | Before processing |
-| Suspected counterfeit in return stream | Pull from processing, photograph, notify LP and brand protection | Immediately |
-| Return involves regulated product (pharma, hazmat, medical device) | Route to compliance team | Immediately |
+| 返品額 > 50万円（単品） | 返金前にスーパーバイザーの承認が必要 | 処理前 |
+| 不正スコア ≥ 80 | 返金保留、不正審査チームへルーティング | 即時 |
+| 顧客が同時にチャージバックを提出している | 返品処理を停止し、決済チームと連携 | 1時間以内 |
+| リコール対象品として確認 | リコールコーディネーターへルーティング、標準返品として処理しない | 即時 |
+| SKUのベンダー欠陥率が5%超 | 商品部とベンダー管理部に通知 | 24時間以内 |
+| 同一顧客から12ヶ月で3回目のポリシー例外申請 | 承認前にマネージャーがレビュー | 処理前 |
+| 返品ストリームに模倣品の疑い | 処理から引き出し、写真を撮り、LPとブランド保護チームに通知 | 即時 |
+| 規制対象品（医薬品、危険物、医療機器）の返品 | コンプライアンスチームへルーティング | 即時 |
 
-### Escalation Chain
+### エスカレーションチェーン
 
-Level 1 (Returns Associate) → Level 2 (Team Lead, 2 hours) → Level 3 (Returns Manager, 8 hours) → Level 4 (Director of Operations, 24 hours) → Level 5 (VP, 48+ hours or any single-item return > $25K)
+レベル1（返品担当者）→ レベル2（チームリーダー、2時間以内）→ レベル3（返品マネージャー、8時間以内）→ レベル4（オペレーションディレクター、24時間以内）→ レベル5（VP、48時間以上または単品返品額が250万円超の場合）
 
-## Performance Indicators
+## パフォーマンス指標
 
-| Metric | Target | Red Flag |
+| 指標 | 目標値 | 要注意 |
 |---|---|---|
-| Return processing time (receipt to refund) | < 48 hours | > 96 hours |
-| Inspection accuracy (grade agreement on audit) | > 95% | < 88% |
-| Restock rate (% of returns restocked as new/open box) | > 45% | < 30% |
-| Fraud detection rate (confirmed fraud caught) | > 80% | < 60% |
-| False positive rate (legitimate returns flagged) | < 3% | > 8% |
-| Vendor recovery rate ($ recovered / $ eligible) | > 70% | < 45% |
-| Customer satisfaction (post-return CSAT) | > 4.2/5.0 | < 3.5/5.0 |
-| Cost per return processed | < $8.00 | > $15.00 |
+| 返品処理時間（受領から返金まで） | 48時間未満 | 96時間超 |
+| 検品精度（監査時のグレード一致率） | 95%超 | 88%未満 |
+| 再入庫率（新品/開封済みとして在庫戻しされた返品の割合） | 45%超 | 30%未満 |
+| 不正検知率（確認された不正の検知率） | 80%超 | 60%未満 |
+| 偽陽性率（フラグが立った正当な返品の割合） | 3%未満 | 8%超 |
+| ベンダー回収率（回収金額 / 適格金額） | 70%超 | 45%未満 |
+| 顧客満足度（返品後CSAT） | 4.2/5.0超 | 3.5/5.0未満 |
+| 返品処理コスト | 800円未満 | 1,500円超 |
 
-## Additional Resources
+## 追加リソース
 
-- Pair this skill with your grading rubric, fraud review thresholds, and refund authority matrix before using it in production.
-- Keep restocking standards, hazmat return handling, and liquidation rules near the operating team that will execute the decisions.
+- 本番環境での使用前に、自社のグレーディングルーブリック、不正審査のしきい値、返金権限マトリクスと組み合わせること。
+- 在庫戻し基準、危険物の返品対応、流動在庫処分ルールは、意思決定を実行するオペレーションチームの近くに置くこと。

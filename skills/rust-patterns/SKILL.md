@@ -1,29 +1,29 @@
 ---
 name: rust-patterns
-description: Idiomatic Rust patterns, ownership, error handling, traits, concurrency, and best practices for building safe, performant applications.
+description: 安全でパフォーマンスの高いアプリケーションを構築するための慣用的な Rust パターン、所有権、エラーハンドリング、トレイト、並行性、およびベストプラクティス。
 origin: ECC
 ---
 
-# Rust Development Patterns
+# Rust 開発パターン
 
-Idiomatic Rust patterns and best practices for building safe, performant, and maintainable applications.
+安全で高パフォーマンス、かつ保守性の高いアプリケーションを構築するための慣用的な Rust パターンとベストプラクティス。
 
-## When to Use
+## 使用するタイミング
 
-- Writing new Rust code
-- Reviewing Rust code
-- Refactoring existing Rust code
-- Designing crate structure and module layout
+- 新しい Rust コードを書くとき
+- Rust コードをレビューするとき
+- 既存の Rust コードをリファクタリングするとき
+- クレート構造とモジュールレイアウトを設計するとき
 
-## How It Works
+## 仕組み
 
-This skill enforces idiomatic Rust conventions across six key areas: ownership and borrowing to prevent data races at compile time, `Result`/`?` error propagation with `thiserror` for libraries and `anyhow` for applications, enums and exhaustive pattern matching to make illegal states unrepresentable, traits and generics for zero-cost abstraction, safe concurrency via `Arc<Mutex<T>>`, channels, and async/await, and minimal `pub` surfaces organized by domain.
+このスキルは、6 つの主要領域にわたって慣用的な Rust 規約を強制します。コンパイル時にデータ競合を防ぐ所有権と借用、`thiserror` によるライブラリ向けおよび `anyhow` によるアプリケーション向けの `Result`/`?` エラー伝播、不正な状態を表現不可能にするための列挙型と網羅的パターンマッチング、ゼロコスト抽象化のためのトレイトとジェネリクス、`Arc<Mutex<T>>`、チャネル、async/await による安全な並行性、およびドメインごとに整理された最小限の `pub` サーフェス。
 
-## Core Principles
+## 中核原則
 
-### 1. Ownership and Borrowing
+### 1. 所有権と借用
 
-Rust's ownership system prevents data races and memory bugs at compile time.
+Rust の所有権システムはコンパイル時にデータ競合とメモリバグを防ぎます。
 
 ```rust
 // Good: Pass references when you don't need ownership
@@ -43,7 +43,7 @@ fn process_bad(data: &Vec<u8>) -> usize {
 }
 ```
 
-### Use `Cow` for Flexible Ownership
+### 柔軟な所有権のための `Cow` の使用
 
 ```rust
 use std::borrow::Cow;
@@ -57,9 +57,9 @@ fn normalize(input: &str) -> Cow<'_, str> {
 }
 ```
 
-## Error Handling
+## エラーハンドリング
 
-### Use `Result` and `?` — Never `unwrap()` in Production
+### `Result` と `?` を使用する — 本番環境では `unwrap()` を使わない
 
 ```rust
 // Good: Propagate errors with context
@@ -80,7 +80,7 @@ fn load_config_bad(path: &str) -> Config {
 }
 ```
 
-### Library Errors with `thiserror`, Application Errors with `anyhow`
+### ライブラリエラーには `thiserror`、アプリケーションエラーには `anyhow`
 
 ```rust
 // Library code: structured, typed errors
@@ -108,7 +108,7 @@ fn run() -> Result<()> {
 }
 ```
 
-### `Option` Combinators Over Nested Matching
+### ネストしたマッチングではなく `Option` コンビネータを使用する
 
 ```rust
 // Good: Combinator chain
@@ -129,9 +129,9 @@ fn find_user_email_bad(users: &[User], id: u64) -> Option<String> {
 }
 ```
 
-## Enums and Pattern Matching
+## 列挙型とパターンマッチング
 
-### Model States as Enums
+### 状態を列挙型でモデル化する
 
 ```rust
 // Good: Impossible states are unrepresentable
@@ -154,7 +154,7 @@ fn handle(state: &ConnectionState) {
 }
 ```
 
-### Exhaustive Matching — No Catch-All for Business Logic
+### 網羅的マッチング — ビジネスロジックにキャッチオールを使わない
 
 ```rust
 // Good: Handle every variant explicitly
@@ -172,9 +172,9 @@ match command {
 }
 ```
 
-## Traits and Generics
+## トレイトとジェネリクス
 
-### Accept Generics, Return Concrete Types
+### ジェネリクスを受け入れ、具体的な型を返す
 
 ```rust
 // Good: Generic input, concrete output
@@ -190,7 +190,7 @@ fn process<T: Display + Send + 'static>(item: T) -> String {
 }
 ```
 
-### Trait Objects for Dynamic Dispatch
+### 動的ディスパッチのためのトレイトオブジェクト
 
 ```rust
 // Use when you need heterogeneous collections or plugin systems
@@ -208,7 +208,7 @@ fn fast_process<H: Handler>(handler: &H, request: &Request) -> Response {
 }
 ```
 
-### Newtype Pattern for Type Safety
+### 型安全のためのニュータイプパターン
 
 ```rust
 // Good: Distinct types prevent mixing up arguments
@@ -226,9 +226,9 @@ fn get_order_bad(user_id: u64, order_id: u64) -> Result<Order> {
 }
 ```
 
-## Structs and Data Modeling
+## 構造体とデータモデリング
 
-### Builder Pattern for Complex Construction
+### 複雑な構築のためのビルダーパターン
 
 ```rust
 struct ServerConfig {
@@ -255,9 +255,9 @@ impl ServerConfigBuilder {
 // Usage: ServerConfig::builder("localhost", 8080).max_connections(200).build()
 ```
 
-## Iterators and Closures
+## イテレータとクロージャ
 
-### Prefer Iterator Chains Over Manual Loops
+### 手動ループよりイテレータチェーンを優先する
 
 ```rust
 // Good: Declarative, lazy, composable
@@ -275,7 +275,7 @@ for user in &users {
 }
 ```
 
-### Use `collect()` with Type Annotation
+### 型アノテーションと共に `collect()` を使用する
 
 ```rust
 // Collect into different types
@@ -287,9 +287,9 @@ let combined: String = parts.iter().copied().collect();
 let parsed: Result<Vec<i32>, _> = strings.iter().map(|s| s.parse()).collect();
 ```
 
-## Concurrency
+## 並行性
 
-### `Arc<Mutex<T>>` for Shared Mutable State
+### 共有可変状態のための `Arc<Mutex<T>>`
 
 ```rust
 use std::sync::{Arc, Mutex};
@@ -308,7 +308,7 @@ for handle in handles {
 }
 ```
 
-### Channels for Message Passing
+### メッセージパッシングのためのチャネル
 
 ```rust
 use std::sync::mpsc;
@@ -328,7 +328,7 @@ for msg in rx {
 }
 ```
 
-### Async with Tokio
+### Tokio を使った非同期処理
 
 ```rust
 use tokio::time::Duration;
@@ -361,9 +361,9 @@ async fn fetch_all(urls: Vec<String>) -> Vec<Result<String>> {
 }
 ```
 
-## Unsafe Code
+## Unsafe コード
 
-### When Unsafe Is Acceptable
+### Unsafe が許容される場合
 
 ```rust
 // Acceptable: FFI boundary with documented invariants (Rust 2024+)
@@ -379,7 +379,7 @@ unsafe fn widget_from_raw<'a>(ptr: *const Widget) -> &'a Widget {
 unsafe { slice.get_unchecked(index) }
 ```
 
-### When Unsafe Is NOT Acceptable
+### Unsafe が許容されない場合
 
 ```rust
 // Bad: Using unsafe to bypass borrow checker
@@ -388,9 +388,9 @@ unsafe { slice.get_unchecked(index) }
 // Bad: Transmuting between unrelated types
 ```
 
-## Module System and Crate Structure
+## モジュールシステムとクレート構造
 
-### Organize by Domain, Not by Type
+### 型ではなくドメインで整理する
 
 ```text
 my_app/
@@ -413,7 +413,7 @@ my_app/
 └── Cargo.toml
 ```
 
-### Visibility — Expose Minimally
+### 可視性 — 最小限に公開する
 
 ```rust
 // Good: pub(crate) for internal sharing
@@ -429,9 +429,9 @@ pub use auth::AuthMiddleware;
 pub fn internal_helper() {} // Should be pub(crate) or private
 ```
 
-## Tooling Integration
+## ツール統合
 
-### Essential Commands
+### 主要なコマンド
 
 ```bash
 # Build and check
@@ -455,22 +455,22 @@ cargo update             # Update dependencies
 cargo bench              # Run benchmarks
 ```
 
-## Quick Reference: Rust Idioms
+## クイックリファレンス: Rust イディオム
 
-| Idiom | Description |
+| イディオム | 説明 |
 |-------|-------------|
-| Borrow, don't clone | Pass `&T` instead of cloning unless ownership is needed |
-| Make illegal states unrepresentable | Use enums to model valid states only |
-| `?` over `unwrap()` | Propagate errors, never panic in library/production code |
-| Parse, don't validate | Convert unstructured data to typed structs at the boundary |
-| Newtype for type safety | Wrap primitives in newtypes to prevent argument swaps |
-| Prefer iterators over loops | Declarative chains are clearer and often faster |
-| `#[must_use]` on Results | Ensure callers handle return values |
-| `Cow` for flexible ownership | Avoid allocations when borrowing suffices |
-| Exhaustive matching | No wildcard `_` for business-critical enums |
-| Minimal `pub` surface | Use `pub(crate)` for internal APIs |
+| 借用して、クローンしない | 所有権が必要でなければ `&T` を渡し、クローンしない |
+| 不正な状態を表現不可能にする | 有効な状態のみをモデル化するために列挙型を使用する |
+| `unwrap()` より `?` | エラーを伝播し、ライブラリ/本番コードでパニックしない |
+| バリデーションではなく解析 | 境界で非構造化データを型付き構造体に変換する |
+| 型安全のためのニュータイプ | 引数の入れ替えを防ぐためにプリミティブをニュータイプでラップする |
+| ループよりイテレータを優先 | 宣言的チェーンはより明確で、多くの場合より高速 |
+| Results に `#[must_use]` | 呼び出し元が戻り値を処理することを保証する |
+| 柔軟な所有権のための `Cow` | 借用で十分な場合はアロケーションを避ける |
+| 網羅的マッチング | ビジネスクリティカルな列挙型にワイルドカード `_` を使わない |
+| 最小限の `pub` サーフェス | 内部 API には `pub(crate)` を使用する |
 
-## Anti-Patterns to Avoid
+## 避けるべきアンチパターン
 
 ```rust
 // Bad: .unwrap() in production code
@@ -496,4 +496,4 @@ async fn bad_async() {
 }
 ```
 
-**Remember**: If it compiles, it's probably correct — but only if you avoid `unwrap()`, minimize `unsafe`, and let the type system work for you.
+**覚えておいてください**: コンパイルが通れば、おそらく正しいです — ただし、`unwrap()` を避け、`unsafe` を最小化し、型システムを活用している場合に限ります。
